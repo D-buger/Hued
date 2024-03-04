@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,8 @@ public class InputManager : SingletonBehavior<InputManager>
     public UnityEvent<float> MoveEvent;
     public UnityEvent SitEvent;
     public UnityEvent<Vector2> DashEvent;
+    public UnityEvent<Vector2> LightAttackEvent;
+    public UnityEvent<Vector2> HeavyAttackEvent;
 
     private Camera mainCamera;
     public Vector2 MouseVec { get; private set; }
@@ -45,11 +48,11 @@ public class InputManager : SingletonBehavior<InputManager>
 
         if (Input.GetKey(LIGHT_ATTACK))
         {
-
+            LightAttackEvent?.Invoke(MouseVec);
         }
         else if (Input.GetKey(HEAVY_ATTACK))
         {
-
+            HeavyAttackEvent?.Invoke(MouseVec);
         }
 
         if (Input.GetKey(JUMP))

@@ -8,6 +8,10 @@ public class Player : MonoBehaviour
     private Rigidbody2D rigid;
     private BoxCollider2D coll;
 
+    private GameObject attackPoint;
+    private GameObject lightAttack;
+    private GameObject heavyAttack;
+
     [Space(10), SerializeField, Header("Move")]
     private float moveSpeed = 1;
 
@@ -26,9 +30,21 @@ public class Player : MonoBehaviour
     [SerializeField]
     private float dashCooldown = 2;
 
+    [Space(10), SerializeField, Header("Attack")]
+    private float attackCooldown = 1;
+    [Space(5), SerializeField]
+    private float lightAttackTime = 1;
     [SerializeField]
+    private int lightAttackDamage = 1;
+    [Space(5), SerializeField]
+    private float heavyAttackTime = 1;
+    [SerializeField]
+    private int heavyAttackDamage = 2;
+
     private bool isJump = false;
     private bool isSit = false;
+    private bool isAttack = false;
+    private bool canAttack = true;
     private bool isDash = false;
     private bool canDash = true;
 
@@ -39,7 +55,13 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
-        coll = GetComponent<BoxCollider2D>();   
+        coll = GetComponent<BoxCollider2D>();
+
+        attackPoint = transform.GetChild(0).gameObject;
+        lightAttack = transform.GetChild(0).GetChild(0).gameObject;
+        heavyAttack = transform.GetChild(0).GetChild(1).gameObject;
+        lightAttack.SetActive(false);
+        heavyAttack.SetActive(false);
     }
 
     void Start()
@@ -48,11 +70,18 @@ public class Player : MonoBehaviour
         InputManager.Instance.JumpEvent.AddListener(Jump);
         InputManager.Instance.SitEvent.AddListener(Sit);
         InputManager.Instance.DashEvent.AddListener(Dash);
+        InputManager.Instance.LightAttackEvent.AddListener(LightAttack);
+        InputManager.Instance.HeavyAttackEvent.AddListener(HeavyAttack);
     }
 
     void Update()
     {
-      
+        if(playerFace == -1)
+        {
+        }
+        else
+        {
+        }
     }
 
     private void FixedUpdate()
@@ -121,32 +150,7 @@ public class Player : MonoBehaviour
     {
         if (canDash)
         {
-            isJump = true;
-            float horizontalValue = mousePos.x - transform.position.x;
-            float VerticalValue = mousePos.y - transform.position.y;
-
-            float euler = Mathf.Atan2(VerticalValue, horizontalValue) * Mathf.Rad2Deg + 180;
-            Vector2 dashPos = new Vector2(0, 0);
-
-            if (euler > 135 && euler <= 225)         
-            {
-                dashPos = Vector2.right;
-            }
-            else if(euler > 225 && euler <= 315)   
-            {
-                dashPos = Vector2.up;
-            }
-            else if(euler > 315 && euler <= 360 ||
-                euler > 0 && euler <= 45)         
-            {
-                dashPos = Vector2.left;
-            }
-            else if(euler > 45 && euler <= 135)    
-            {
-                dashPos = Vector2.down;
-            }
-
-            StartCoroutine(DashSequence(dashPos));
+            StartCoroutine(DashSequence(VectorTo4Direction(mousePos)));
         }
     }
 
@@ -157,6 +161,14 @@ public class Player : MonoBehaviour
         float originGravityScale = rigid.gravityScale;
         rigid.gravityScale = 0f;
         rigid.velocity = new Vector2(transform.localScale.x * dashPos.x * dashPower, transform.localScale.y * dashPos.y * dashPower / 2);
+        if(dashPos.y > 0)
+        {
+            isJump = true;
+        }
+        else
+        {
+            playerFace = dashPos.x;
+        }
         yield return Yields.WaitSeconds(dashPos.y > 0 ? dashingTime / 3 : dashingTime);
         rigid.gravityScale = originGravityScale;
         isDash = false;
@@ -164,21 +176,105 @@ public class Player : MonoBehaviour
         canDash = true;
     }
 
+    private void LightAttack(Vector2 mousePos)
+    {
+        if (canAttack)
+        {
+            StartCoroutine(AttackSequence(VectorTo4Direction(mousePos), true));
+        }
+    }
+
+    private void HeavyAttack(Vector2 mousePos)
+    {
+        if (canAttack)
+        {
+            StartCoroutine(AttackSequence(VectorTo4Direction(mousePos), false));
+        }
+    }
+
+    IEnumerator AttackSequence(Vector2 attackAngle, bool isLightAttack)
+    {
+        canAttack = false;
+        isAttack = true;
+        float angle;
+        if (attackAngle.x != 0)
+        {
+            if(attackAngle.x > 0)
+            {
+                angle = 0;
+            }
+            else
+            {
+                angle = 180;
+            }
+        }
+        else
+        {
+            if (attackAngle.y > 0)
+            {
+                angle = 90;
+            }
+            else
+            {
+                angle = -90;
+            }
+        }
+        attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
+        if (isLightAttack)
+        {
+            lightAttack.SetActive(true);
+        }
+        else
+        {
+            heavyAttack.SetActive(true);
+        }
+        yield return Yields.WaitSeconds(isLightAttack ? lightAttackTime : heavyAttackTime);
+        lightAttack.SetActive(false);
+        heavyAttack.SetActive(false);
+        isAttack = false;
+        yield return Yields.WaitSeconds(attackCooldown);
+        canAttack = true;
+    }
+    private Vector2 VectorTo4Direction(Vector2 vec)
+    {
+        float horizontalValue = vec.x - transform.position.x;
+        float VerticalValue = vec.y - transform.position.y;
+
+        float euler = Mathf.Atan2(VerticalValue, horizontalValue) * Mathf.Rad2Deg + 180;
+
+        if (euler > 115 && euler <= 245)
+        {
+            return Vector2.right;
+        }
+        else if (euler > 245 && euler <= 295)
+        {
+            return Vector2.up;
+        }
+        else if (euler > 295 && euler <= 360 ||
+            euler > 0 && euler <= 65)
+        {
+            return Vector2.left;
+        }
+        else if (euler > 65 && euler <= 115)
+        {
+            return Vector2.down;
+        }
+        else
+        {
+            return Vector2.zero;
+        }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        rigid.velocity = new Vector2(rigid.velocity.x, 0);
         if (collision.collider.transform.position.y < transform.position.y)
         {
             isJump = false;
         }
     }
-
-    private void LightAttack()
+    private void OnCollisionStay2D(Collision2D collision)
     {
-
-    }
-
-    private void HeavyAttack()
-    {
-
+        
     }
 }
