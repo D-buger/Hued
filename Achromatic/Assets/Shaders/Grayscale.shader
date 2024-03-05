@@ -55,27 +55,32 @@ Shader"Unlit/Grayscale"
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
     
-                float grey = dot(col.rgb, float3(0.299, 0.587, 0.114));
-                fixed4 greyscale = float4(grey * float3(1.2, 1.2, 1.2), 1.0);
-                greyscale = pow(col, float4(3.0, 3.0, 3.0, 3.0));
+                float gray = col.r * 0.299 + col.g * 0.587 + col.b * 0.114;
+                float4 grayscale = float4(gray, gray, gray , 1);
     
                 if (_Color.r > 0 || _Color.g > 0 || _Color.b > 0)
                 {
-                    if ((col.g + col.b) < col.r && _Color.r > 0)
-                    {
-                         greyscale.r = col.r;
-                    }
-                    if ((col.r + col.b) < col.g && _Color.g > 0)
-                    {
-                         greyscale.g = col.g;
-                    }
-                    if ((col.r + col.g) < col.b && _Color.b > 0)
-                    {
-                        greyscale.b = col.b;
-                    }
-                }
+                     if ((col.g + col.b) <= col.r && _Color.r > 0)
+                     {
+                         grayscale.r = col.r;
+                         grayscale.g = col.g;
+                         grayscale.b = col.b;
+                     }
+                     if ((col.r + col.b) <= col.g && _Color.g > 0)
+                      {
+                          grayscale.r = col.r;
+                          grayscale.g = col.g;
+                          grayscale.b = col.b;
+                      }
+                     if ((col.r + col.g) <= col.b && _Color.b > 0)
+                     {
+                         grayscale.r = col.r;
+                         grayscale.g = col.g;
+                         grayscale.b = col.b;
+                     }
+                 }
     
-                return greyscale;
+                return grayscale;
             }
             ENDCG
         }

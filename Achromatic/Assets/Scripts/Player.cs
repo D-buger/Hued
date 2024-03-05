@@ -3,20 +3,22 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, iAttack
 {
     private Rigidbody2D rigid;
     private BoxCollider2D coll;
 
     private GameObject attackPoint;
-    private GameObject lightAttack;
-    private GameObject heavyAttack;
+    private Attack lightAttack;
+    private Attack heavyAttack;
 
     [Space(10), SerializeField, Header("Move")]
     private float moveSpeed = 1;
 
     [Space(10), SerializeField, Header("Jump")]
     private float jumpPower = 5;
+    [SerializeField]
+    private float jumpCooldown = 0.1f;
 
     [Space(10), SerializeField, Header("Sit")]
     private float sitDeceleration = 0.7f;
@@ -32,6 +34,10 @@ public class Player : MonoBehaviour
 
     [Space(10), SerializeField, Header("Attack")]
     private float attackCooldown = 1;
+    [SerializeField]
+    private float attackReboundPower = 1;
+    [SerializeField]
+    private float attackReboundTime = 0.05f;
     [Space(5), SerializeField]
     private float lightAttackTime = 1;
     [SerializeField]
@@ -41,10 +47,13 @@ public class Player : MonoBehaviour
     [SerializeField]
     private int heavyAttackDamage = 2;
 
-    private bool isJump = false;
+
     private bool isSit = false;
+    private bool isJump = false;
+    private bool canJump = true;
     private bool isAttack = false;
     private bool canAttack = true;
+    private bool isAttackRebound = false;
     private bool isDash = false;
     private bool canDash = true;
 
@@ -58,10 +67,8 @@ public class Player : MonoBehaviour
         coll = GetComponent<BoxCollider2D>();
 
         attackPoint = transform.GetChild(0).gameObject;
-        lightAttack = transform.GetChild(0).GetChild(0).gameObject;
-        heavyAttack = transform.GetChild(0).GetChild(1).gameObject;
-        lightAttack.SetActive(false);
-        heavyAttack.SetActive(false);
+        lightAttack = transform.GetChild(0).GetChild(0).GetComponent<Attack>();
+        heavyAttack = transform.GetChild(0).GetChild(1).GetComponent<Attack>();
     }
 
     void Start()
@@ -72,21 +79,18 @@ public class Player : MonoBehaviour
         InputManager.Instance.DashEvent.AddListener(Dash);
         InputManager.Instance.LightAttackEvent.AddListener(LightAttack);
         InputManager.Instance.HeavyAttackEvent.AddListener(HeavyAttack);
+
+        lightAttack.SetAttack(PlayManager.PLAYER_TAG, this);
+        heavyAttack.SetAttack(PlayManager.PLAYER_TAG, this);
     }
 
     void Update()
     {
-        if(playerFace == -1)
-        {
-        }
-        else
-        {
-        }
     }
 
     private void FixedUpdate()
     {
-        if (isDash)
+        if (isDash || isAttackRebound)
         {
             return;
         }
@@ -110,7 +114,7 @@ public class Player : MonoBehaviour
 
     void Move(float dir)
     {
-        if (isDash) 
+        if (isDash || isAttackRebound) 
         {
             return;
         }
@@ -128,11 +132,18 @@ public class Player : MonoBehaviour
 
     void Jump()
     {
-        if (!isJump)
+        if (!isJump && canJump)
         {
-            isJump = true;
-            rigid.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+            StartCoroutine(JumpSequence());
         }
+    }
+    IEnumerator JumpSequence()
+    {
+        isJump = true;
+        canJump = false;
+        rigid.AddForce(Vector2.up * jumpPower, ForceMode2D.Impulse);
+        yield return Yields.WaitSeconds(jumpCooldown);
+        canJump = true;
     }
 
     void Sit()
@@ -222,15 +233,15 @@ public class Player : MonoBehaviour
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
         if (isLightAttack)
         {
-            lightAttack.SetActive(true);
+            lightAttack.AttackAble(attackAngle);
         }
         else
         {
-            heavyAttack.SetActive(true);
+            heavyAttack.AttackAble(attackAngle);
         }
         yield return Yields.WaitSeconds(isLightAttack ? lightAttackTime : heavyAttackTime);
-        lightAttack.SetActive(false);
-        heavyAttack.SetActive(false);
+        lightAttack.AttackDisable();
+        heavyAttack.AttackDisable();
         isAttack = false;
         yield return Yields.WaitSeconds(attackCooldown);
         canAttack = true;
@@ -264,6 +275,19 @@ public class Player : MonoBehaviour
             return Vector2.zero;
         }
     }
+    public void AfterAttack(Vector2 attackDir)
+    {
+        StartCoroutine(AfterAttackSequence(attackDir));
+    }
+
+    IEnumerator AfterAttackSequence(Vector2 attackDir)
+    {
+        isAttackRebound = true;
+        rigid.AddForce(-attackDir * attackReboundPower, ForceMode2D.Impulse);
+        PlayManager.Instance.cameraManager.ShakeCamera(0.1f);
+        yield return Yields.WaitSeconds(attackReboundTime);
+        isAttackRebound = false;
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -272,9 +296,5 @@ public class Player : MonoBehaviour
         {
             isJump = false;
         }
-    }
-    private void OnCollisionStay2D(Collision2D collision)
-    {
-        
     }
 }
