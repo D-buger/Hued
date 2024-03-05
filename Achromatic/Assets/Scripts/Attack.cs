@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface iAttack
+public interface IAttack
 {
     void AfterAttack(Vector2 attackDir);
+    void Hit(int damage, Vector2 attackDir, bool isHeavyAttack);
 }
 
 public class Attack : MonoBehaviour
@@ -12,10 +13,13 @@ public class Attack : MonoBehaviour
     private Collider2D col;
     private SpriteRenderer render;
 
-    private iAttack afterAttack;
+    private IAttack afterAttack;
 
     private string attackFrom;
     private Vector2 attackDir;
+    private int attackDamage;
+
+    private bool isHeavyAttack;
 
     private void Start()
     {
@@ -23,7 +27,7 @@ public class Attack : MonoBehaviour
         render = GetComponent<SpriteRenderer>();
     }
 
-    public void SetAttack(string from, iAttack after)
+    public void SetAttack(string from, IAttack after)
     {
         attackFrom = from;
         afterAttack = after;
@@ -36,11 +40,13 @@ public class Attack : MonoBehaviour
         render.enabled = false;
     }
 
-    public void AttackAble(Vector2 dir)
+    public void AttackAble(Vector2 dir, int damage, bool isHeavy)
     {
         col.enabled = true;
         render.enabled = true;
         attackDir = dir;
+        attackDamage = damage;
+        isHeavyAttack = isHeavy;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -48,6 +54,7 @@ public class Attack : MonoBehaviour
         if (!collision.CompareTag(attackFrom))
         {
             afterAttack.AfterAttack(attackDir);
+            collision.GetComponent<IAttack>()?.Hit(attackDamage, attackDir, isHeavyAttack);
         }
     }
 }

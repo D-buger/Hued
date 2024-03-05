@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Player : MonoBehaviour, iAttack
+public class Player : MonoBehaviour, IAttack
 {
     private Rigidbody2D rigid;
     private BoxCollider2D coll;
@@ -11,6 +11,8 @@ public class Player : MonoBehaviour, iAttack
     private GameObject attackPoint;
     private Attack lightAttack;
     private Attack heavyAttack;
+
+    private int playerHP = 5;
 
     [Space(10), SerializeField, Header("Move")]
     private float moveSpeed = 1;
@@ -233,11 +235,11 @@ public class Player : MonoBehaviour, iAttack
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
         if (isLightAttack)
         {
-            lightAttack.AttackAble(attackAngle);
+            lightAttack.AttackAble(attackAngle, lightAttackDamage, false);
         }
         else
         {
-            heavyAttack.AttackAble(attackAngle);
+            heavyAttack.AttackAble(attackAngle, heavyAttackDamage, true);
         }
         yield return Yields.WaitSeconds(isLightAttack ? lightAttackTime : heavyAttackTime);
         lightAttack.AttackDisable();
@@ -279,7 +281,11 @@ public class Player : MonoBehaviour, iAttack
     {
         StartCoroutine(AfterAttackSequence(attackDir));
     }
-
+    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack)
+    {
+        //TODO : 플레이어 HP 조정
+        StartCoroutine(AfterAttackSequence(attackDir));
+    }
     IEnumerator AfterAttackSequence(Vector2 attackDir)
     {
         isAttackRebound = true;
@@ -297,4 +303,5 @@ public class Player : MonoBehaviour, iAttack
             isJump = false;
         }
     }
+
 }
