@@ -6,16 +6,15 @@ public class CameraManager : MonoBehaviour
 {
     [SerializeField]
     private Shader grayscaleShader;
-    [SerializeField]
-    private float shakeAmount = 0.1f;
+
+    private CameraController controller;
 
     private Vector4 activationColor = Vector3.zero;
     private Material grayscaleMaterial;
-    private Vector3 originPos;
-    private bool isShake = false;
+
     private void Awake()
     {
-        originPos = transform.position;    
+        controller = GetComponent<CameraController>();
     }
     private void Start()
     {
@@ -26,25 +25,7 @@ public class CameraManager : MonoBehaviour
 
     public void ShakeCamera(float shakeTime)
     {
-        if (!isShake)
-        {
-            originPos = transform.position;
-            StartCoroutine(ShakeSequence(shakeTime));
-        }
-    }
-
-    IEnumerator ShakeSequence(float shakeTime)
-    {
-        isShake = true;
-        while (shakeTime > 0)
-        {
-            transform.position = Random.insideUnitSphere * shakeAmount + originPos;
-
-            shakeTime -= Time.deltaTime;
-            yield return null;
-        }
-        transform.position = originPos;
-        isShake = false;
+        controller.ShakeCamera(shakeTime);
     }
 
     public void SetColor(eActivableColor color)

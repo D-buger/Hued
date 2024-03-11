@@ -10,6 +10,8 @@ public interface IAttack
 
 public class Attack : MonoBehaviour
 {
+    private const float PARRY_ALLOW_TIME = 0.5f; 
+
     private Collider2D col;
     private SpriteRenderer render;
 
@@ -20,13 +22,22 @@ public class Attack : MonoBehaviour
     private int attackDamage;
 
     private bool isHeavyAttack;
+    private bool isAttackEnable = false;
+
+    private float attackTime = 0f;
 
     private void Start()
     {
         col = GetComponent<Collider2D>();
         render = GetComponent<SpriteRenderer>();
     }
-
+    private void Update()
+    {
+        if (isAttackEnable)
+        {
+            attackTime += Time.deltaTime;
+        }
+    }
     public void SetAttack(string from, IAttack after)
     {
         attackFrom = from;
@@ -38,12 +49,15 @@ public class Attack : MonoBehaviour
     {
         col.enabled = false;
         render.enabled = false;
+        isAttackEnable = false;
+        attackTime = 0f;
     }
 
     public void AttackAble(Vector2 dir, int damage, bool isHeavy)
     {
         col.enabled = true;
         render.enabled = true;
+        isAttackEnable = true;
         attackDir = dir;
         attackDamage = damage;
         isHeavyAttack = isHeavy;
