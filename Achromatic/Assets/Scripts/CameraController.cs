@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -16,6 +17,8 @@ public class CameraController : MonoBehaviour
 
     [SerializeField, Space(10)]
     private Vector3[] cameraAreaVertex;
+    [SerializeField]
+    private Rectangle[] test;
     public Vector3[] GetVertex => cameraAreaVertex;
 
     private Transform targetTransform;
@@ -71,8 +74,66 @@ public class CameraController : MonoBehaviour
 
     private void CheckLimitLine()
     {
+        int i;
+        Vector2[] startPoint = new Vector2[2];
+        Vector2 endPoint = targetTransform.position + new Vector3(cameraOffset.x, cameraOffset.y, 0);
+        Vector2? intersectPoint = null;
 
+        if (endPoint.x >= transform.position.x)
+        {
+            startPoint[0] = vertices[2];
+            startPoint[1] = vertices[3];
+        }
+        else if(endPoint.x <= transform.position.x)
+        {
+            startPoint[0] = vertices[0];
+            startPoint[1] = vertices[1];
+        }
+        if(endPoint.y >= transform.position.y)
+        {
+            startPoint[0] = vertices[0];
+            startPoint[1] = vertices[2];
+        }
+        else if(endPoint.y <= transform.position.y)
+        {
+            startPoint[0] = vertices[1];
+            startPoint[1] = vertices[3];
+        }
+
+        for (i = 0; i < cameraAreaVertex.Length; i++) {
+            if (i + 1 < cameraAreaVertex.Length)
+            {
+                intersectPoint = SOO.Util.GetIntersectPosition(
+                        startPoint[0], endPoint,
+                    cameraAreaVertex[i], cameraAreaVertex[i + 1]);
+                intersectPoint = SOO.Util.GetIntersectPosition(
+                        startPoint[1], endPoint,
+                    cameraAreaVertex[i], cameraAreaVertex[i + 1]);
+            }
+            else
+            {
+                intersectPoint = SOO.Util.GetIntersectPosition(
+                        startPoint[0], endPoint,
+                    cameraAreaVertex[0], cameraAreaVertex[cameraAreaVertex.Length - 1]);
+                intersectPoint = SOO.Util.GetIntersectPosition(
+                        startPoint[1], endPoint,
+                    cameraAreaVertex[0], cameraAreaVertex[cameraAreaVertex.Length - 1]);
+            }
+
+            if(intersectPoint.HasValue)
+            {
+                break;
+            }
+        }
+        Debug.DrawRay(startPoint[0], endPoint - new Vector2(transform.position.x, transform.position.y));
+        Debug.DrawRay(startPoint[1], endPoint - new Vector2(transform.position.x, transform.position.y));
+
+        if (intersectPoint.HasValue)
+        {
+            Debug.Log(i);
+        }
     }
+
 
     private void CalculateCameraEachPos()
     {
