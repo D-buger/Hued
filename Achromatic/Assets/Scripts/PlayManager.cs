@@ -14,6 +14,8 @@ public enum eActivableColor
 public class PlayManager : SingletonBehavior<PlayManager>
 {
     public static readonly string PLAYER_TAG = "Player";
+    public static readonly string ATTACK_TAG = "Attack";
+    public static readonly string ENEMY_TAG = "Enemy";
     public static readonly string COLOR_OBJECT_PARENT_TAG = "ColorObjects";
 
     public CameraManager cameraManager;

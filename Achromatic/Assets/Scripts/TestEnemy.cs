@@ -23,12 +23,21 @@ public class TestEnemy : MonoBehaviour, IAttack
     }
 
     // 임시 테스트 코드
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack)
+    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
     {
         if (!isHeavyAttack)
         {
-            enemyHp -= damage;
-            rigid.AddForce(attackDir * 5, ForceMode2D.Impulse);
+
+            if (PlayManager.Instance.ContainsActivationColors(enemyColor))
+            {
+                enemyHp -= criticalDamage;
+                rigid.AddForce(attackDir * 5, ForceMode2D.Impulse);
+            }
+            else
+            {
+                enemyHp -= damage;
+                rigid.AddForce(attackDir * 5, ForceMode2D.Impulse);
+            }
             CheckDead();
         }
         else
