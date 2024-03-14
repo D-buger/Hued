@@ -25,7 +25,7 @@ public class PlayerStat : ScriptableObject
     [Space(10), Header("Dash")]
     public float dashPower = 20;
     public float dashingTime = 0.1f;
-    public float invincibilityTimeafterDash = 0.2f;
+    public float invincibilityTimeAfterDash = 0.2f;
     public int dashDamage = 3;
     public float dashCooldown = 1;
 

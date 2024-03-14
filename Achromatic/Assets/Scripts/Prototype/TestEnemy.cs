@@ -65,7 +65,15 @@ public class TestEnemy : MonoBehaviour, IAttack
         float angle = Mathf.Atan2(VerticalValue, horizontalValue) * Mathf.Rad2Deg;
 
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
-        meleeAttack.AttackAble(attackAngle, stat.attackDamage, false);
+
+        if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
+        {
+            meleeAttack.AttackAble(attackAngle, stat.attackDamage, false);
+        }
+        else
+        {
+            meleeAttack.AttackAble(attackAngle, stat.attackDamage, true);
+        }
         yield return Yields.WaitSeconds(stat.attackTime);
         isAttack = false;
         meleeAttack.AttackDisable();

@@ -10,7 +10,7 @@ public interface IAttack
 
 public class Attack : MonoBehaviour
 {
-    private const float PARRY_ALLOW_TIME = 0.5f; 
+    private const float PARRY_ALLOW_TIME = 0.2f; 
 
     private Collider2D col;
     private SpriteRenderer render;
@@ -22,10 +22,13 @@ public class Attack : MonoBehaviour
     private int attackDamage;
     private int criticalDamage;
 
+    // 플레이어는 강공, 몬스터는 약공이여야 패링 가능
+    // 몬스터의 약공 기준 => 색이 보이면 약공
     private bool isHeavyAttack;
     private bool isAttackEnable = false;
 
     private float attackTime = 0f;
+    public bool IsParryAllow => (!isHeavyAttack && attackTime < PARRY_ALLOW_TIME);
 
     private void Awake()
     {
@@ -67,11 +70,25 @@ public class Attack : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (isHeavyAttack && collision.CompareTag(PlayManager.ATTACK_TAG) && attackTime < PARRY_ALLOW_TIME)
+        if (string.Equals(attackFrom, PlayManager.PLAYER_TAG) && isHeavyAttack && collision.CompareTag(PlayManager.ATTACK_TAG))
         {
-
+            Attack enemy = collision.GetComponent<Attack>();
+            if (null != enemy)
+            {
+                if (enemy.IsParryAllow)
+                {
+                    Debug.Log("패링 성공");
+                    return;
+                }
+                else
+                {
+                    Debug.Log("패링실패");
+                }
+            }
+            //원거리 패링
         }
-        else if (!collision.CompareTag(attackFrom))
+
+        if (!collision.CompareTag(attackFrom))
         {
             if (null != afterAttack)
             {

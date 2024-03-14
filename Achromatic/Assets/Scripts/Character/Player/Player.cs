@@ -175,9 +175,9 @@ public class Player : MonoBehaviour, IAttack
         yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime / 3 : stat.dashingTime);
         rigid.gravityScale = originGravityScale;
         isDash = false;
-        yield return Yields.WaitSeconds(stat.invincibilityTimeafterDash);
+        yield return Yields.WaitSeconds(stat.invincibilityTimeAfterDash);
         isInvincibility = false;
-        yield return Yields.WaitSeconds(Mathf.Max(0, stat.dashCooldown - stat.invincibilityTimeafterDash));
+        yield return Yields.WaitSeconds(Mathf.Max(0, stat.dashCooldown - stat.invincibilityTimeAfterDash));
         canDash = true;
     }
 
