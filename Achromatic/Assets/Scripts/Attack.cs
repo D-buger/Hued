@@ -27,7 +27,7 @@ public class Attack : MonoBehaviour
 
     private float attackTime = 0f;
 
-    private void Start()
+    private void Awake()
     {
         col = GetComponent<Collider2D>();
         render = GetComponent<SpriteRenderer>();
@@ -73,7 +73,10 @@ public class Attack : MonoBehaviour
         }
         else if (!collision.CompareTag(attackFrom))
         {
-            afterAttack.AfterAttack(attackDir);
+            if (null != afterAttack)
+            {
+                afterAttack.AfterAttack(attackDir);
+            }
             collision.GetComponent<IAttack>()?.Hit(attackDamage, attackDir, isHeavyAttack, criticalDamage);
         }
     }

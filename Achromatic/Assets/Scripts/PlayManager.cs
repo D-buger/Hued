@@ -23,6 +23,10 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private ColorObjectManager colorObjectManager;
     private List<eActivableColor> activationColors = new List<eActivableColor>();
     public bool ContainsActivationColors(eActivableColor color) => activationColors.Contains(color);
+
+    private Player player;
+    public Player GetPlayer => player;
+
     public eActivableColor ActivationColors
     {
         set
@@ -42,6 +46,9 @@ public class PlayManager : SingletonBehavior<PlayManager>
         cameraManager = Camera.main.GetComponent<CameraManager>();
 
         colorObjectManager = GameObject.FindGameObjectWithTag(COLOR_OBJECT_PARENT_TAG).GetComponent<ColorObjectManager>();
-
+    }
+    private void Start()
+    {
+        player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
     }
 }

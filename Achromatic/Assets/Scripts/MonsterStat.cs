@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MonsterStat", menuName = "Scriptable Object/MonsterStat")]
-public class MonsterStat : MonoBehaviour
+public class MonsterStat : ScriptableObject
 {
     [SerializeField]
     private int monsterHP = 5;
@@ -19,9 +19,18 @@ public class MonsterStat : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    private float sensePlayerCircle = 2f;
+    public eActivableColor enemyColor;
 
-    [SerializeField]
-    private float moveSpeed = 1f;
+    public float senseCircle = 2f;
+
+    public float moveSpeed = 1f;
+
+    public int attackDamage = 1;
+    public float attackTime = 0.3f;
+    public float attackCooldown = 1f;
+
+    public float hitReboundPower = 5f;
+    public float heavyHitReboundPower = 10f;
+
+
 }

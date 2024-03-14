@@ -16,6 +16,39 @@ public class Player : MonoBehaviour, IAttack
     private PlayerStat stat;
     public PlayerStat GetPlayerStat() => stat;
 
+    private int currentHP
+    {
+        get
+        {
+            return stat.currentHP;
+        }
+        set
+        {
+            if (!isInvincibility)
+            {
+                stat.currentHP = value;
+                if (stat.currentHP < 0)
+                {
+                    Dead();
+                }
+            }
+        }
+    } 
+
+    private bool isSit = false;
+    private bool isJump = false;
+    private bool canJump = true;
+    private bool isAttack = false;
+    private bool canAttack = true;
+    private bool isAttackRebound = false;
+    private bool isDash = false;
+    private bool canDash = true;
+    private bool isInvincibility = false;
+
+    private float rayRange = 0.1f;
+    private float horizontalMove = 0;
+    private bool playerFaceRight = true;
+
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -37,6 +70,8 @@ public class Player : MonoBehaviour, IAttack
 
         lightAttack.SetAttack(PlayManager.PLAYER_TAG, this);
         heavyAttack.SetAttack(PlayManager.PLAYER_TAG, this);
+
+        stat.currentHP = stat.playerHP;
     }
 
     void Update()
@@ -45,76 +80,76 @@ public class Player : MonoBehaviour, IAttack
 
     private void FixedUpdate()
     {
-        if (stat.isDash || stat.isAttackRebound)
+        if (isDash || isAttackRebound)
         {
             return;
         }
 
-        rigid.velocity = new Vector2(stat.horizontalMove, rigid.velocity.y);
+        rigid.velocity = new Vector2(horizontalMove, rigid.velocity.y);
 
         if (rigid.velocity.y < 0)
         {
-            Debug.DrawRay(rigid.position, new Vector3(0, -1 * (coll.size.y / 2 + stat.rayRange), 0), Color.red);
+            Debug.DrawRay(rigid.position, new Vector3(0, -1 * (coll.size.y / 2 + rayRange), 0), Color.red);
 
             RaycastHit2D rayHit =
-                Physics2D.Raycast(rigid.position, Vector3.down, coll.size.y / 2 + stat.rayRange, LayerMask.GetMask("Platform"));
+                Physics2D.Raycast(rigid.position, Vector3.down, coll.size.y / 2 + rayRange, LayerMask.GetMask("Platform"));
 
             if (rayHit.collider != null)
             {
-                stat.isJump = false;
+                isJump = false;
             }
         }
-        stat.isSit = false;
+        isSit = false;
     }
 
     void Move(float dir)
     {
-        if (stat.isDash || stat.isAttackRebound) 
+        if (isDash || isAttackRebound) 
         {
             return;
         }
 
-        stat.playerFaceRight = dir > 0 ? true : false;
-        if (!stat.isSit)
+        playerFaceRight = dir > 0 ? true : false;
+        if (!isSit)
         {
-            stat.horizontalMove = dir * stat.moveSpeed; 
+            horizontalMove = dir * stat.moveSpeed; 
         }
         else
         {
-            stat.horizontalMove = dir * stat.moveSpeed * stat.sitDeceleration;
+            horizontalMove = dir * stat.moveSpeed * stat.sitDeceleration;
         }
     }
 
     void Jump()
     {
-        if (!stat.isJump && stat.canJump)
+        if (!isJump && canJump)
         {
             StartCoroutine(JumpSequence());
         }
     }
     IEnumerator JumpSequence()
     {
-        stat.isJump = true;
-        stat.canJump = false;
+        isJump = true;
+        canJump = false;
         rigid.AddForce(Vector2.up * stat.jumpPower, ForceMode2D.Impulse);
         yield return Yields.WaitSeconds(stat.jumpCooldown);
-        stat.canJump = true;
+        canJump = true;
     }
 
     void Sit()
     {
-        if (stat.isJump)
+        if (isJump)
         {
             rigid.AddForce(Vector2.down * stat.sitDescentSpeed, ForceMode2D.Force);
         }
         else
         {
-            stat.isSit = true;
+            isSit = true;
         }
     }
     void Dash(Vector2 mousePos)
     {
-        if (stat.canDash)
+        if (canDash)
         {
             StartCoroutine(DashSequence(VectorTo4Direction(mousePos)));
         }
@@ -122,33 +157,33 @@ public class Player : MonoBehaviour, IAttack
 
     IEnumerator DashSequence(Vector2 dashPos)
     {
-        stat.isDash = true;
-        stat.canDash = false;
-        stat.isInvincibility = true;
+        isDash = true;
+        canDash = false;
+        isInvincibility = true;
         float originGravityScale = rigid.gravityScale;
         rigid.gravityScale = 0f;
         rigid.velocity = new Vector2(transform.localScale.x * dashPos.x * stat.dashPower, 
             transform.localScale.y * dashPos.y * stat.dashPower / 2);
         if(dashPos.y > 0)
         {
-            stat.isJump = true;
+            isJump = true;
         }
         else
         {
-            stat.playerFaceRight = dashPos.x > 0 ? true : false;
+            playerFaceRight = dashPos.x > 0 ? true : false;
         }
         yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime / 3 : stat.dashingTime);
         rigid.gravityScale = originGravityScale;
-        stat.isDash = false;
+        isDash = false;
         yield return Yields.WaitSeconds(stat.invincibilityTimeafterDash);
-        stat.isInvincibility = false;
+        isInvincibility = false;
         yield return Yields.WaitSeconds(Mathf.Max(0, stat.dashCooldown - stat.invincibilityTimeafterDash));
-        stat.canDash = true;
+        canDash = true;
     }
 
     private void LightAttack(Vector2 mousePos)
     {
-        if (stat.canAttack)
+        if (canAttack)
         {
             //StartCoroutine(AttackSequence(VectorTo4Direction(mousePos), false));
             StartCoroutine(AttackSequence(mousePos, false));
@@ -157,7 +192,7 @@ public class Player : MonoBehaviour, IAttack
 
     private void HeavyAttack(Vector2 mousePos)
     {
-        if (stat.canAttack)
+        if (canAttack)
         {
             //StartCoroutine(AttackSequence(VectorTo4Direction(mousePos), true));
             StartCoroutine(AttackSequence(mousePos, true));
@@ -166,8 +201,8 @@ public class Player : MonoBehaviour, IAttack
 
     IEnumerator AttackSequence(Vector2 attackAngle, bool isHeavyAttack)
     {
-        stat.canAttack = false;
-        stat.isAttack = true;
+        canAttack = false;
+        isAttack = true;
         float angle;
         angle = VectorToEulerAngle(attackAngle) - 180;
         //if (attackAngle.x != 0)
@@ -204,9 +239,9 @@ public class Player : MonoBehaviour, IAttack
         yield return Yields.WaitSeconds(!isHeavyAttack ? stat.lightAttackTime : stat.heavyAttackTime);
         lightAttack.AttackDisable();
         heavyAttack.AttackDisable();
-        stat.isAttack = false;
+        isAttack = false;
         yield return Yields.WaitSeconds(!isHeavyAttack ? stat.lightAttackCooldown : stat.heavyAttackCooldown);
-        stat.canAttack = true;
+        canAttack = true;
     }
     private float VectorToEulerAngle(Vector2 vec)
     {
@@ -247,16 +282,24 @@ public class Player : MonoBehaviour, IAttack
     }
     public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
     {
-        stat.PlayerHP -= damage;
-        StartCoroutine(AfterAttackSequence(-attackDir));
+        currentHP -= damage;
+        if (!isInvincibility)
+        {
+            StartCoroutine(AfterAttackSequence(attackDir));
+        }
     }
     IEnumerator AfterAttackSequence(Vector2 attackDir)
     {
-        stat.isAttackRebound = true;
+        isAttackRebound = true;
         rigid.AddForce(-attackDir * stat.attackReboundPower, ForceMode2D.Impulse);
         PlayManager.Instance.cameraManager.ShakeCamera(0.1f);
         yield return Yields.WaitSeconds(stat.attackReboundTime);
-        stat.isAttackRebound = false;
+        isAttackRebound = false;
+    }
+
+    private void Dead()
+    {
+        Debug.Log("Player Dead");
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -264,7 +307,13 @@ public class Player : MonoBehaviour, IAttack
         rigid.velocity = new Vector2(rigid.velocity.x, 0);
         if (collision.collider.transform.position.y < transform.position.y)
         {
-            stat.isJump = false;
+            isJump = false;
+        }
+
+        if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
+        {
+            //TODO : Change to enemy abstract class
+            collision.gameObject.GetComponent<TestEnemy>().Hit(stat.dashDamage, collision.transform.position - transform.position, false);
         }
     }
 

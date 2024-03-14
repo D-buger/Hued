@@ -6,6 +6,7 @@ TagManager:
   tags:
   - ColorObjects
   - Attack
+  - Enemy
   layers:
   - Default
   - TransparentFX
