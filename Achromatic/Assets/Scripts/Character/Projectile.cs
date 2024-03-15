@@ -57,6 +57,7 @@ public class Projectile : MonoBehaviour
             damage = dmg;
             fromVector = shotFrom.transform.position;
             isParried = true;
+            isHeavyAttack = true;
             rigid.velocity = Vector2.zero;
             rigid.AddForce(moveDirection * moveSpeed);
         }
@@ -66,7 +67,7 @@ public class Projectile : MonoBehaviour
     {
         if (!collision.gameObject.Equals(attackFrom) && !collision.CompareTag(PlayManager.ATTACK_TAG))
         {
-            collision.GetComponent<IAttack>()?.Hit(damage, moveDirection, false);
+            collision.GetComponent<IAttack>()?.Hit(damage, moveDirection, isHeavyAttack);
             Destroy(gameObject);
         }
     }

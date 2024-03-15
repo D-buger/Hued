@@ -5,6 +5,7 @@ using UnityEngine;
 public class TestEnemy : MonoBehaviour, IAttack, IParry
 {
     private Rigidbody2D rigid;
+    private SpriteRenderer renderer;
 
     private GameObject attackPoint;
     private Attack meleeAttack;
@@ -21,6 +22,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     [SerializeField]
     private float projectileRange = 5f;
 
+    private int currentHP;
 
     private bool isAttack = false;
     private bool canAttack = true;
@@ -30,6 +32,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
+        renderer = GetComponent<SpriteRenderer>();
 
         if (isMeleeMonster)
         {
@@ -40,6 +43,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
 
     private void Start()
     {
+        currentHP = stat.MonsterHP;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, this);
     }
 
@@ -130,12 +134,12 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
 
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                stat.MonsterHP -= criticalDamage;
+                currentHP -= criticalDamage;
                 rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
             }
             else
             {
-                stat.MonsterHP -= damage;
+                currentHP -= damage;
                 rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
             }
             CheckDead();
@@ -144,7 +148,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         {
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                stat.MonsterHP -= damage;
+                currentHP -= damage;
                 rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
                 CheckDead();
             }
@@ -158,14 +162,17 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
 
     IEnumerator Groggy()
     {
+        Color originColor = renderer.color;
         isGroggy = true;
+        renderer.color = Color.gray;
         yield return Yields.WaitSeconds(stat.groggyTime);
+        renderer.color = originColor;
         isGroggy = false;
     }
 
     private void CheckDead()
     {
-        if (stat.MonsterHP <= 0)
+        if (currentHP <= 0)
         {
             gameObject.SetActive(false);
         }

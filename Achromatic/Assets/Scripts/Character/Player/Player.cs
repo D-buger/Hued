@@ -7,6 +7,7 @@ public class Player : MonoBehaviour, IAttack
 {
     private Rigidbody2D rigid;
     private BoxCollider2D coll;
+    private SpriteRenderer renderer;
 
     private GameObject attackPoint;
     private Attack lightAttack;
@@ -53,6 +54,7 @@ public class Player : MonoBehaviour, IAttack
     {
         rigid = GetComponent<Rigidbody2D>();
         coll = GetComponent<BoxCollider2D>();
+        renderer = GetComponent<SpriteRenderer>();
 
         attackPoint = transform.GetChild(0).gameObject;
         lightAttack = transform.GetChild(0).GetChild(0).GetComponent<Attack>();
@@ -149,7 +151,7 @@ public class Player : MonoBehaviour, IAttack
     }
     void Dash(Vector2 mousePos)
     {
-        if (canDash)
+        if (canDash && canAttack)
         {
             StartCoroutine(DashSequence(VectorTo4Direction(mousePos)));
         }
@@ -157,9 +159,11 @@ public class Player : MonoBehaviour, IAttack
 
     IEnumerator DashSequence(Vector2 dashPos)
     {
+        Color originColor = renderer.color;
         isDash = true;
         canDash = false;
         isInvincibility = true;
+        renderer.color = Color.gray;
         float originGravityScale = rigid.gravityScale;
         rigid.gravityScale = 0f;
         rigid.velocity = new Vector2(transform.localScale.x * dashPos.x * stat.dashPower, 
@@ -178,6 +182,7 @@ public class Player : MonoBehaviour, IAttack
         yield return Yields.WaitSeconds(stat.invincibilityTimeAfterDash);
         isInvincibility = false;
         yield return Yields.WaitSeconds(Mathf.Max(0, stat.dashCooldown - stat.invincibilityTimeAfterDash));
+        renderer.color = originColor;
         canDash = true;
     }
 
