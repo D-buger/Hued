@@ -228,13 +228,14 @@ public class Player : MonoBehaviour, IAttack
         //    }
         //}
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
+        Vector2 angleVec = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         if (!isHeavyAttack)
         {
-            lightAttack.AttackAble(attackAngle, stat.lightAttackDamage, false);
+            lightAttack.AttackAble(angleVec.normalized, stat.lightAttackDamage, false);
         }
         else
         {
-            heavyAttack.AttackAble(attackAngle, stat.heavyAttackDamage, true);
+            heavyAttack.AttackAble(angleVec.normalized, stat.heavyAttackDamage, true);
         }
         yield return Yields.WaitSeconds(!isHeavyAttack ? stat.lightAttackTime : stat.heavyAttackTime);
         lightAttack.AttackDisable();
@@ -312,8 +313,12 @@ public class Player : MonoBehaviour, IAttack
 
         if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
         {
-            //TODO : Change to enemy abstract class
-            collision.gameObject.GetComponent<TestEnemy>().Hit(stat.dashDamage, collision.transform.position - transform.position, false);
+            if (isDash)
+            {
+                //TODO : Change to enemy abstract class
+                collision.gameObject.GetComponent<TestEnemy>().Hit(stat.dashDamage, 
+                    collision.transform.position - transform.position, false);
+            }
         }
     }
 

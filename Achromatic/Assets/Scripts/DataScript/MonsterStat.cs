@@ -31,6 +31,7 @@ public class MonsterStat : ScriptableObject
 
     public float hitReboundPower = 5f;
     public float heavyHitReboundPower = 10f;
+    public float groggyTime = 0.5f;
 
 
 }

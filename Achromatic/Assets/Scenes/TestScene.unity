@@ -142,12 +142,12 @@ GameObject:
   - component: {fileID: 227189979}
   - component: {fileID: 227189978}
   m_Layer: 0
-  m_Name: RedMonster
-  m_TagString: Untagged
+  m_Name: RangedMonster
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &227189977
 Transform:
   m_ObjectHideFlags: 0
@@ -157,7 +157,7 @@ Transform:
   m_GameObject: {fileID: 227189976}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.49, y: -3.31, z: 0}
+  m_LocalPosition: {x: 4.3, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -247,7 +247,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d47a9dafd7608ea4097873cbdbb85ca2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stat: {fileID: 0}
+  stat: {fileID: 11400000, guid: d6505c5ca6333624281f2b3b0953cafd, type: 2}
+  isMeleeMonster: 0
+  rangedAttack: {fileID: 2140397329243936910, guid: 01e6e94130e5d2e4ba9ada7912285526, type: 3}
+  projectileSpeed: 100
+  projectileRange: 3
 --- !u!212 &227189981
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -290,7 +294,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
-  m_Color: {r: 1, g: 0, b: 0.052129745, a: 1}
+  m_Color: {r: 0.016536713, g: 0, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -393,8 +397,8 @@ Transform:
   m_GameObject: {fileID: 323986137}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.0757, y: -9.2776, z: -0.021365134}
-  m_LocalScale: {x: 45, y: 9, z: 1}
+  m_LocalPosition: {x: 8.9653, y: -9.2776, z: -0.021365134}
+  m_LocalScale: {x: 51.219, y: 9, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 470026498}
@@ -1133,7 +1137,7 @@ GameObject:
   - component: {fileID: 807013637}
   - component: {fileID: 807013636}
   m_Layer: 0
-  m_Name: BlueMonster
+  m_Name: MeleeMonster
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1292,6 +1296,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stat: {fileID: 11400000, guid: d6505c5ca6333624281f2b3b0953cafd, type: 2}
+  isMeleeMonster: 1
+  rangedAttack: {fileID: 0}
+  projectileSpeed: 5
+  projectileRange: 5
 --- !u!1001 &833467893
 PrefabInstance:
   m_ObjectHideFlags: 0

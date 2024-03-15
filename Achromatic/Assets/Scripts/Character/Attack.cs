@@ -8,6 +8,11 @@ public interface IAttack
     void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0);
 }
 
+public interface IParry
+{
+    void Parried();
+}
+
 public class Attack : MonoBehaviour
 {
     private const float PARRY_ALLOW_TIME = 0.2f; 
@@ -16,6 +21,8 @@ public class Attack : MonoBehaviour
     private SpriteRenderer render;
 
     private IAttack afterAttack;
+    private IParry parried;
+    public IParry Parried => parried;
 
     private string attackFrom;
     private Vector2 attackDir;
@@ -42,10 +49,11 @@ public class Attack : MonoBehaviour
             attackTime += Time.deltaTime;
         }
     }
-    public void SetAttack(string from, IAttack after)
+    public void SetAttack(string from, IAttack after, IParry parry = null)
     {
         attackFrom = from;
         afterAttack = after;
+        parried = parry;
         AttackDisable();
     }
 
@@ -73,10 +81,12 @@ public class Attack : MonoBehaviour
         if (string.Equals(attackFrom, PlayManager.PLAYER_TAG) && isHeavyAttack && collision.CompareTag(PlayManager.ATTACK_TAG))
         {
             Attack enemy = collision.GetComponent<Attack>();
+            Projectile misile = collision.GetComponent<Projectile>();
             if (null != enemy)
             {
                 if (enemy.IsParryAllow)
                 {
+                    enemy.parried.Parried();
                     Debug.Log("패링 성공");
                     return;
                 }
@@ -85,7 +95,20 @@ public class Attack : MonoBehaviour
                     Debug.Log("패링실패");
                 }
             }
-            //원거리 패링
+            else if(null != misile)
+            {
+                if (misile.IsParryAllow)
+                {
+                    Vector2 dir = new Vector2(attackDir.x, attackDir.y);
+                    misile.Parried(gameObject, dir ,attackDamage);
+                    Debug.Log("패링 성공");
+                    return;
+                }
+                else
+                {
+                    Debug.Log("패링실패");
+                }
+            }
         }
 
         if (!collision.CompareTag(attackFrom))
