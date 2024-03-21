@@ -284,21 +284,21 @@ public class Player : MonoBehaviour, IAttack
     }
     public void AfterAttack(Vector2 attackDir)
     {
-        StartCoroutine(AfterAttackSequence(attackDir));
+        StartCoroutine(AfterAttackSequence(attackDir, 0));
     }
     public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
     {
         currentHP -= damage;
         if (!isInvincibility)
         {
-            StartCoroutine(AfterAttackSequence(attackDir));
+            StartCoroutine(AfterAttackSequence(attackDir, 0.1f));
         }
     }
-    IEnumerator AfterAttackSequence(Vector2 attackDir)
+    IEnumerator AfterAttackSequence(Vector2 attackDir, float shockAmount)
     {
         isAttackRebound = true;
         rigid.AddForce(-attackDir * stat.attackReboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera(0.1f);
+        PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
         yield return Yields.WaitSeconds(stat.attackReboundTime);
         isAttackRebound = false;
     }

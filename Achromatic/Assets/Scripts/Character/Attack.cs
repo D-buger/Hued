@@ -35,6 +35,8 @@ public class Attack : MonoBehaviour
     private bool isAttackEnable = false;
 
     private float attackTime = 0f;
+
+    private bool isParriedAttack = false;
     public bool IsParryAllow => (!isHeavyAttack && attackTime < PARRY_ALLOW_TIME);
 
     private void Awake()
@@ -74,6 +76,7 @@ public class Attack : MonoBehaviour
         attackDamage = damage;
         criticalDamage = critical;
         isHeavyAttack = isHeavy;
+        isParriedAttack = false;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -88,7 +91,7 @@ public class Attack : MonoBehaviour
                 {
                     enemy.parried.Parried();
                     Debug.Log("패링 성공");
-                    return;
+                    isParriedAttack = true;
                 }
                 else
                 {
@@ -102,7 +105,6 @@ public class Attack : MonoBehaviour
                     Vector2 dir = new Vector2(attackDir.x, attackDir.y);
                     misile.Parried(gameObject, dir ,attackDamage);
                     Debug.Log("패링 성공");
-                    return;
                 }
                 else
                 {
@@ -110,8 +112,7 @@ public class Attack : MonoBehaviour
                 }
             }
         }
-
-        if (!collision.CompareTag(attackFrom))
+        else if (!collision.CompareTag(attackFrom) && !isParriedAttack)
         {
             if (null != afterAttack)
             {
