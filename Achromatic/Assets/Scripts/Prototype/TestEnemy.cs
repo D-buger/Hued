@@ -6,6 +6,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
 {
     private Rigidbody2D rigid;
     private SpriteRenderer renderer;
+    private Animator anim;
 
     private GameObject attackPoint;
     private Attack meleeAttack;
@@ -28,11 +29,13 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     private bool canAttack = true;
     private bool detectTarget = false;
     private bool isGroggy = false;
+    private bool isDead = false;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         renderer = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
 
         if (isMeleeMonster)
         {
@@ -49,7 +52,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
 
     private void Update()
     {
-        if (isGroggy)
+        if (isGroggy || isDead)
         {
             return;
         }
@@ -85,6 +88,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         float horizontalValue = attackAngle.x - transform.position.x;
         float VerticalValue = attackAngle.y - transform.position.y;
 
+        anim.SetTrigger("attackTrigger");
         if (!isMeleeMonster)
         {
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
@@ -172,8 +176,14 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     {
         if (currentHP <= 0)
         {
-            gameObject.SetActive(false);
+            isDead = true;
+            anim.SetTrigger("deathTrigger");
         }
+    }
+
+    public void Dead()
+    {
+        gameObject.SetActive(false);
     }
 
     private void OnDrawGizmos()

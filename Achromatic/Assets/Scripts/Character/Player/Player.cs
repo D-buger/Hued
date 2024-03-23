@@ -55,6 +55,7 @@ public class Player : MonoBehaviour, IAttack
         {
             if (!isInvincibility)
             {
+                ani.SetTrigger("hitTrigger");
                 stat.currentHP = value;
                 if (stat.currentHP < 0)
                 {
@@ -221,25 +222,32 @@ public class Player : MonoBehaviour, IAttack
         canDash = false;
         isInvincibility = true;
         renderer.color = Color.gray;
+
         float originGravityScale = rigid.gravityScale;
+        float originLiniearDrag = rigid.drag;
         rigid.gravityScale = 0f;
+        rigid.drag = 0;
+
         dashPos.x = dashPos.x - transform.position.x;
         dashPos.y = dashPos.y - transform.position.y;
-        rigid.velocity = new Vector2(transform.localScale.x * dashPos.normalized.x * stat.dashPower, 
-            transform.localScale.y * dashPos.normalized.y * stat.dashPower / 2);
+
+        rigid.velocity = new Vector2(dashPos.normalized.x * stat.dashPower, 
+            dashPos.normalized.y * stat.dashPower / 2);
+
         if(dashPos.y > 0)
         {
             isJump = true;
         }
-        playerFaceRight = dashPos.x > 0 ? true : false;
         ani.SetTrigger("dashTrigger");
+        playerFaceRight = dashPos.x > 0 ? true : false;
         yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime / 3 : stat.dashingTime);
         rigid.gravityScale = originGravityScale;
+        rigid.drag = originLiniearDrag;
         isDash = false;
         yield return Yields.WaitSeconds(stat.invincibilityTimeAfterDash);
+        renderer.color = originColor;
         isInvincibility = false;
         yield return Yields.WaitSeconds(Mathf.Max(0, stat.dashCooldown - stat.invincibilityTimeAfterDash));
-        renderer.color = originColor;
         canDash = true;
     }
 
@@ -299,28 +307,6 @@ public class Player : MonoBehaviour, IAttack
         isAttack = true;
         float angle;
         angle = VectorToEulerAngle(attackAngle) - 180;
-        //if (attackAngle.x != 0)
-        //{
-        //    if(attackAngle.x > 0)
-        //    {
-        //        angle = 0;
-        //    }
-        //    else
-        //    {
-        //        angle = 180;
-        //    }
-        //}
-        //else
-        //{
-        //    if (attackAngle.y > 0)
-        //    {
-        //        angle = 90;
-        //    }
-        //    else
-        //    {
-        //        angle = -90;
-        //    }
-        //}
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
         Vector2 angleVec = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
 
@@ -370,7 +356,6 @@ public class Player : MonoBehaviour, IAttack
     }
     public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
     {
-        ani.SetTrigger("hitTrigger");
         canParryDash = false;
         currentHP -= damage;
         if (!isInvincibility)
@@ -414,10 +399,10 @@ public class Player : MonoBehaviour, IAttack
 
         if (collision.gameObject.CompareTag(PlayManager.ATTACK_TAG))
         {
-            if (isDash)
-            {
-                canParryDash = true;
-            }
+            //if (isDash)
+            //{
+            //    canParryDash = true;
+            //}
         }
     }
 }

@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 216b5d609666ca34ba5f7a6049868984, type: 3}
   m_Name: PlayerStat
   m_EditorClassIdentifier: 
-  currentHP: 0
+  currentHP: 3
   playerHP: 5
   moveSpeed: 5
   jumpPower: 40
   jumpCooldown: 1
   sitDeceleration: 0.5
   sitDescentSpeed: 30
-  dashPower: 100
+  dashPower: 50
   dashingTime: 0.1
-  invincibilityTimeAfterDash: 0.2
+  invincibilityTimeAfterDash: 0.1
   dashDamage: 3
   dashCooldown: 1
   parryDashPower: 200
