@@ -19,6 +19,7 @@ public class Attack : MonoBehaviour
 
     private Collider2D col;
     private SpriteRenderer render;
+    private Animator anim;
 
     private IAttack afterAttack;
     private IParry parried;
@@ -43,6 +44,7 @@ public class Attack : MonoBehaviour
     {
         col = GetComponent<Collider2D>();
         render = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
     }
     private void Update()
     {
@@ -77,6 +79,7 @@ public class Attack : MonoBehaviour
         criticalDamage = critical;
         isHeavyAttack = isHeavy;
         isParriedAttack = false;
+        anim.SetTrigger("attackTrigger");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

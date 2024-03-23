@@ -12,33 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 216b5d609666ca34ba5f7a6049868984, type: 3}
   m_Name: PlayerStat
   m_EditorClassIdentifier: 
+  currentHP: 0
   playerHP: 5
   moveSpeed: 5
-  jumpPower: 30
-  jumpCooldown: 0.8
+  jumpPower: 40
+  jumpCooldown: 1
   sitDeceleration: 0.5
   sitDescentSpeed: 30
-  dashPower: 20
+  dashPower: 100
   dashingTime: 0.1
-  invincibilityTimeafterDash: 0.2
+  invincibilityTimeAfterDash: 0.2
   dashDamage: 3
   dashCooldown: 1
-  attackReboundPower: 2
+  parryDashPower: 200
+  attackReboundPower: 10
   attackReboundTime: 0.05
   lightAttackTime: 0.1
   lightAttackCooldown: 0.3
   lightAttackDamage: 1
+  lightCriticalAttackDamage: 2
   heavyAttackTime: 0.1
   heavyAttackCooldown: 0.5
   heavyAttackDamage: 4
-  isSit: 0
-  isJump: 0
-  canJump: 1
-  isAttack: 0
-  canAttack: 1
-  isAttackRebound: 0
-  isDash: 0
-  canDash: 1
-  rayRange: 0.1
-  horizontalMove: 0
-  playerFaceRight: 0

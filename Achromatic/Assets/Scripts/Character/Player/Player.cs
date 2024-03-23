@@ -3,19 +3,47 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+/// <summary>
+/// 
+/// isRunning
+/// isGroggy
+/// onGround
+/// 
+/// dashTrigger
+/// attackTrigger
+/// parryTrigger
+/// hitTrigger
+/// jumpTrigger
+/// 
+/// </summary>
+
+
+enum ePlayerState : int
+{
+    IDLE = 0,
+    RUNNING = 1,
+    JUMPING = 2,
+    DASH = 4,
+    DASHING = 8,
+    GROGGY = 16,
+    GROGGING = 32,
+    HIT = 64,
+    ATTACK = 128
+}
+
 public class Player : MonoBehaviour, IAttack
 {
     private Rigidbody2D rigid;
     private BoxCollider2D coll;
     private SpriteRenderer renderer;
+    private Animator ani;
 
     private GameObject attackPoint;
     private Attack lightAttack;
-    private Attack heavyAttack;
 
     [SerializeField]
-    private PlayerStat stat;
-    public PlayerStat GetPlayerStat() => stat;
+    private PlayerStatus stat;
+    public PlayerStatus GetPlayerStat() => stat;
 
     private int currentHP
     {
@@ -44,21 +72,23 @@ public class Player : MonoBehaviour, IAttack
     private bool isAttackRebound = false;
     private bool isDash = false;
     private bool canDash = true;
+    private bool canParryDash = false;
     private bool isInvincibility = false;
 
-    private float rayRange = 0.1f;
+    private float rayRange = 0.01f;
     private float horizontalMove = 0;
     private bool playerFaceRight = true;
+    private ePlayerState state;
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
         coll = GetComponent<BoxCollider2D>();
         renderer = GetComponent<SpriteRenderer>();
+        ani = GetComponent<Animator>();
 
         attackPoint = transform.GetChild(0).gameObject;
         lightAttack = transform.GetChild(0).GetChild(0).GetComponent<Attack>();
-        heavyAttack = transform.GetChild(0).GetChild(1).GetComponent<Attack>();
     }
 
     void Start()
@@ -71,7 +101,6 @@ public class Player : MonoBehaviour, IAttack
         InputManager.Instance.HeavyAttackEvent.AddListener(HeavyAttack);
 
         lightAttack.SetAttack(PlayManager.PLAYER_TAG, this);
-        heavyAttack.SetAttack(PlayManager.PLAYER_TAG, this);
 
         stat.currentHP = stat.playerHP;
     }
@@ -89,19 +118,34 @@ public class Player : MonoBehaviour, IAttack
 
         rigid.velocity = new Vector2(horizontalMove, rigid.velocity.y);
 
-        if (rigid.velocity.y < 0)
+        if(rigid.velocity.y != 0)
         {
-            Debug.DrawRay(rigid.position, new Vector3(0, -1 * (coll.size.y / 2 + rayRange), 0), Color.red);
-
-            RaycastHit2D rayHit =
-                Physics2D.Raycast(rigid.position, Vector3.down, coll.size.y / 2 + rayRange, LayerMask.GetMask("Platform"));
-
-            if (rayHit.collider != null)
-            {
-                isJump = false;
-            }
+            ani.SetBool("onGround", false);
         }
+        else
+        {
+            ani.SetBool("onGround", true);
+        }
+
+        //if (rigid.velocity.y < 0)
+        //{
+        //    Debug.DrawRay(rigid.position, new Vector3(0, -1 * (coll.size.y / 2 + rayRange), 0), Color.red);
+
+        //    RaycastHit2D rayHit =
+        //        Physics2D.Raycast(rigid.position, Vector3.down, coll.size.y / 2 + rayRange, LayerMask.GetMask("Platform"));
+
+        //    if (rayHit.collider != null)
+        //    {
+        //        ani.SetBool("onGround", true);
+        //        isJump = false;
+        //    }
+        //}
         isSit = false;
+    }
+
+    void SetAnimation()
+    {
+
     }
 
     void Move(float dir)
@@ -111,7 +155,12 @@ public class Player : MonoBehaviour, IAttack
             return;
         }
 
-        playerFaceRight = dir > 0 ? true : false;
+        ani.SetBool("isRunning", dir != 0 ? true : false);
+        if (dir != 0)
+        {
+            playerFaceRight = dir > 0 ? true : false;
+        }
+        renderer.flipX = playerFaceRight;
         if (!isSit)
         {
             horizontalMove = dir * stat.moveSpeed; 
@@ -134,6 +183,7 @@ public class Player : MonoBehaviour, IAttack
         isJump = true;
         canJump = false;
         rigid.AddForce(Vector2.up * stat.jumpPower, ForceMode2D.Impulse);
+        ani.SetTrigger("jumpTrigger");
         yield return Yields.WaitSeconds(stat.jumpCooldown);
         canJump = true;
     }
@@ -153,7 +203,14 @@ public class Player : MonoBehaviour, IAttack
     {
         if (canDash && canAttack)
         {
-            StartCoroutine(DashSequence(VectorTo4Direction(mousePos)));
+            if (canParryDash)
+            {
+                StartCoroutine(ParryDashSequence(mousePos));
+            }
+            else
+            {
+                StartCoroutine(DashSequence(mousePos));
+            }
         }
     }
 
@@ -166,16 +223,16 @@ public class Player : MonoBehaviour, IAttack
         renderer.color = Color.gray;
         float originGravityScale = rigid.gravityScale;
         rigid.gravityScale = 0f;
-        rigid.velocity = new Vector2(transform.localScale.x * dashPos.x * stat.dashPower, 
-            transform.localScale.y * dashPos.y * stat.dashPower / 2);
+        dashPos.x = dashPos.x - transform.position.x;
+        dashPos.y = dashPos.y - transform.position.y;
+        rigid.velocity = new Vector2(transform.localScale.x * dashPos.normalized.x * stat.dashPower, 
+            transform.localScale.y * dashPos.normalized.y * stat.dashPower / 2);
         if(dashPos.y > 0)
         {
             isJump = true;
         }
-        else
-        {
-            playerFaceRight = dashPos.x > 0 ? true : false;
-        }
+        playerFaceRight = dashPos.x > 0 ? true : false;
+        ani.SetTrigger("dashTrigger");
         yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime / 3 : stat.dashingTime);
         rigid.gravityScale = originGravityScale;
         isDash = false;
@@ -186,10 +243,41 @@ public class Player : MonoBehaviour, IAttack
         canDash = true;
     }
 
+    IEnumerator ParryDashSequence(Vector2 dashPos)
+    {
+        Color originColor = renderer.color;
+        isDash = true;
+        canDash = false;
+        canParryDash = false;
+        isInvincibility = true;
+        renderer.color = Color.gray;
+        float originGravityScale = rigid.gravityScale;
+        rigid.gravityScale = 0f;
+        rigid.velocity = new Vector2(transform.localScale.x * dashPos.x * stat.parryDashPower,
+            transform.localScale.y * dashPos.y * stat.parryDashPower / 2);
+        if (dashPos.y > 0)
+        {
+            isJump = true;
+        }
+        else
+        {
+            playerFaceRight = dashPos.x > 0 ? true : false;
+        }
+        ani.SetTrigger("dashTrigger");
+        yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime / 3 : stat.dashingTime);
+        rigid.gravityScale = originGravityScale;
+        isDash = false;
+        canDash = true;
+        yield return Yields.WaitSeconds(stat.invincibilityTimeAfterDash);
+        isInvincibility = false;
+        renderer.color = originColor;
+    }
+
     private void LightAttack(Vector2 mousePos)
     {
         if (canAttack)
         {
+            ani.SetTrigger("attackTrigger");
             //StartCoroutine(AttackSequence(VectorTo4Direction(mousePos), false));
             StartCoroutine(AttackSequence(mousePos, false));
         }
@@ -199,6 +287,7 @@ public class Player : MonoBehaviour, IAttack
     {
         if (canAttack)
         {
+            ani.SetTrigger("attackTrigger");
             //StartCoroutine(AttackSequence(VectorTo4Direction(mousePos), true));
             StartCoroutine(AttackSequence(mousePos, true));
         }
@@ -234,17 +323,10 @@ public class Player : MonoBehaviour, IAttack
         //}
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
         Vector2 angleVec = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
-        if (!isHeavyAttack)
-        {
-            lightAttack.AttackAble(angleVec.normalized, stat.lightAttackDamage, false);
-        }
-        else
-        {
-            heavyAttack.AttackAble(angleVec.normalized, stat.heavyAttackDamage, true);
-        }
+
+        lightAttack.AttackAble(angleVec.normalized, stat.lightAttackDamage, false, stat.lightCriticalAttackDamage);
         yield return Yields.WaitSeconds(!isHeavyAttack ? stat.lightAttackTime : stat.heavyAttackTime);
         lightAttack.AttackDisable();
-        heavyAttack.AttackDisable();
         isAttack = false;
         yield return Yields.WaitSeconds(!isHeavyAttack ? stat.lightAttackCooldown : stat.heavyAttackCooldown);
         canAttack = true;
@@ -284,14 +366,16 @@ public class Player : MonoBehaviour, IAttack
     }
     public void AfterAttack(Vector2 attackDir)
     {
-        StartCoroutine(AfterAttackSequence(attackDir, 0));
+        StartCoroutine(AfterAttackSequence(attackDir, 0.05f));
     }
     public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
     {
+        ani.SetTrigger("hitTrigger");
+        canParryDash = false;
         currentHP -= damage;
         if (!isInvincibility)
         {
-            StartCoroutine(AfterAttackSequence(attackDir, 0.1f));
+            StartCoroutine(AfterAttackSequence(attackDir.normalized, 0.1f));
         }
     }
     IEnumerator AfterAttackSequence(Vector2 attackDir, float shockAmount)
@@ -311,8 +395,10 @@ public class Player : MonoBehaviour, IAttack
     private void OnCollisionEnter2D(Collision2D collision)
     {
         rigid.velocity = new Vector2(rigid.velocity.x, 0);
+
         if (collision.collider.transform.position.y < transform.position.y)
         {
+            ani.SetBool("onGround", true);
             isJump = false;
         }
 
@@ -325,6 +411,13 @@ public class Player : MonoBehaviour, IAttack
                     collision.transform.position - transform.position, false);
             }
         }
-    }
 
+        if (collision.gameObject.CompareTag(PlayManager.ATTACK_TAG))
+        {
+            if (isDash)
+            {
+                canParryDash = true;
+            }
+        }
+    }
 }

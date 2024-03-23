@@ -131,18 +131,16 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     {
         if (!isHeavyAttack)
         {
-
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
                 currentHP -= criticalDamage;
-                rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
+                rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
             }
             else
             {
                 currentHP -= damage;
-                rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+                rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
             }
-            CheckDead();
         }
         else
         {
@@ -150,9 +148,9 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
             {
                 currentHP -= damage;
                 rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-                CheckDead();
             }
         }
+        CheckDead();
     }
 
     public void Parried()
