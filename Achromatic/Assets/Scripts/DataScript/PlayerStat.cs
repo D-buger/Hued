@@ -39,10 +39,5 @@ public class PlayerStatus : ScriptableObject
     public float lightAttackCooldown = 0.3f;
     public int lightAttackDamage = 1;
     public int lightCriticalAttackDamage = 2;
-    [Space(5)]
-    public float heavyAttackTime = 0.1f;
-    public float heavyAttackCooldown = 0.5f;
-    public int heavyAttackDamage = 4;
-
 
 }

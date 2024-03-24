@@ -99,7 +99,6 @@ public class Player : MonoBehaviour, IAttack
         InputManager.Instance.SitEvent.AddListener(Sit);
         InputManager.Instance.DashEvent.AddListener(Dash);
         InputManager.Instance.LightAttackEvent.AddListener(LightAttack);
-        InputManager.Instance.HeavyAttackEvent.AddListener(HeavyAttack);
 
         lightAttack.SetAttack(PlayManager.PLAYER_TAG, this);
 
@@ -125,7 +124,7 @@ public class Player : MonoBehaviour, IAttack
         }
         else
         {
-            ani.SetBool("onGround", true);
+            //ani.SetBool("onGround", true);
         }
 
         //if (rigid.velocity.y < 0)
@@ -220,65 +219,43 @@ public class Player : MonoBehaviour, IAttack
         Color originColor = renderer.color;
         isDash = true;
         canDash = false;
-        isInvincibility = true;
         renderer.color = Color.gray;
 
         float originGravityScale = rigid.gravityScale;
         float originLiniearDrag = rigid.drag;
+        float originMass = rigid.mass;
         rigid.gravityScale = 0f;
         rigid.drag = 0;
+        rigid.mass = 0;
 
         dashPos.x = dashPos.x - transform.position.x;
         dashPos.y = dashPos.y - transform.position.y;
 
-        rigid.velocity = new Vector2(dashPos.normalized.x * stat.dashPower, 
-            dashPos.normalized.y * stat.dashPower / 2);
+        rigid.velocity = dashPos.normalized * stat.dashPower;
 
-        if(dashPos.y > 0)
+        if (dashPos.y > 0)
         {
             isJump = true;
+            ani.SetBool("onGround", false);
         }
         ani.SetTrigger("dashTrigger");
         playerFaceRight = dashPos.x > 0 ? true : false;
-        yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime / 3 : stat.dashingTime);
+        yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime : stat.dashingTime);
+        rigid.velocity = Vector2.zero;
         rigid.gravityScale = originGravityScale;
         rigid.drag = originLiniearDrag;
+        rigid.mass = originMass;
         isDash = false;
+        ani.SetTrigger("dashEndTrigger");
         yield return Yields.WaitSeconds(stat.invincibilityTimeAfterDash);
         renderer.color = originColor;
-        isInvincibility = false;
-        yield return Yields.WaitSeconds(Mathf.Max(0, stat.dashCooldown - stat.invincibilityTimeAfterDash));
+        yield return Yields.WaitSeconds(Mathf.Max(0, stat.dashCooldown));
         canDash = true;
     }
 
     IEnumerator ParryDashSequence(Vector2 dashPos)
     {
-        Color originColor = renderer.color;
-        isDash = true;
-        canDash = false;
-        canParryDash = false;
-        isInvincibility = true;
-        renderer.color = Color.gray;
-        float originGravityScale = rigid.gravityScale;
-        rigid.gravityScale = 0f;
-        rigid.velocity = new Vector2(transform.localScale.x * dashPos.x * stat.parryDashPower,
-            transform.localScale.y * dashPos.y * stat.parryDashPower / 2);
-        if (dashPos.y > 0)
-        {
-            isJump = true;
-        }
-        else
-        {
-            playerFaceRight = dashPos.x > 0 ? true : false;
-        }
-        ani.SetTrigger("dashTrigger");
-        yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime / 3 : stat.dashingTime);
-        rigid.gravityScale = originGravityScale;
-        isDash = false;
-        canDash = true;
-        yield return Yields.WaitSeconds(stat.invincibilityTimeAfterDash);
-        isInvincibility = false;
-        renderer.color = originColor;
+        yield return null;
     }
 
     private void LightAttack(Vector2 mousePos)
@@ -286,22 +263,11 @@ public class Player : MonoBehaviour, IAttack
         if (canAttack)
         {
             ani.SetTrigger("attackTrigger");
-            //StartCoroutine(AttackSequence(VectorTo4Direction(mousePos), false));
-            StartCoroutine(AttackSequence(mousePos, false));
+            StartCoroutine(AttackSequence(mousePos));
         }
     }
 
-    private void HeavyAttack(Vector2 mousePos)
-    {
-        if (canAttack)
-        {
-            ani.SetTrigger("attackTrigger");
-            //StartCoroutine(AttackSequence(VectorTo4Direction(mousePos), true));
-            StartCoroutine(AttackSequence(mousePos, true));
-        }
-    }
-
-    IEnumerator AttackSequence(Vector2 attackAngle, bool isHeavyAttack)
+    IEnumerator AttackSequence(Vector2 attackAngle)
     {
         canAttack = false;
         isAttack = true;
@@ -311,10 +277,10 @@ public class Player : MonoBehaviour, IAttack
         Vector2 angleVec = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
 
         lightAttack.AttackAble(angleVec.normalized, stat.lightAttackDamage, false, stat.lightCriticalAttackDamage);
-        yield return Yields.WaitSeconds(!isHeavyAttack ? stat.lightAttackTime : stat.heavyAttackTime);
+        yield return Yields.WaitSeconds(stat.lightAttackTime);
         lightAttack.AttackDisable();
         isAttack = false;
-        yield return Yields.WaitSeconds(!isHeavyAttack ? stat.lightAttackCooldown : stat.heavyAttackCooldown);
+        yield return Yields.WaitSeconds(stat.lightAttackCooldown);
         canAttack = true;
     }
     private float VectorToEulerAngle(Vector2 vec)
@@ -324,32 +290,7 @@ public class Player : MonoBehaviour, IAttack
 
         return Mathf.Atan2(VerticalValue, horizontalValue) * Mathf.Rad2Deg + 180;
     }
-    private Vector2 VectorTo4Direction(Vector2 vec)
-    {
-        float euler = VectorToEulerAngle(vec);
 
-        if (euler > 115 && euler <= 245)
-        {
-            return Vector2.right;
-        }
-        else if (euler > 245 && euler <= 295)
-        {
-            return Vector2.up;
-        }
-        else if (euler > 295 && euler <= 360 ||
-            euler > 0 && euler <= 65)
-        {
-            return Vector2.left;
-        }
-        else if (euler > 65 && euler <= 115)
-        {
-            return Vector2.down;
-        }
-        else
-        {
-            return Vector2.zero;
-        }
-    }
     public void AfterAttack(Vector2 attackDir)
     {
         StartCoroutine(AfterAttackSequence(attackDir, 0.05f));
@@ -381,28 +322,22 @@ public class Player : MonoBehaviour, IAttack
     {
         rigid.velocity = new Vector2(rigid.velocity.x, 0);
 
-        if (collision.collider.transform.position.y < transform.position.y)
-        {
-            ani.SetBool("onGround", true);
-            isJump = false;
-        }
-
         if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
         {
             if (isDash)
             {
-                //TODO : Change to enemy abstract class
                 collision.gameObject.GetComponent<TestEnemy>().Hit(stat.dashDamage, 
                     collision.transform.position - transform.position, false);
             }
         }
+    }
 
-        if (collision.gameObject.CompareTag(PlayManager.ATTACK_TAG))
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.collider.transform.position.y < transform.position.y)
         {
-            //if (isDash)
-            //{
-            //    canParryDash = true;
-            //}
+            ani.SetBool("onGround", true);
+            isJump = false;
         }
     }
 }
