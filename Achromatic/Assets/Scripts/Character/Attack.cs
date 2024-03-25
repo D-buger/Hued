@@ -26,6 +26,7 @@ public class Attack : MonoBehaviour
     public IParry Parried => parried;
 
     private string attackFrom;
+    public bool isAttackFromMe(string me) => string.Equals(me, attackFrom);
     private Vector2 attackDir;
     private int attackDamage;
     private int criticalDamage;

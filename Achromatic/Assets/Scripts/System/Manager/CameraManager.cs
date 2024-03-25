@@ -15,6 +15,7 @@ public class CameraManager : MonoBehaviour
 
     private Vector3 originPos;
     private bool isShake = false;
+    private bool isChangeFOV = false;
 
     private CinemachineVirtualCamera cinemachine;
     private CinemachineBasicMultiChannelPerlin cinemachineNoise;
@@ -36,6 +37,21 @@ public class CameraManager : MonoBehaviour
         activationColor.w = 1;
         grayscaleMaterial = new Material(grayscaleShader);
         grayscaleMaterial.SetVector("_Color", activationColor);
+    }
+
+    public void ChangeFOV(float amount, float time)
+    {
+        if (!isChangeFOV)
+        {
+            StartCoroutine(FOVSequence(amount, time));
+        }
+    }
+
+    IEnumerator FOVSequence(float amount, float time)
+    {
+        isChangeFOV = true;
+        yield return Yields.WaitSeconds(time);
+        isChangeFOV = false;
     }
 
     public void ShakeCamera(float shakeTime)

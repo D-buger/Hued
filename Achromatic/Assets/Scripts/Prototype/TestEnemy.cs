@@ -88,6 +88,15 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         float horizontalValue = attackAngle.x - transform.position.x;
         float VerticalValue = attackAngle.y - transform.position.y;
 
+        if(horizontalValue > 0)
+        {
+            renderer.flipX = false;
+        }
+        else
+        {
+            renderer.flipX = true;
+        }
+
         anim.SetTrigger("attackTrigger");
         if (!isMeleeMonster)
         {

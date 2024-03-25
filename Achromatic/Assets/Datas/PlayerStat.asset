@@ -12,22 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 216b5d609666ca34ba5f7a6049868984, type: 3}
   m_Name: PlayerStat
   m_EditorClassIdentifier: 
-  currentHP: 5
+  currentHP: 4
   playerHP: 5
-  moveSpeed: 5
+  moveSpeed: 7
   jumpPower: 40
   jumpCooldown: 1
   sitDeceleration: 0.5
   sitDescentSpeed: 30
   dashPower: 30
   dashingTime: 0.15
-  invincibilityTimeAfterDash: 0.1
   dashDamage: 1
-  dashCooldown: 3
-  parryDashPower: 200
+  dashCooldown: 0.1
+  parryDashPower: 60
+  parryDashTime: 0.1
+  parryDashDamage: 3
+  parryProduceTime: 0.8
+  parryProduceTimescale: 0.6
+  invincibilityAfterParry: 0.2
   attackReboundPower: 10
   attackReboundTime: 0.05
-  lightAttackTime: 0.1
-  lightAttackCooldown: 0.3
-  lightAttackDamage: 1
-  lightCriticalAttackDamage: 2
+  attackTime: 0.1
+  attackCooldown: 0.3
+  attackDamage: 1
+  criticalAttackDamage: 2
+  colorAttackDamage: 3
+  colorCriticalAttackDamage: 4
+  hitReboundPower: 50
+  hitReboundTime: 0.05

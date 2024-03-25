@@ -16,6 +16,7 @@ TagManager:
   - UI
   - Platform
   - Player
+  - Enemy
   - 
   - 
   - 
@@ -37,10 +38,27 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
-  - 
+  - VirtualCameraB
+  - VirtualCameraA
   m_SortingLayers:
+  - name: Background
+    uniqueID: 63826847
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Object
+    uniqueID: 3330452827
+    locked: 0
+  - name: Enemy
+    uniqueID: 3932407487
+    locked: 0
+  - name: Attack
+    uniqueID: 2843455029
+    locked: 0
+  - name: Player
+    uniqueID: 4000911453
+    locked: 0
+  - name: Frontground
+    uniqueID: 2942064287
     locked: 0

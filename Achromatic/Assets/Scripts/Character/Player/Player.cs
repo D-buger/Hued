@@ -38,8 +38,12 @@ public class Player : MonoBehaviour, IAttack
     private SpriteRenderer renderer;
     private Animator ani;
 
+    private GameObject effects;
+
+    private GameObject parryEffect;
+
     private GameObject attackPoint;
-    private Attack lightAttack;
+    private Attack attack;
 
     [SerializeField]
     private PlayerStatus stat;
@@ -53,15 +57,12 @@ public class Player : MonoBehaviour, IAttack
         }
         set
         {
-            if (!isInvincibility)
+            stat.currentHP = value;
+            if (stat.currentHP < 0)
             {
-                ani.SetTrigger("hitTrigger");
-                stat.currentHP = value;
-                if (stat.currentHP < 0)
-                {
-                    Dead();
-                }
+                Dead();
             }
+            
         }
     } 
 
@@ -72,15 +73,20 @@ public class Player : MonoBehaviour, IAttack
     private bool canAttack = true;
     private bool isAttackRebound = false;
     private bool isDash = false;
+    private bool isParryDash = false;
     private bool canDash = true;
-    private bool canParryDash = false;
+    private bool parryCondition = false;
+    private bool isParry = false;
     private bool isInvincibility = false;
+    private bool isHit = false;
+    private bool onGround = false;
 
     private float rayRange = 0.01f;
     private float horizontalMove = 0;
     private bool playerFaceRight = true;
     private ePlayerState state;
 
+    private Collision2D parryDashCollision;
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -89,7 +95,15 @@ public class Player : MonoBehaviour, IAttack
         ani = GetComponent<Animator>();
 
         attackPoint = transform.GetChild(0).gameObject;
-        lightAttack = transform.GetChild(0).GetChild(0).GetComponent<Attack>();
+        attack = transform.GetChild(0).GetChild(0).GetComponent<Attack>();
+
+        effects = transform.GetChild(1).gameObject;
+        parryEffect = effects.transform.GetChild(0).gameObject;
+
+        for(int i = 0; i < effects.transform.childCount; i++)
+        {
+            effects.transform.GetChild(i).gameObject.SetActive(false);
+        }
     }
 
     void Start()
@@ -100,7 +114,7 @@ public class Player : MonoBehaviour, IAttack
         InputManager.Instance.DashEvent.AddListener(Dash);
         InputManager.Instance.LightAttackEvent.AddListener(LightAttack);
 
-        lightAttack.SetAttack(PlayManager.PLAYER_TAG, this);
+        attack.SetAttack(PlayManager.PLAYER_TAG, this);
 
         stat.currentHP = stat.playerHP;
     }
@@ -122,24 +136,8 @@ public class Player : MonoBehaviour, IAttack
         {
             ani.SetBool("onGround", false);
         }
-        else
-        {
-            //ani.SetBool("onGround", true);
-        }
 
-        //if (rigid.velocity.y < 0)
-        //{
-        //    Debug.DrawRay(rigid.position, new Vector3(0, -1 * (coll.size.y / 2 + rayRange), 0), Color.red);
-
-        //    RaycastHit2D rayHit =
-        //        Physics2D.Raycast(rigid.position, Vector3.down, coll.size.y / 2 + rayRange, LayerMask.GetMask("Platform"));
-
-        //    if (rayHit.collider != null)
-        //    {
-        //        ani.SetBool("onGround", true);
-        //        isJump = false;
-        //    }
-        //}
+        onGround = false;
         isSit = false;
     }
 
@@ -173,7 +171,7 @@ public class Player : MonoBehaviour, IAttack
 
     void Jump()
     {
-        if (!isJump && canJump)
+        if (!isJump && canJump && onGround && !isDash)
         {
             StartCoroutine(JumpSequence());
         }
@@ -203,7 +201,7 @@ public class Player : MonoBehaviour, IAttack
     {
         if (canDash && canAttack)
         {
-            if (canParryDash)
+            if (isParry)
             {
                 StartCoroutine(ParryDashSequence(mousePos));
             }
@@ -216,10 +214,8 @@ public class Player : MonoBehaviour, IAttack
 
     IEnumerator DashSequence(Vector2 dashPos)
     {
-        Color originColor = renderer.color;
         isDash = true;
         canDash = false;
-        renderer.color = Color.gray;
 
         float originGravityScale = rigid.gravityScale;
         float originLiniearDrag = rigid.drag;
@@ -240,22 +236,91 @@ public class Player : MonoBehaviour, IAttack
         }
         ani.SetTrigger("dashTrigger");
         playerFaceRight = dashPos.x > 0 ? true : false;
-        yield return Yields.WaitSeconds(dashPos.y > 0 ? stat.dashingTime : stat.dashingTime);
+
+        yield return Yields.WaitSeconds(stat.dashingTime);
         rigid.velocity = Vector2.zero;
         rigid.gravityScale = originGravityScale;
         rigid.drag = originLiniearDrag;
         rigid.mass = originMass;
         isDash = false;
+
+        isParry = parryCondition;
+        parryCondition = false;
         ani.SetTrigger("dashEndTrigger");
-        yield return Yields.WaitSeconds(stat.invincibilityTimeAfterDash);
-        renderer.color = originColor;
-        yield return Yields.WaitSeconds(Mathf.Max(0, stat.dashCooldown));
+        if (isParry)
+        {
+            StartCoroutine(ParrySequence());
+        }
+
+        yield return Yields.WaitSeconds(stat.dashCooldown);
         canDash = true;
     }
 
     IEnumerator ParryDashSequence(Vector2 dashPos)
     {
-        yield return null;
+        isParry = false;
+        isDash = true;
+        isParryDash = true;
+        canDash = false;
+
+        float originGravityScale = rigid.gravityScale;
+        float originLiniearDrag = rigid.drag;
+        float originMass = rigid.mass;
+        coll.forceReceiveLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        coll.forceSendLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        rigid.gravityScale = 0f;
+        rigid.drag = 0;
+        rigid.mass = 0;
+
+        dashPos.x = dashPos.x - transform.position.x;
+        dashPos.y = dashPos.y - transform.position.y;
+
+        rigid.velocity = dashPos.normalized * stat.parryDashPower;
+
+        if (dashPos.y > 0)
+        {
+            isJump = true;
+            ani.SetBool("onGround", false);
+        }
+        ani.SetTrigger("dashTrigger");
+        playerFaceRight = dashPos.x > 0 ? true : false;
+
+        yield return Yields.WaitSeconds(stat.parryDashTime);
+        coll.forceReceiveLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        coll.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        rigid.velocity = Vector2.zero;
+        rigid.gravityScale = originGravityScale;
+        rigid.drag = originLiniearDrag;
+        rigid.mass = originMass;
+        isDash = false;
+        isParryDash = false;
+
+        yield return Yields.WaitSeconds(stat.dashCooldown);
+        canDash = true;
+    }
+
+    IEnumerator ParrySequence()
+    {
+        Color originColor = renderer.color;
+        renderer.color = Color.gray;
+
+        isInvincibility = true;
+
+        Time.timeScale = stat.parryProduceTimescale;
+        ani.SetTrigger("parryTrigger");
+        parryEffect.SetActive(true);
+        yield return Yields.WaitSeconds(stat.parryProduceTime);
+        Time.timeScale = 1f;
+        parryEffect.SetActive(false);
+
+        yield return Yields.WaitSeconds(stat.invincibilityAfterParry);
+        isInvincibility = false;
+
+        do {
+            yield return null;
+        } while (isParry);
+
+        renderer.color = originColor;
     }
 
     private void LightAttack(Vector2 mousePos)
@@ -276,11 +341,20 @@ public class Player : MonoBehaviour, IAttack
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
         Vector2 angleVec = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
 
-        lightAttack.AttackAble(angleVec.normalized, stat.lightAttackDamage, false, stat.lightCriticalAttackDamage);
-        yield return Yields.WaitSeconds(stat.lightAttackTime);
-        lightAttack.AttackDisable();
+        if (!isParry)
+        {
+            attack.AttackAble(angleVec.normalized, stat.attackDamage, false, stat.colorAttackDamage);
+        }
+        else
+        {
+            isParry = false;
+            attack.AttackAble(angleVec.normalized, stat.criticalAttackDamage, false, stat.colorCriticalAttackDamage);
+        }
+
+        yield return Yields.WaitSeconds(stat.attackTime);
+        attack.AttackDisable();
         isAttack = false;
-        yield return Yields.WaitSeconds(stat.lightAttackCooldown);
+        yield return Yields.WaitSeconds(stat.attackCooldown);
         canAttack = true;
     }
     private float VectorToEulerAngle(Vector2 vec)
@@ -293,24 +367,34 @@ public class Player : MonoBehaviour, IAttack
 
     public void AfterAttack(Vector2 attackDir)
     {
-        StartCoroutine(AfterAttackSequence(attackDir, 0.05f));
+        StartCoroutine(ReboundSequence(attackDir, stat.attackReboundPower, stat.attackReboundTime, 0.05f));
     }
+
     public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
     {
-        canParryDash = false;
-        currentHP -= damage;
+        if (isDash)
+        {
+            return;
+        }
+
+        parryCondition = false;
         if (!isInvincibility)
         {
-            StartCoroutine(AfterAttackSequence(attackDir.normalized, 0.1f));
+            attackDir.y = 0;
+            isHit = true;
+            currentHP -= damage;
+            ani.SetTrigger("hitTrigger");
+            StartCoroutine(ReboundSequence(attackDir.normalized, stat.hitReboundPower, stat.hitReboundTime, 0.1f));
         }
     }
-    IEnumerator AfterAttackSequence(Vector2 attackDir, float shockAmount)
+    IEnumerator ReboundSequence(Vector2 dir, float reboundPower, float reboundTime,float shockAmount)
     {
         isAttackRebound = true;
-        rigid.AddForce(-attackDir * stat.attackReboundPower, ForceMode2D.Impulse);
+        rigid.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
         PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
-        yield return Yields.WaitSeconds(stat.attackReboundTime);
+        yield return Yields.WaitSeconds(reboundTime);
         isAttackRebound = false;
+        isHit = false;
     }
 
     private void Dead()
@@ -326,7 +410,7 @@ public class Player : MonoBehaviour, IAttack
         {
             if (isDash)
             {
-                collision.gameObject.GetComponent<TestEnemy>().Hit(stat.dashDamage, 
+                collision.gameObject.GetComponent<TestEnemy>().Hit(isParry ? stat.parryDashDamage : stat.dashDamage, 
                     collision.transform.position - transform.position, false);
             }
         }
@@ -337,7 +421,24 @@ public class Player : MonoBehaviour, IAttack
         if (collision.collider.transform.position.y < transform.position.y)
         {
             ani.SetBool("onGround", true);
+            onGround = true;
             isJump = false;
         }
+
+        if (isParryDash)
+        {
+            parryDashCollision = collision;
+            Debug.Log(collision.gameObject.name);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag(PlayManager.ATTACK_TAG))
+        {
+            parryCondition = !collision.GetComponent<Attack>().isAttackFromMe(PlayManager.PLAYER_TAG);
+            Debug.Log(parryCondition);
+        }
+
     }
 }
