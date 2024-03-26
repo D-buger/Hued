@@ -86,7 +86,8 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         isAttack = true;
         canAttack = false; 
         float horizontalValue = attackAngle.x - transform.position.x;
-        float VerticalValue = attackAngle.y - transform.position.y;
+        float verticalValue = attackAngle.y - transform.position.y;
+        Vector2 value = new Vector2(horizontalValue, verticalValue);
 
         if(horizontalValue > 0)
         {
@@ -103,28 +104,28 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, VerticalValue).normalized, 
+                attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized, 
                     projectileRange ,projectileSpeed, stat.attackDamage, false);
             }
             else
             {
-                attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, VerticalValue).normalized,
+                attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                    projectileRange, projectileSpeed, stat.attackDamage, true);
             }
         }
         else
         {
-            float angle = Mathf.Atan2(VerticalValue, horizontalValue) * Mathf.Rad2Deg;
+            float angle = Mathf.Atan2(verticalValue, horizontalValue) * Mathf.Rad2Deg;
 
             attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
 
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                meleeAttack?.AttackAble(attackAngle, stat.attackDamage, false);
+                meleeAttack?.AttackAble(-value, stat.attackDamage, false);
             }
             else
             {
-                meleeAttack?.AttackAble(attackAngle, stat.attackDamage, true);
+                meleeAttack?.AttackAble(-value, stat.attackDamage, true);
             }
         }
         yield return Yields.WaitSeconds(stat.attackTime);
@@ -183,7 +184,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
 
     private void CheckDead()
     {
-        if (currentHP <= 0)
+        if (currentHP <= 0 && !isDead)
         {
             isDead = true;
             anim.SetTrigger("deathTrigger");
@@ -219,6 +220,15 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawWireSphere(transform.position + transform.forward, stat.senseCircle * projectileRange);
             }
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
+        {
+            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage,
+                    transform.position - collision.transform.position, false, stat.contactDamage);
         }
     }
 }

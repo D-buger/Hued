@@ -28,6 +28,7 @@ public class MonsterStat : ScriptableObject
     public int attackDamage = 1;
     public float attackTime = 0.3f;
     public float attackCooldown = 1f;
+    public int contactDamage = 1;
 
     public float hitReboundPower = 5f;
     public float heavyHitReboundPower = 10f;

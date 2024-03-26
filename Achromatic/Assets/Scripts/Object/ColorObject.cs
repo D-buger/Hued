@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ColorObject : MonoBehaviour
 {
+    private Collider2D coll;
     private Effector2D effector;
 
     [SerializeField]
@@ -16,6 +17,7 @@ public class ColorObject : MonoBehaviour
     private void Awake()
     {
         effector = GetComponent<PlatformEffector2D>();
+        coll = GetComponent<Collider2D>();
     }
 
     private void Start()
@@ -26,6 +28,9 @@ public class ColorObject : MonoBehaviour
     public void DisableObject()
     {
         effector.colliderMask &= ~(1 << LayerMask.NameToLayer(PlayManager.PLAYER_TAG));
+
+        coll.forceReceiveLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.PLAYER_TAG));
+        coll.forceSendLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.PLAYER_TAG));
     }
 
     public void EnableObject(eActivableColor color)
@@ -35,5 +40,8 @@ public class ColorObject : MonoBehaviour
             return;
         }
         effector.colliderMask |= (1 << LayerMask.NameToLayer(PlayManager.PLAYER_TAG));
+
+        coll.forceReceiveLayers |= (1 << LayerMask.NameToLayer(PlayManager.PLAYER_TAG));
+        coll.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.PLAYER_TAG));
     }
 }

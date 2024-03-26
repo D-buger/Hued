@@ -15,8 +15,6 @@ public interface IParry
 
 public class Attack : MonoBehaviour
 {
-    private const float PARRY_ALLOW_TIME = 0.2f; 
-
     private Collider2D col;
     private SpriteRenderer render;
     private Animator anim;
@@ -26,7 +24,7 @@ public class Attack : MonoBehaviour
     public IParry Parried => parried;
 
     private string attackFrom;
-    public bool isAttackFromMe(string me) => string.Equals(me, attackFrom);
+    public bool isCanParryAttack(string me) => !string.Equals(me, attackFrom) && !isHeavyAttack;
     private Vector2 attackDir;
     private int attackDamage;
     private int criticalDamage;
@@ -37,9 +35,6 @@ public class Attack : MonoBehaviour
     private bool isAttackEnable = false;
 
     private float attackTime = 0f;
-
-    private bool isParriedAttack = false;
-    public bool IsParryAllow => (!isHeavyAttack && attackTime < PARRY_ALLOW_TIME);
 
     private void Awake()
     {
@@ -79,44 +74,12 @@ public class Attack : MonoBehaviour
         attackDamage = damage;
         criticalDamage = critical;
         isHeavyAttack = isHeavy;
-        isParriedAttack = false;
         anim.SetTrigger("attackTrigger");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (string.Equals(attackFrom, PlayManager.PLAYER_TAG) && isHeavyAttack && collision.CompareTag(PlayManager.ATTACK_TAG))
-        {
-            Attack enemy = collision.GetComponent<Attack>();
-            Projectile misile = collision.GetComponent<Projectile>();
-            if (null != enemy)
-            {
-                if (enemy.IsParryAllow)
-                {
-                    enemy.parried.Parried();
-                    Debug.Log("패링 성공");
-                    isParriedAttack = true;
-                }
-                else
-                {
-                    Debug.Log("패링실패");
-                }
-            }
-            else if(null != misile)
-            {
-                if (misile.IsParryAllow)
-                {
-                    Vector2 dir = new Vector2(attackDir.x, attackDir.y);
-                    misile.Parried(gameObject, dir ,attackDamage);
-                    Debug.Log("패링 성공");
-                }
-                else
-                {
-                    Debug.Log("패링실패");
-                }
-            }
-        }
-        else if (!collision.CompareTag(attackFrom) && !isParriedAttack)
+        if (!collision.CompareTag(attackFrom))
         {
             if (null != afterAttack)
             {

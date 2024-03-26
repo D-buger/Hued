@@ -26,7 +26,7 @@ public class Backgrounds : MonoBehaviour
         {
             origin[i] = backgrounds[i].transform.position;
         }
-        targetPos = GameObject.FindGameObjectWithTag(PlayManager.PLAYER_TAG).transform;
+        targetPos = Camera.main.gameObject.transform;
         targetOriginPos = targetPos.position;
     }
     private void Update()
