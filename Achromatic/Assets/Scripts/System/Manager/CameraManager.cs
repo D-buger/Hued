@@ -22,6 +22,19 @@ public class CameraManager : MonoBehaviour
 
     private Vector4 activationColor = Vector3.zero;
     private Material grayscaleMaterial;
+    public Material GrayscaleMaterial 
+    {
+        get 
+        {
+            if (null == grayscaleMaterial)
+            {
+                grayscaleMaterial = new Material(grayscaleShader);
+                grayscaleMaterial.SetVector("_Color", activationColor);
+            }
+            
+            return grayscaleMaterial;
+        }
+    }
 
     private void Awake()
     {
@@ -35,8 +48,6 @@ public class CameraManager : MonoBehaviour
     {
         originPos = transform.position;
         activationColor.w = 1;
-        grayscaleMaterial = new Material(grayscaleShader);
-        grayscaleMaterial.SetVector("_Color", activationColor);
     }
 
     public void ChangeFOV(float amount, float time)
@@ -94,10 +105,5 @@ public class CameraManager : MonoBehaviour
                 break;
         }
         grayscaleMaterial.SetVector("_Color", activationColor);
-    }
-
-    private void OnRenderImage(RenderTexture source, RenderTexture destination)
-    {
-        Graphics.Blit(source, destination, grayscaleMaterial);
     }
 }
