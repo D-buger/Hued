@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public enum eActivableColor
 {
@@ -20,6 +21,9 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     public CameraManager cameraManager;
 
+    private Grayscale volumeProfile;
+    private Color activateColor = Color.black;
+
     private ColorObjectManager colorObjectManager;
     private List<eActivableColor> activationColors = new List<eActivableColor>();
     public bool ContainsActivationColors(eActivableColor color) => activationColors.Contains(color);
@@ -35,7 +39,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
             {
                 activationColors.Add(value);
                 colorObjectManager.EnableColors(value);
-                cameraManager.SetColor(value);
+                SetColor(value);
             }
         }
     }
@@ -43,12 +47,34 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     protected override void OnAwake()
     {
-        cameraManager = Camera.main.GetComponent<CameraManager>();
+        cameraManager = Camera.main.GetComponentInChildren<CameraManager>();
+        Camera.main.GetComponentInChildren<Volume>().profile.TryGet(out volumeProfile);
 
         colorObjectManager = GameObject.FindGameObjectWithTag(COLOR_OBJECT_PARENT_TAG).GetComponent<ColorObjectManager>();
+
     }
     private void Start()
     {
         player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
+    }
+
+    private void SetColor(eActivableColor color)
+    {
+        switch(color)
+        {
+            case eActivableColor.RED:
+                activateColor.r = 1;
+                break;
+            case eActivableColor.BLUE:
+                activateColor.g = 1;
+                break;
+            case eActivableColor.GREEN:
+                activateColor.b = 1;
+                break;
+            default:
+                return;
+        }
+        volumeProfile.activationColor.Override(activateColor);
+
     }
 }
