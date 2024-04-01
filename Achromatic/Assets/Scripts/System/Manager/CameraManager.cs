@@ -6,9 +6,6 @@ using UnityEngine;
 public class CameraManager : MonoBehaviour
 {
     [SerializeField]
-    private Shader grayscaleShader;
-
-    [SerializeField]
     private float shakeAmplitude = 1.2f;
     [SerializeField]
     private float shakeFrequency = 2.0f;
@@ -17,28 +14,15 @@ public class CameraManager : MonoBehaviour
     private bool isShake = false;
     private bool isChangeFOV = false;
 
+    private GameObject parent;
+
     private CinemachineVirtualCamera cinemachine;
     private CinemachineBasicMultiChannelPerlin cinemachineNoise;
 
-    private Vector4 activationColor = Vector3.zero;
-    private Material grayscaleMaterial;
-    public Material GrayscaleMaterial 
-    {
-        get 
-        {
-            if (null == grayscaleMaterial)
-            {
-                grayscaleMaterial = new Material(grayscaleShader);
-                grayscaleMaterial.SetVector("_Color", activationColor);
-            }
-            
-            return grayscaleMaterial;
-        }
-    }
-
     private void Awake()
     {
-        cinemachine = transform.GetComponentInChildren<CinemachineVirtualCamera>();
+        parent = transform.parent.gameObject;
+        cinemachine = parent.GetComponentInChildren<CinemachineVirtualCamera>();
         if(null != cinemachine)
         {
             cinemachineNoise = cinemachine.GetCinemachineComponent<Cinemachine.CinemachineBasicMultiChannelPerlin>();
@@ -47,7 +31,6 @@ public class CameraManager : MonoBehaviour
     private void Start()
     {
         originPos = transform.position;
-        activationColor.w = 1;
     }
 
     public void ChangeFOV(float amount, float time)
@@ -87,23 +70,5 @@ public class CameraManager : MonoBehaviour
         cinemachineNoise.m_FrequencyGain = 0f;
         transform.rotation = Quaternion.Euler(0, 0, 0);
         isShake = false;
-    }
-
-    public void SetColor(eActivableColor color)
-    {
-        switch(color) {
-            case eActivableColor.RED:
-                activationColor.x = 1;
-                break;
-            case eActivableColor.GREEN:
-                activationColor.y = 1;
-                break;
-            case eActivableColor.BLUE:
-                activationColor.z = 1;
-                break;
-            default:
-                break;
-        }
-        //grayscaleMaterial.SetVector("_Color", activationColor);
     }
 }

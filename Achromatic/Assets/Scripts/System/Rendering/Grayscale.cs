@@ -11,7 +11,6 @@ public class Grayscale : VolumeComponent, IPostProcessComponent
     private const string SHADER_NAME = "Unlit/Grayscale";
     private const string PROPERTY_COLOR = "_Color";
 
-
     private Material material;
 
     public BoolParameter isEnable = new BoolParameter(false);
