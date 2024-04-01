@@ -213,6 +213,7 @@ public class Player : MonoBehaviour, IAttack
         rigid.gravityScale = 0f;
         rigid.drag = 0;
         rigid.mass = 0;
+        DashTrail.Clear();
         DashTrail.gameObject.SetActive(true);
 
         dashPos.x = dashPos.x - transform.position.x;
@@ -236,7 +237,6 @@ public class Player : MonoBehaviour, IAttack
         isDash = false;
 
         isParry = parryCondition;
-        DashTrail.Clear();
         DashTrail.gameObject.SetActive(false);
         ani.SetTrigger("dashEndTrigger");
         if (isParry)
@@ -267,6 +267,7 @@ public class Player : MonoBehaviour, IAttack
         rigid.gravityScale = 0f;
         rigid.drag = 0;
         rigid.mass = 0;
+        DashTrail.Clear();
         DashTrail.gameObject.SetActive(true);
 
         dashPos.x = dashPos.x - transform.position.x;
@@ -307,7 +308,6 @@ public class Player : MonoBehaviour, IAttack
         coll.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
 
         isParryDash = false;
-        DashTrail.Clear();
         DashTrail.gameObject.SetActive(false);
 
         yield return Yields.WaitSeconds(stat.dashAfterDelay);

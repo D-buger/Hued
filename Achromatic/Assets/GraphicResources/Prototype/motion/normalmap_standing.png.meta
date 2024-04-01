@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 69af3dba0e5299b43b16bc5ea61aa4ad
+guid: a8db524a86a6c464fab2d44a09494293
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: character_parrying_(1X8)_0
+      name: normalmap_standing_0
       rect:
         serializedVersion: 2
         x: 0
@@ -118,20 +118,20 @@ TextureImporter:
         width: 512
         height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ad250539ea53d3849b3a8d38ce313a8d
-      internalID: -609254691
+      spriteID: 8631502d4ea1d564cbb6d181b996ef37
+      internalID: 1415572123
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character_parrying_(1X8)_1
+      name: normalmap_standing_1
       rect:
         serializedVersion: 2
         x: 512
@@ -139,20 +139,20 @@ TextureImporter:
         width: 512
         height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 82a54a61b715dde4baeaa19b9dfdbdd8
-      internalID: -1989657579
+      spriteID: 5855be7b6495f0e458d95a94000eeadd
+      internalID: -254922042
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character_parrying_(1X8)_2
+      name: normalmap_standing_2
       rect:
         serializedVersion: 2
         x: 1024
@@ -160,20 +160,20 @@ TextureImporter:
         width: 512
         height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d990c4fba9036c045ad4104bba431a92
-      internalID: -1771325295
+      spriteID: c4ff4ccbd71b5b541a3f22231515de1a
+      internalID: -641242419
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character_parrying_(1X8)_3
+      name: normalmap_standing_3
       rect:
         serializedVersion: 2
         x: 1536
@@ -181,20 +181,20 @@ TextureImporter:
         width: 512
         height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d1727efd34d1ceb4c818921dcbef2f17
-      internalID: 432471642
+      spriteID: 385d147aee48ea443a4b4c75266f4330
+      internalID: 597145468
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character_parrying_(1X8)_4
+      name: normalmap_standing_4
       rect:
         serializedVersion: 2
         x: 2048
@@ -202,20 +202,20 @@ TextureImporter:
         width: 512
         height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0be78f28c0296ec4dbc264484d695ada
-      internalID: 1643052009
+      spriteID: d869592fee243be49a94a2556227a983
+      internalID: -977544404
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character_parrying_(1X8)_5
+      name: normalmap_standing_5
       rect:
         serializedVersion: 2
         x: 2560
@@ -223,20 +223,20 @@ TextureImporter:
         width: 512
         height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2ead360192c1508479ebba77cb2164ac
-      internalID: 29727004
+      spriteID: 2df43465e11864146b3fef30f6201b4d
+      internalID: -1171253499
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character_parrying_(1X8)_6
+      name: normalmap_standing_6
       rect:
         serializedVersion: 2
         x: 3072
@@ -244,20 +244,20 @@ TextureImporter:
         width: 512
         height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f245fb0d521751647974d61b150e059e
-      internalID: 780098580
+      spriteID: 278462cf01297384586088d4447e62bb
+      internalID: -1894206609
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: character_parrying_(1X8)_7
+      name: normalmap_standing_7
       rect:
         serializedVersion: 2
         x: 3584
@@ -265,14 +265,14 @@ TextureImporter:
         width: 512
         height: 512
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 364ae62247fa1f94bbb953fe84baad08
-      internalID: -1647282380
+      spriteID: 27368d7bc3b59414ea03cbea84a87b4d
+      internalID: -339706408
       vertices: []
       indices: 
       edges: []
@@ -286,18 +286,16 @@ TextureImporter:
     indices: 
     edges: []
     weights: []
-    secondaryTextures:
-    - texture: {fileID: 2800000, guid: 1a21c0802960dfb498c21c9aada0e611, type: 3}
-      name: _NormalMap
+    secondaryTextures: []
     nameFileIdTable:
-      character_parrying_(1X8)_0: -609254691
-      character_parrying_(1X8)_1: -1989657579
-      character_parrying_(1X8)_2: -1771325295
-      character_parrying_(1X8)_3: 432471642
-      character_parrying_(1X8)_4: 1643052009
-      character_parrying_(1X8)_5: 29727004
-      character_parrying_(1X8)_6: 780098580
-      character_parrying_(1X8)_7: -1647282380
+      normalmap_standing_0: 1415572123
+      normalmap_standing_1: -254922042
+      normalmap_standing_2: -641242419
+      normalmap_standing_3: 597145468
+      normalmap_standing_4: -977544404
+      normalmap_standing_5: -1171253499
+      normalmap_standing_6: -1894206609
+      normalmap_standing_7: -339706408
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,31 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
 public class GrayscaleRenderPass : ScriptableRenderPass
 {
-    static readonly string RENDER_TAG = "grayscale";
-    static readonly int TARGET_ID = Shader.PropertyToID("Grayscale");
+    protected const string TEMP_BUFFER_NAME = "_TempColorBuffer";
 
-    RenderTargetIdentifier currentTarget;
-    Material blitRenderMaterial;
+    protected Grayscale component;
+    protected string RenderTag { get; }
 
-    public GrayscaleRenderPass(RenderPassEvent evnt, Material mat)
+    private RenderTargetIdentifier source;
+    private RenderTargetHandle tempTexture;
+
+    public GrayscaleRenderPass(string renderTag, RenderPassEvent passEvent)
     {
-        renderPassEvent = evnt;
-        if (null == mat)
-        {
-            return;
-        }
-
-        blitRenderMaterial = mat;
+        renderPassEvent = passEvent;
+        RenderTag = renderTag;
     }
 
     public virtual void Setup(in RenderTargetIdentifier source)
     {
-        currentTarget = source;
+        this.source = source;
+        tempTexture.Init(TEMP_BUFFER_NAME);
     }
 
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -35,24 +31,31 @@ public class GrayscaleRenderPass : ScriptableRenderPass
             return;
         }
 
-        CommandBuffer commandBuffer = CommandBufferPool.Get();
+        VolumeStack volumeStack = VolumeManager.instance.stack;
+        component = volumeStack.GetComponent<Grayscale>();
+        if (component)
+        {
+            component.Setup();
+        }
+        if(!component || !component.IsActive())
+        {
+            return;
+        }
 
+        CommandBuffer commandBuffer = CommandBufferPool.Get(RenderTag);
+        RenderTargetIdentifier destination = tempTexture.Identifier();
 
+        CameraData cameraData = renderingData.cameraData;
+        RenderTextureDescriptor descriptor = new RenderTextureDescriptor(cameraData.camera.scaledPixelWidth, cameraData.camera.scaledPixelHeight);
+        descriptor.colorFormat = cameraData.isHdrEnabled ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
+        commandBuffer.GetTemporaryRT(tempTexture.id, descriptor);
 
-        //임시 버퍼 생성
-        //commandBuffer.Blit(currentTarget, );
+        commandBuffer.Blit(source, destination);
 
-        //Pass 렌더링
-
+        component.Render(commandBuffer, ref renderingData, destination, source);
+        commandBuffer.ReleaseTemporaryRT(tempTexture.id);
 
         context.ExecuteCommandBuffer(commandBuffer);
         CommandBufferPool.Release(commandBuffer);
-    }
-
-    private void Render(CommandBuffer cmd, ref RenderingData renderingData)
-    {
-        CameraData cameraData = renderingData.cameraData;
-        RenderTargetIdentifier source = currentTarget;
-        
     }
 }

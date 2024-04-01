@@ -104,6 +104,6 @@ public class CameraManager : MonoBehaviour
             default:
                 break;
         }
-        grayscaleMaterial.SetVector("_Color", activationColor);
+        //grayscaleMaterial.SetVector("_Color", activationColor);
     }
 }

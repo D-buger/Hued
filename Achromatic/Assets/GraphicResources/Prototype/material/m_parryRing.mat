@@ -27,6 +27,7 @@ Material:
   m_ValidKeywords:
   - _ALPHAPREMULTIPLY_ON
   - _EMISSION
+  - _RECEIVE_SHADOWS_OFF
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - _ALPHABLEND_ON
@@ -57,8 +58,10 @@ Material:
     m_Floats:
     - _DstBlend: 1
     - _DstBlendAlpha: 1
+    - _ReceiveShadows: 0
     - _Surface: 1
     m_Colors:
     - _BaseColor: {r: 8.000003, g: 8.000003, b: 8.000003, a: 1}
     - _Color: {r: 8.000004, g: 8.000004, b: 8.000004, a: 1}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
