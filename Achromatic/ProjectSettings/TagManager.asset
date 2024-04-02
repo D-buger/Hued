@@ -18,6 +18,7 @@ TagManager:
   - Player
   - Enemy
   - Object
+  - Frontground
   - 
   - 
   - 
@@ -39,7 +40,6 @@ TagManager:
   - 
   - 
   - 
-  - PostProcessing
   m_SortingLayers:
   - name: Background
     uniqueID: 63826847

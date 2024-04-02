@@ -22,7 +22,7 @@ public class ColorObject : MonoBehaviour
 
     private void Start()
     {
-
+        DisableObject();
     }
 
     public void DisableObject()

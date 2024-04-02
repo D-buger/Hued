@@ -426,8 +426,6 @@ public class Player : MonoBehaviour, IAttack
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        rigid.velocity = new Vector2(rigid.velocity.x, 0);
-
         if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
         {
             if (isDash || isParryDash)
