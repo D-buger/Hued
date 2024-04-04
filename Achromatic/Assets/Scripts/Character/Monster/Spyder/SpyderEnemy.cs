@@ -17,13 +17,19 @@ public class SpyderEnemy : MonoBehaviour, IAttack
     private Attack meleeAttack;
     [SerializeField]
     private SpyderMonsterStats stat;
-    [SerializeField, Space(10)]
+    [SerializeField, Space]
     private Projectile rangedAttack;
+    [SerializeField]
+    private Projectile earthAttack;
 
     private float elapsedTime = 0;
     private float arrivalThreshold = 1f;
     private float distanceToPlayer = 0;
-    private float angleThreshold = 40f;
+    private float angleThreshold = 48f;
+
+    public GameObject[] earthObjectGroup1;
+    public GameObject[] earthObjectGroup2;
+    public GameObject[] earthObjectGroup3;
 
 
     [SerializeField, Tooltip("대기 상태 중 이동을 시작하는 범위")]
@@ -42,6 +48,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack
     private bool isWait = true;
     private bool isfirstAttack = false;
     private bool playerBetweenPositions = false;
+    private bool isearthAttack = false;
 
     private void Awake()
     {
@@ -55,6 +62,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack
     {
         currentHP = stat.MonsterHP;
         thisPosition = targetPosition;
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, null);
     }
 
     private void Update()
@@ -142,16 +150,24 @@ public class SpyderEnemy : MonoBehaviour, IAttack
         float horizontalValue = attackAngle.x - transform.position.x;
         float verticalValue = attackAngle.y - transform.position.y;
         Vector2 value = new Vector2(horizontalValue, verticalValue);
-
-        float angleToPlayer = Mathf.Atan2(value.y, value.x) * Mathf.Rad2Deg;
+        Vector2 check = new Vector2(1.0f, 0);
+        float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
+        Debug.Log(angleToPlayer);
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
 
+        if (value.x <= 0)
+        {
+            check = new Vector2(-0.998f, 0);
+        }
+        else
+        {
+            check = new Vector2(0.998f, 0);
+        }
 
         anim.SetTrigger("attackTrigger");
 
-        if (isfirstAttack && distanceToPlayer > stat.meleeAttackRange && distanceToPlayer < stat.rangedAttackRange)
+        if (isfirstAttack)
         {
-            //Fix 거미줄 공격에 맞게 수정
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             isfirstAttack = false;
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
@@ -168,29 +184,40 @@ public class SpyderEnemy : MonoBehaviour, IAttack
         else if (distanceToPlayer < stat.meleeAttackRange)
         {
             float randomChance = UnityEngine.Random.value;
-            Debug.Log("근거리 공격");
-
-            if (facingPlayer && randomChance <= stat.specialAttackPercent*100)
+            if (facingPlayer && randomChance <= stat.specialAttackPercent/100)
             {
+                facingPlayer = false;
                 if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
                 {
-                    //TODO : 고개치기 공격 구현
+                    meleeAttack?.AttackAble(-value, stat.attackDamage, false);
+                    rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
                 }
                 else
                 {
-                    
+                    meleeAttack?.AttackAble(-value, stat.attackDamage, true);
+                    rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
                 }
             }
             else
             {
-                Debug.Log("땅찍기"); 
-                //땅찍기 공격 구현
+                Projectile earthProjectileLeft = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
+                Projectile earthProjectileRight = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
+                rigid.velocity = Vector2.up * stat.earthAttackJump;
+                isearthAttack = true;
+
+                if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
+                {
+                    StartCoroutine(SpawnObjects());
+                }
+                else
+                {
+                    StartCoroutine(SpawnObjects());
+                }
+
             }
-            
         }
         else if (distanceToPlayer > stat.meleeAttackRange && distanceToPlayer < stat.rangedAttackRange)
         {
-            Debug.Log("원거리 공격");
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             isfirstAttack = false;
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
@@ -204,8 +231,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack
                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, true);
             }
         }
-
-
         yield return Yields.WaitSeconds(stat.attackTime);
         isAttack = false;
         meleeAttack?.AttackDisable();
@@ -213,7 +238,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack
         canAttack = true;
     }
 
-    IEnumerator MoveToPlayer()
+    private IEnumerator MoveToPlayer()
     {
         while (!isAttack && !isWait)
         {
@@ -236,7 +261,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack
             if (distanceToPlayer <= stat.rangedAttackRange && canAttack)
             {
                 StartCoroutine(AttackSequence(PlayerPos));
-                Debug.Log("어택시퀀스 실행");
                 yield break;
             }
             else if (distanceToPlayer > stat.rangedAttackRange)
@@ -244,6 +268,45 @@ public class SpyderEnemy : MonoBehaviour, IAttack
                 //FIX X좌표로만 이동하게 변경
                 transform.position = Vector2.MoveTowards(transform.position, PlayerPos, stat.moveSpeed * Time.deltaTime);
             }
+        }
+    }
+    IEnumerator SpawnObjects()
+    {
+        while (isearthAttack)
+        {
+            yield return new WaitForSeconds(0.6f);
+
+            ActivateObjects(earthObjectGroup1);
+            yield return new WaitForSeconds(stat.earthAttackTime);
+            DeactivateObjects(earthObjectGroup1);
+            yield return new WaitForSeconds(stat.earthAttackDalay);
+
+            ActivateObjects(earthObjectGroup2);
+            yield return new WaitForSeconds(stat.earthAttackTime);
+            DeactivateObjects(earthObjectGroup2);
+            yield return new WaitForSeconds(stat.earthAttackDalay);
+
+            ActivateObjects(earthObjectGroup3);
+            yield return new WaitForSeconds(stat.earthAttackTime);
+            DeactivateObjects(earthObjectGroup3);
+            yield return new WaitForSeconds(stat.earthAttackDalay);
+            isearthAttack = false;
+        }
+    }
+
+    void ActivateObjects(GameObject[] objects)
+    {
+        foreach (GameObject obj in objects)
+        {
+            obj.SetActive(true);
+        }
+    }
+
+    void DeactivateObjects(GameObject[] objects)
+    {
+        foreach (GameObject obj in objects)
+        {
+            obj.SetActive(false);
         }
     }
     public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
@@ -271,6 +334,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack
         }
         CheckDead();
     }
+
     private void CheckDead()
     {
         if (currentHP <= 0 && !isDead)
@@ -279,6 +343,11 @@ public class SpyderEnemy : MonoBehaviour, IAttack
             anim.SetTrigger("deathTrigger");
         }
     }
+    public void Dead()
+    {
+        gameObject.SetActive(false);
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
@@ -289,6 +358,13 @@ public class SpyderEnemy : MonoBehaviour, IAttack
 
     public void AfterAttack(Vector2 attackDir)
     {
-        throw new NotImplementedException();
+    }
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
+        {
+            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage,
+                    transform.position - collision.transform.position, false, stat.contactDamage);
+        }
     }
 }
