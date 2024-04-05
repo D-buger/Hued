@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TreeEditor;
 using Unity.Burst.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -47,6 +48,8 @@ public class Player : MonoBehaviour, IAttack
     private GameObject attackPoint;
     private Attack attack;
 
+    public CameraFollowObject CameraObject { get; set; }
+
     [SerializeField]
     private PlayerStatus stat;
     public PlayerStatus GetPlayerStat() => stat;
@@ -90,6 +93,7 @@ public class Player : MonoBehaviour, IAttack
 
     private LayerMask groundLayer;
     private float bottomOffset = 0.105f;
+    private float fallSpeedYDampingChangeThreshold;
 
     private Collision2D parryDashCollision;
     private void Awake()
@@ -124,31 +128,65 @@ public class Player : MonoBehaviour, IAttack
         stat.currentHP = stat.playerHP;
 
         groundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object"));
+
+        fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
     }
 
     private void Update()
     {
+        Turn();
+
+        if(rigid.velocity.y < fallSpeedYDampingChangeThreshold
+            && !CameraManager.Instance.IsLerpingYDamping
+            && !CameraManager.Instance.LerpedFromPlayerFalling)
+        {
+            Debug.Log("Player fall");
+            CameraManager.Instance.LerpYDamping(true);
+        }
+
+        if(rigid.velocity.y >= 0f && 
+            !CameraManager.Instance.IsLerpingYDamping
+            && CameraManager.Instance.LerpedFromPlayerFalling)
+        {
+            CameraManager.Instance.LerpedFromPlayerFalling = false;
+
+            CameraManager.Instance.LerpYDamping(false);
+        }
     }
 
     private void FixedUpdate()
     {
-        if (isDash || isParryDash || isAttackRebound)
+        if (rigid.velocity.y != 0)
+        {
+            onGround = false;
+            ani.SetBool("onGround", false);
+        }
+
+        if (isDash || isParryDash || isAttackRebound || isHit)
         {
             return;
         }
 
         rigid.velocity = new Vector2(horizontalMove, rigid.velocity.y);
-
-        if(rigid.velocity.y != 0)
-        {
-            onGround = false;
-            ani.SetBool("onGround", false);
-        }
     }
 
     void SetAnimation()
     {
 
+    }
+
+    void Turn()
+    {
+        if (playerFaceRight && transform.rotation.y == 0)
+        {
+            transform.rotation = Quaternion.Euler(0, 180, 0);
+            CameraObject.CallTurn();
+        }
+        else if (!playerFaceRight && (transform.rotation.y == -1))
+        {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+            CameraObject.CallTurn();
+        }
     }
 
     void Move(float dir)
@@ -163,7 +201,6 @@ public class Player : MonoBehaviour, IAttack
         {
             playerFaceRight = dir > 0 ? true : false;
         }
-        renderer.flipX = playerFaceRight;
         horizontalMove = dir * stat.moveSpeed; 
         
     }
@@ -382,10 +419,19 @@ public class Player : MonoBehaviour, IAttack
 
     public void AfterAttack(Vector2 attackDir)
     {
-        if (!isDash && !isParryDash )
+        if (!isDash && !isParryDash)
         {
-            StartCoroutine(ReboundSequence(attackDir.normalized, stat.attackReboundPower, stat.attackReboundTime, 0.05f));
+            StartCoroutine(AttackReboundSequence(attackDir.normalized, stat.attackReboundPower, stat.attackReboundTime, 0.05f));
         }
+    }
+    IEnumerator AttackReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
+    {
+        isAttackRebound = true;
+        rigid.velocity = Vector2.zero;
+        rigid.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
+        PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
+        yield return Yields.WaitSeconds(reboundTime);
+        isAttackRebound = false;
     }
 
     public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
@@ -395,24 +441,26 @@ public class Player : MonoBehaviour, IAttack
             return;
         }
 
+        horizontalMove = 0;
+        rigid.velocity = Vector2.zero;
         parryCondition = false;
         if (!isInvincibility)
         {
             attackDir.y = 0;
-            isHit = true;
             currentHP -= damage;
             ani.SetTrigger("hitTrigger");
-            StartCoroutine(ReboundSequence(attackDir.normalized, stat.hitReboundPower, stat.hitReboundTime, 0.1f));
+            StartCoroutine(HitReboundSequence(attackDir.normalized, stat.hitReboundPower, stat.hitReboundTime, 0.1f));
         }
     }
-    IEnumerator ReboundSequence(Vector2 dir, float reboundPower, float reboundTime,float shockAmount)
+
+    IEnumerator HitReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
     {
+        isHit = true;
         isInvincibility = true;
-        isAttackRebound = true;
         rigid.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
         PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
         yield return Yields.WaitSeconds(reboundTime);
-        isAttackRebound = false;
+
         yield return Yields.WaitSeconds(stat.hitBehaviourLimitTime);
         isHit = false;
         yield return Yields.WaitSeconds(Mathf.Max(0, Mathf.Abs(stat.hitInvincibilityTime - stat.hitBehaviourLimitTime)));

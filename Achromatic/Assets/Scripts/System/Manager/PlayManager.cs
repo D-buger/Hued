@@ -51,11 +51,11 @@ public class PlayManager : SingletonBehavior<PlayManager>
         Camera.main.GetComponentInChildren<Volume>().profile.TryGet(out volumeProfile);
 
         colorObjectManager = GameObject.FindGameObjectWithTag(COLOR_OBJECT_PARENT_TAG).GetComponent<ColorObjectManager>();
-
+        
+        player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
     }
     private void Start()
     {
-        player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
     }
 
     private void SetColor(eActivableColor color)
