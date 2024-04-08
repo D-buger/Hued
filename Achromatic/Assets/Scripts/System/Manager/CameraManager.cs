@@ -20,15 +20,29 @@ public class CameraManager : SingletonBehavior<CameraManager>
     private float fallPanAmount = 0.25f;
     [SerializeField]
     private float fallYPanTime = 0.35f;
-    public float fallSpeedYDampingChangeThreshold = -5f;
+    public float fallSpeedYDampingChangeThreshold = -3f;
+
+    [Header("Change Room"), Space(10)]
+    [SerializeField]
+    private float changeFadeTime = 0.5f;
+    [SerializeField]
+    private float changeDelayTime = 0.5f;
 
     public bool IsLerpingYDamping { get; private set; }
     public bool LerpedFromPlayerFalling { get; set; }
 
-    private float normYPanAmount;
     private Coroutine lerpYPanCoroutine;
+    private Coroutine panCameraCorountine;
+    private Coroutine fadeCameraCoroutine;
 
-    private Vector3 originPos;
+    private float deadZoneWidth;
+    private float deadZoneHeight;
+    private float softZoneWidth;
+    private float softZoneHeight;
+
+    private float normYPanAmount;
+    private Vector2 startingTrackedObjectOffset;
+
     private bool isShake = false;
     private bool isChangeFOV = false;
 
@@ -38,15 +52,12 @@ public class CameraManager : SingletonBehavior<CameraManager>
     private CinemachineBasicMultiChannelPerlin cinemachineNoise;
     private CinemachineVirtualCamera currentCamera;
     private CinemachineFramingTransposer framingTransposer;
-
+    private CinemachineConfiner2D confiner;
+    private CinemachineStoryboard cameraFade;
     protected override void OnAwake()
     {
-        parent = transform.parent.gameObject;
+        parent = transform.parent.transform.parent.gameObject;
         cinemachine = parent.GetComponentInChildren<CinemachineVirtualCamera>();
-        if (null != cinemachine)
-        {
-            cinemachineNoise = cinemachine.GetCinemachineComponent<Cinemachine.CinemachineBasicMultiChannelPerlin>();
-        }
 
         for (int i = 0; i < allVirtualCameras.Length; i++)
         {
@@ -55,14 +66,19 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 currentCamera = allVirtualCameras[i];
 
                 framingTransposer = currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+                cinemachineNoise = currentCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+                confiner = currentCamera.GetComponent<CinemachineConfiner2D>();
+                cameraFade = currentCamera.GetComponent<CinemachineStoryboard>();
             }
         }
 
         normYPanAmount = framingTransposer.m_YDamping;
+
+        startingTrackedObjectOffset = framingTransposer.m_TrackedObjectOffset;
     }
     private void Start()
     {
-        originPos = transform.position;
+
     }
 
     public void ChangeFOV(float amount, float enterTime, float durationTime, float exitTime)
@@ -146,9 +162,195 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
     #region Swap Cameras
 
-    public void SwapCamera(CinemachineVirtualCamera cameraFromLeft)
+    public void SwapCamera(CinemachineVirtualCamera cameraFromLeft, CinemachineVirtualCamera cameraFromRight, Vector2 triggerExitDirection)
     {
+        if(currentCamera == cameraFromLeft && triggerExitDirection.x > 0f)
+        {
+            cameraFromRight.enabled = true;
+            cameraFromLeft.enabled = false;
+            currentCamera = cameraFromRight;
+            framingTransposer = currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        }
+        else if(currentCamera == cameraFromRight && triggerExitDirection.x < 0f)
+        {
+            cameraFromLeft.enabled = true;
+            cameraFromRight.enabled = false;
+            currentCamera = cameraFromRight;
+            framingTransposer = currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        }
+    }
 
+    #endregion
+
+    #region Pan Camera
+    public void PanCameraOnContact(float panDistance, float panTime, ePanDirection panDirection, bool panToStartingPos)
+    {
+        panCameraCorountine = StartCoroutine(PanCamera(panDistance, panTime, panDirection, panToStartingPos));
+    }
+
+    private IEnumerator PanCamera(float panDistance, float panTime, ePanDirection panDirection, bool panToStartingPos)
+    {
+        Vector2 endPos = Vector2.zero;
+        Vector2 startPos = Vector2.zero;
+
+        if(!panToStartingPos)
+        {
+            switch (panDirection)
+            {
+                case ePanDirection.UP:
+                    endPos = Vector2.up;    
+                    break;
+                case ePanDirection.DOWN:
+                    endPos = Vector2.down;
+                    break;
+                case ePanDirection.LEFT:
+                    endPos = Vector2.right;
+                    break;
+                case ePanDirection.RIGHT:
+                    endPos = Vector2.left;
+                    break;
+                default:
+                    break;
+            }
+            endPos *= panDistance;
+
+            startPos = startingTrackedObjectOffset;
+
+            endPos += startPos;
+        }
+        else
+        {
+            startPos = framingTransposer.m_TrackedObjectOffset;
+            endPos = startingTrackedObjectOffset;
+        }
+
+        float elapsedTime = 0f;
+        while(elapsedTime < panTime)
+        {
+            elapsedTime += Time.deltaTime;
+
+            Vector3 panLerp = Vector3.Lerp(startPos, endPos, (elapsedTime / panTime));
+            framingTransposer.m_TrackedObjectOffset = panLerp;
+            yield return null;
+        }
+    }
+
+    #endregion
+
+    #region Fade
+
+    public void SwitchBoundLine(Collider2D collLD, Collider2D collRU, Vector2 exitDirection, eTwoDirection dir)
+    {
+        Collider2D oldColl = default;
+        Collider2D newColl = default;
+
+        switch (dir)
+        {
+            case eTwoDirection.HORIZONTAL:
+                if(exitDirection.x > 0)
+                {
+                    oldColl = collLD;
+                    newColl = collRU;
+                }
+                else
+                {
+                    oldColl = collRU;
+                    newColl = collLD;
+                }
+                break;
+            case eTwoDirection.VERTICAL:
+                if(exitDirection.y < 0)
+                {
+                    oldColl = collRU;
+                    newColl = collLD;
+                }
+                else
+                {
+                    oldColl = collLD;
+                    newColl = collRU;
+                }
+                break;
+            default:
+                break;
+        }
+        fadeCameraCoroutine = StartCoroutine(FadeSequence(newColl, changeFadeTime));
+    }
+
+    IEnumerator FadeSequence(Collider2D coll, float time)
+    {
+        float i = 0;
+        float lerp = 0;
+
+        while (true)
+        {
+            i += Time.deltaTime / time;
+            lerp = Mathf.Lerp(0, 1, i);
+            cameraFade.m_Alpha = lerp;
+            if (i > 1)
+            {
+                break;
+            }
+
+            yield return null;
+        }
+        i = 0;
+        lerp = 1;
+        confiner.m_BoundingShape2D = coll;
+        yield return Yields.WaitSeconds(changeDelayTime);
+        while (true)
+        {
+            i += Time.deltaTime / time;
+            lerp = Mathf.Lerp(1, 0, i);
+            cameraFade.m_Alpha = lerp;
+            if (i > 1)
+            {
+                break;
+            }
+
+            yield return null;
+        }
+
+
+    }
+
+    #endregion
+
+    #region Lock Position
+    public void LockPosition(eTwoDirection lockDir, bool isLock)
+    {
+        switch(lockDir)
+        {
+            case eTwoDirection.HORIZONTAL:
+                if (isLock)
+                {
+                    deadZoneWidth = framingTransposer.m_DeadZoneWidth;
+                    softZoneWidth = framingTransposer.m_SoftZoneWidth;
+                    framingTransposer.m_DeadZoneWidth = 2;
+                    framingTransposer.m_SoftZoneWidth = 2;
+                }
+                else
+                {
+                    framingTransposer.m_DeadZoneWidth = deadZoneWidth;
+                    framingTransposer.m_SoftZoneWidth = softZoneWidth;
+                }
+                break;
+            case eTwoDirection.VERTICAL:
+                if (isLock)
+                {
+                    deadZoneHeight = framingTransposer.m_DeadZoneHeight;
+                    softZoneHeight = framingTransposer.m_SoftZoneHeight;
+                    framingTransposer.m_DeadZoneHeight = 2;
+                    framingTransposer.m_SoftZoneHeight = 2;
+                }
+                else
+                {
+                    framingTransposer.m_DeadZoneHeight = deadZoneHeight;
+                    framingTransposer.m_SoftZoneHeight = softZoneHeight;
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     #endregion
