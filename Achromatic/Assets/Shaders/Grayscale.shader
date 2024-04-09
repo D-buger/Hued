@@ -7,9 +7,7 @@ Shader"Unlit/Grayscale"
     }
     SubShader
     {
-        Tags {"RenderPipeline" = "UniversalPipeline" "RenderType" = "Opaque"}
-        LOD 100
-        ZTest Always ZWrite Off cull Off
+        Tags {"RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline"}
 
         Pass
         {
@@ -108,4 +106,5 @@ Shader"Unlit/Grayscale"
             ENDHLSL 
         }
     }
+    Fallback "Diffuse"
 }

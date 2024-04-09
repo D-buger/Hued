@@ -28,6 +28,8 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private List<eActivableColor> activationColors = new List<eActivableColor>();
     public bool ContainsActivationColors(eActivableColor color) => activationColors.Contains(color);
 
+    public SpriteRenderer sprite;
+
     private Player player;
     public Player GetPlayer => player;
 
@@ -53,9 +55,9 @@ public class PlayManager : SingletonBehavior<PlayManager>
         colorObjectManager = GameObject.FindGameObjectWithTag(COLOR_OBJECT_PARENT_TAG).GetComponent<ColorObjectManager>();
         
         player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
-    }
-    private void Start()
-    {
+
+        volumeProfile.activationColor.Override(activateColor);
+        
     }
 
     private void SetColor(eActivableColor color)

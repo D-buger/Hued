@@ -519,10 +519,17 @@ public class Player : MonoBehaviour, IAttack
     {
         if (isDash && collision.CompareTag(PlayManager.ATTACK_TAG))
         {
-            if (collision.GetComponent<Attack>().isCanParryAttack(PlayManager.PLAYER_TAG))
+            Attack attack = collision.GetComponent<Attack>();
+            Projectile projectile = collision.GetComponent<Projectile>();
+            if (attack != null && attack.isCanParryAttack(PlayManager.PLAYER_TAG))
             {
                 parryCondition = true;
             }
+            else if(projectile != null)
+            {
+                parryCondition = true;
+            }
+
         }
 
     }

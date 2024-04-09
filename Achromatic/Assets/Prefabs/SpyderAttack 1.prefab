@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5343168290942022328}
   - component: {fileID: 3140445288258194617}
   - component: {fileID: 3210702747081030968}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: SpyderAttack 1
   m_TagString: Attack
   m_Icon: {fileID: 0}
