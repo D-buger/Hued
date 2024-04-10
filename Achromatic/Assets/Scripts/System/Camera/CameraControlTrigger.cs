@@ -102,10 +102,10 @@ public class MyScriptEditor : Editor
 
         if (cameraControlTrigger.customInspectorObjects.swapBounds)
         {
-            cameraControlTrigger.customInspectorObjects.BoundLineLD = EditorGUILayout.ObjectField("Old BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.BoundLineLD,
+            cameraControlTrigger.customInspectorObjects.BoundLineLD = EditorGUILayout.ObjectField("Left/Down BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.BoundLineLD,
                 typeof(Collider2D), true) as Collider2D;
 
-            cameraControlTrigger.customInspectorObjects.BoundLineRU = EditorGUILayout.ObjectField("New BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.BoundLineRU,
+            cameraControlTrigger.customInspectorObjects.BoundLineRU = EditorGUILayout.ObjectField("Right/Up BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.BoundLineRU,
                 typeof(Collider2D), true) as Collider2D;
 
             cameraControlTrigger.customInspectorObjects.boundDirection = (eTwoDirection)EditorGUILayout.EnumPopup("Move Direction",

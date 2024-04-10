@@ -935,11 +935,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 2001150267}
   m_SourcePrefab: {fileID: 100100000, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
---- !u!4 &80210370 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8847402884373470786, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
-  m_PrefabInstance: {fileID: 80210369}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &87000623
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1998,17 +1993,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 421518830796928006, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.000009059906
+      objectReference: {fileID: 0}
+    - target: {fileID: 421518830796928006, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.2947598
+      objectReference: {fileID: 0}
     - target: {fileID: 1848125885448803405, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_Follow
       value: 
-      objectReference: {fileID: 80210370}
+      objectReference: {fileID: 2573640}
     - target: {fileID: 2254166637986512268, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.45
+      value: -5.014991
       objectReference: {fileID: 0}
     - target: {fileID: 2254166637986512268, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.79
+      value: 1.0106597
       objectReference: {fileID: 0}
     - target: {fileID: 2254166637986512268, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2050,10 +2053,6 @@ PrefabInstance:
       propertyPath: m_BoundingShape2D
       value: 
       objectReference: {fileID: 886024039}
-    - target: {fileID: 4591528727039559993, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
-      propertyPath: m_BoundingShape2D
-      value: 
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6488,7 +6487,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!66 &721067292
 CompositeCollider2D:
   m_ObjectHideFlags: 0
@@ -6525,9 +6524,23 @@ CompositeCollider2D:
   m_GeometryType: 1
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths: []
+  m_ColliderPaths:
+  - m_Collider: {fileID: 721067293}
+    m_ColliderPaths:
+    - - X: 175556960
+        Y: 12776618
+      - X: 89652920
+        Y: 12776618
+      - X: 89652920
+        Y: -58117224
+      - X: 175556960
+        Y: -58117224
   m_CompositePaths:
-    m_Paths: []
+    m_Paths:
+    - - {x: 17.555668, y: -5.8117223}
+      - {x: 17.555668, y: 1.2776618}
+      - {x: 8.965292, y: 1.2776325}
+      - {x: 8.965322, y: -5.8117223}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
@@ -8209,7 +8222,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &886024038
 Transform:
   m_ObjectHideFlags: 0
@@ -8261,9 +8274,23 @@ CompositeCollider2D:
   m_GeometryType: 1
   m_GenerationType: 0
   m_EdgeRadius: 0
-  m_ColliderPaths: []
+  m_ColliderPaths:
+  - m_Collider: {fileID: 886024040}
+    m_ColliderPaths:
+    - - X: 81585728
+        Y: 90097016
+      - X: -177789664
+        Y: 90097016
+      - X: -177789664
+        Y: -59893476
+      - X: 81585728
+        Y: -59893476
   m_CompositePaths:
-    m_Paths: []
+    m_Paths:
+    - - {x: 8.158544, y: -5.9893475}
+      - {x: 8.158544, y: 9.009702}
+      - {x: -17.778967, y: 9.009672}
+      - {x: -17.778938, y: -5.9893475}
   m_VertexDistance: 0.0005
   m_OffsetDistance: 0.00005
   m_UseDelaunayMesh: 0
