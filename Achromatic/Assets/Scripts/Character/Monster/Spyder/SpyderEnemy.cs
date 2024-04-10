@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SocialPlatforms;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public class SpyderEnemy : MonoBehaviour, IAttack
+public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 {
     [Header("Components")]
     private Rigidbody2D rigid;
@@ -27,14 +27,15 @@ public class SpyderEnemy : MonoBehaviour, IAttack
     private float distanceToPlayer = 0;
     private float angleThreshold = 48f;
 
+    [SerializeField, Tooltip("몬스터 기준 이동 범위")]
+    private float runPosition;
+
     public GameObject[] earthObjectGroup1;
     public GameObject[] earthObjectGroup2;
     public GameObject[] earthObjectGroup3;
 
 
-    [SerializeField, Tooltip("대기 상태 중 이동을 시작하는 범위")]
     private Vector2 startPosition;
-    [SerializeField, Tooltip("대기 상태 중 이동을 끝내는 범위")]
     private Vector2 targetPosition;
     private Vector2 thisPosition;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
@@ -60,6 +61,11 @@ public class SpyderEnemy : MonoBehaviour, IAttack
     }
     private void Start()
     {
+        startPosition.y = transform.position.y;
+        targetPosition.y = transform.position.y;
+        startPosition.x += transform.position.x + runPosition;
+        targetPosition.x += transform.position.x - runPosition;
+
         currentHP = stat.MonsterHP;
         thisPosition = targetPosition;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, null);
@@ -205,15 +211,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack
                 rigid.velocity = Vector2.up * stat.earthAttackJump;
                 isearthAttack = true;
 
-                if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-                {
-                    StartCoroutine(SpawnObjects());
-                }
-                else
-                {
-                    StartCoroutine(SpawnObjects());
-                }
-
+                StartCoroutine(SpawnObjects());
             }
         }
         else if (distanceToPlayer > stat.meleeAttackRange && distanceToPlayer < stat.rangedAttackRange)
@@ -351,9 +349,9 @@ public class SpyderEnemy : MonoBehaviour, IAttack
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(startPosition, 0.5f);
+        Gizmos.DrawWireSphere(new Vector3(transform.position.x + runPosition, transform.position.y), 0.5f);
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(targetPosition, 0.5f);
+        Gizmos.DrawWireSphere(new Vector3(transform.position.x - runPosition, transform.position.y), 0.5f);
     }
 
     public void AfterAttack(Vector2 attackDir)
@@ -366,5 +364,10 @@ public class SpyderEnemy : MonoBehaviour, IAttack
             collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage,
                     transform.position - collision.transform.position, false, stat.contactDamage);
         }
+    }
+
+    public void Parried()
+    {
+        throw new NotImplementedException();
     }
 }
