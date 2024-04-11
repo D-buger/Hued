@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SocialPlatforms;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -33,11 +34,15 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     public GameObject[] earthObjectGroup1;
     public GameObject[] earthObjectGroup2;
     public GameObject[] earthObjectGroup3;
+    public UnityEvent<eActivableColor> spyderColorEvent;
 
 
     private Vector2 startPosition;
     private Vector2 targetPosition;
     private Vector2 thisPosition;
+    private Vector3 startPos;
+    private Vector3 endPos;
+
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     private int currentHP;
@@ -49,7 +54,9 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     private bool isWait = true;
     private bool isfirstAttack = false;
     private bool playerBetweenPositions = false;
-    private bool isearthAttack = false;
+    private bool isEarthAttack = false;
+    private bool isHeavy = false;
+    private bool gameStart = false;
 
     private void Awake()
     {
@@ -61,6 +68,8 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     }
     private void Start()
     {
+        startPos = new Vector3(transform.position.x + runPosition, transform.position.y);
+        endPos = new Vector3(transform.position.x - runPosition, transform.position.y);
         startPosition.y = transform.position.y;
         targetPosition.y = transform.position.y;
         startPosition.x += transform.position.x + runPosition;
@@ -69,6 +78,17 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         currentHP = stat.MonsterHP;
         thisPosition = targetPosition;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, null);
+        MonsterManager.Instance.getColorEvent.AddListener(CheckIsHeavy);
+        gameStart = true;
+    }
+
+    private void CheckIsHeavy(eActivableColor playerColor)
+    {
+        if (playerColor == stat.enemyColor)
+        {
+            isHeavy = false;
+        }
+        spyderColorEvent?.Invoke(playerColor);
     }
 
     private void Update()
@@ -176,16 +196,8 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         {
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             isfirstAttack = false;
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
-                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, false);
-            }
-            else
-            {
-                attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
-                   stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, true);
-            }
+            attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
+                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, eActivableColor.RED);
         }
         else if (distanceToPlayer < stat.meleeAttackRange)
         {
@@ -193,23 +205,16 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             if (facingPlayer && randomChance <= stat.specialAttackPercent/100)
             {
                 facingPlayer = false;
-                if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-                {
-                    meleeAttack?.AttackAble(-value, stat.attackDamage, false);
-                    rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
-                }
-                else
-                {
-                    meleeAttack?.AttackAble(-value, stat.attackDamage, true);
-                    rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
-                }
+
+                meleeAttack?.AttackAble(-value, stat.attackDamage, isHeavy);
+                rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
             }
             else
             {
                 Projectile earthProjectileLeft = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
                 Projectile earthProjectileRight = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
                 rigid.velocity = Vector2.up * stat.earthAttackJump;
-                isearthAttack = true;
+                isEarthAttack = true;
 
                 StartCoroutine(SpawnObjects());
             }
@@ -218,16 +223,9 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         {
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             isfirstAttack = false;
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
-                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, false);
-            }
-            else
-            {
-                attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
-                   stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, true);
-            }
+            attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
+                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, eActivableColor.RED);
+
         }
         yield return Yields.WaitSeconds(stat.attackTime);
         isAttack = false;
@@ -270,7 +268,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     }
     IEnumerator SpawnObjects()
     {
-        while (isearthAttack)
+        while (isEarthAttack)
         {
             yield return new WaitForSeconds(0.6f);
 
@@ -288,7 +286,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             yield return new WaitForSeconds(stat.earthAttackTime);
             DeactivateObjects(earthObjectGroup3);
             yield return new WaitForSeconds(stat.earthAttackDalay);
-            isearthAttack = false;
+            isEarthAttack = false;
         }
     }
 
@@ -348,10 +346,33 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(new Vector3(transform.position.x + runPosition, transform.position.y), 0.5f);
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(new Vector3(transform.position.x - runPosition, transform.position.y), 0.5f);
+        if (null != stat)
+        {
+            if (stat.meleeAttackRange >= distanceToPlayer)
+            {
+                Gizmos.color = Color.red;
+            }
+            else
+            {
+                Gizmos.color = Color.green;
+            }
+            Gizmos.DrawWireSphere(transform.position + transform.forward, stat.senseCircle);
+        }
+        if (!gameStart)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(new Vector3(transform.position.x + runPosition, transform.position.y), 0.5f);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(new Vector3(transform.position.x - runPosition, transform.position.y), 0.5f);
+        }
+        else
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(startPos, 0.5f);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(endPos, 0.5f);
+        }
+
     }
 
     public void AfterAttack(Vector2 attackDir)

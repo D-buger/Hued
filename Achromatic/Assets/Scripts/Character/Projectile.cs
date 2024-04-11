@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.TerrainUtils;
 
 public class Projectile : MonoBehaviour
 {
@@ -11,18 +12,22 @@ public class Projectile : MonoBehaviour
     private float moveRange = 5f;
     private int damage = 1;
 
-    private bool isHeavyAttack;
+    private bool isHeavyAttack = true;
     public bool IsParryAllow => (!isHeavyAttack);
 
     private GameObject attackFrom;
     private Vector2 fromVector;
+    private eActivableColor enemyColor;
 
     private bool isShooting = false;
     private bool isParried = false;
+
+    private SpyderEnemy spyderEnemy;
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
     }
+
 
     private void Update()
     {
@@ -35,8 +40,22 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy)
+    public void CheckIsHeavyAttack(eActivableColor color)
     {
+        if (color == enemyColor)
+        {
+            isHeavyAttack = false;
+        }
+        else
+        {
+            isHeavyAttack = true;
+        }
+    }
+
+    public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, eActivableColor color)
+    {
+        // spyderEnemy.spyderColorEvent.AddListener(CheckIsHeavyAttack);
+
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;
@@ -45,6 +64,7 @@ public class Projectile : MonoBehaviour
         damage = dmg;
         moveRange = range;
         fromVector = shotFrom.transform.position;
+        enemyColor = color;
         rigid.AddForce(moveDirection * moveSpeed);
     }
 
