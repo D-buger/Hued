@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SpyderMonsterStats
   m_EditorClassIdentifier: 
   monsterHP: 5
-  enemyColor: 0
+  enemyColor: 1
   senseCircle: 2
   moveSpeed: 1
   attackDamage: 1

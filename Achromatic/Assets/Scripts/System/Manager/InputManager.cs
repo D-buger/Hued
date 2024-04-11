@@ -12,14 +12,14 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode SIT = KeyCode.S;
     const KeyCode DASH = KeyCode.Space;
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
-    const KeyCode HEAVY_ATTACK = KeyCode.Mouse1;
+    const KeyCode FILTER = KeyCode.F;
 
     public UnityEvent JumpEvent;
     public UnityEvent<float> MoveEvent;
     public UnityEvent SitEvent;
     public UnityEvent<Vector2> DashEvent;
     public UnityEvent<Vector2> LightAttackEvent;
-    public UnityEvent<Vector2> HeavyAttackEvent;
+    public UnityEvent FilterEvent; 
 
     private Camera mainCamera;
     public Vector2 MouseVec { get; private set; }
@@ -50,10 +50,6 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             LightAttackEvent?.Invoke(MouseVec);
         }
-        else if (Input.GetKey(HEAVY_ATTACK))
-        {
-            HeavyAttackEvent?.Invoke(MouseVec);
-        }
 
         if (Input.GetKey(JUMP))
         {
@@ -66,6 +62,10 @@ public class InputManager : SingletonBehavior<InputManager>
         if(Input.GetKey(DASH))
         {
             DashEvent?.Invoke(MouseVec);
+        }
+        if (Input.GetKey(FILTER))
+        {
+            FilterEvent?.Invoke();
         }
         
     }
