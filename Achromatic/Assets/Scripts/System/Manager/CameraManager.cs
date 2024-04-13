@@ -299,6 +299,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
         lerp = 1;
         confiner.m_BoundingShape2D = coll;
         yield return Yields.WaitSeconds(changeDelayTime);
+        InputManager.Instance.CanInput = true;
         while (true)
         {
             i += Time.deltaTime / time;
@@ -312,7 +313,6 @@ public class CameraManager : SingletonBehavior<CameraManager>
             yield return null;
         }
 
-        InputManager.Instance.CanInput = true;
     }
 
     #endregion
