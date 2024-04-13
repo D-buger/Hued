@@ -24,6 +24,7 @@ public class InputManager : SingletonBehavior<InputManager>
     private Camera mainCamera;
     public Vector2 MouseVec { get; private set; }
 
+    public bool CanInput { get; set; } = true;
     protected override void OnAwake()
     {
         mainCamera = Camera.main;
@@ -32,6 +33,11 @@ public class InputManager : SingletonBehavior<InputManager>
     void Update()
     {
         MouseVec = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+        if (!CanInput)
+        {
+            return;
+        }
 
         if (Input.GetKey(LEFT))
         {

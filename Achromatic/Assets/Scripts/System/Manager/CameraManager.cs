@@ -278,6 +278,8 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
     IEnumerator FadeSequence(Collider2D coll, float time)
     {
+        InputManager.Instance.CanInput = false;
+
         float i = 0;
         float lerp = 0;
 
@@ -310,7 +312,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
             yield return null;
         }
 
-
+        InputManager.Instance.CanInput = true;
     }
 
     #endregion
