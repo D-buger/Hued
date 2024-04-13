@@ -36,11 +36,18 @@ public class Attack : MonoBehaviour
 
     private float attackTime = 0f;
 
+    private LayerMask ignoreLayers;
+
     private void Awake()
     {
         col = GetComponent<Collider2D>();
         render = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        ignoreLayers = LayerMask.GetMask("IgnoreAttack");
     }
     private void Update()
     {
@@ -79,7 +86,8 @@ public class Attack : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag(attackFrom))
+        if (!collision.CompareTag(attackFrom) && 
+            ignoreLayers != (ignoreLayers | (1 << collision.gameObject.layer)))
         {
             if (null != afterAttack)
             {

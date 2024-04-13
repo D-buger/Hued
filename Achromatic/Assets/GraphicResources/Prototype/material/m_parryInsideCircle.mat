@@ -47,9 +47,9 @@ Material:
     - _DstBlendAlpha: 1
     - _Surface: 1
     m_Colors:
-    - _BaseColor: {r: 8.000003, g: 8.000003, b: 8.000003, a: 1}
-    - _Color: {r: 8.000004, g: 8.000004, b: 8.000004, a: 1}
-    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &2863345458494405505
 MonoBehaviour:
