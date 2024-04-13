@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3384178234249922616}
   - component: {fileID: 558065600741765880}
   m_Layer: 0
-  m_Name: Cinemachine
+  m_Name: MainCam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 803821799873474794}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.000002861023, y: -4.82237, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -88,7 +88,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BoundingShape2D: {fileID: 0}
   m_Damping: 0.5
-  m_MaxWindowSize: 5.95
+  m_MaxWindowSize: 0
 --- !u!114 &558065600741765880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,8 +102,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ShowImage: 1
-  m_Image: {fileID: 0}
-  m_Aspect: 0
+  m_Image: {fileID: 2800000, guid: 8bc73958465ebb64cb036d31684744f9, type: 3}
+  m_Aspect: 2
   m_Alpha: 0
   m_Center: {x: 0, y: 0}
   m_Rotation: {x: 0, y: 0, z: 0}
@@ -543,7 +543,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5556447113423536253}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
   m_Name: 
@@ -572,6 +572,8 @@ MonoBehaviour:
   fallPanAmount: 0.2
   fallYPanTime: 0.35
   fallSpeedYDampingChangeThreshold: -10
+  changeFadeTime: 0.3
+  changeDelayTime: 0.5
 --- !u!114 &6819668052161890718
 MonoBehaviour:
   m_ObjectHideFlags: 0
