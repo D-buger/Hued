@@ -23,7 +23,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     [SerializeField]
     private Projectile earthAttack;
 
-
+    private int currentHP;
 
     [Header("Animation")]
     [SerializeField]
@@ -61,8 +61,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
-    public int currentHP;
-
     public bool isDead = false;
     private bool isBettle = false;
     private bool canAttack = true;
@@ -92,7 +90,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         currentHP = stat.MonsterHP;
         thisPosition = targetPosition;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, null);
-        //MonsterManager.Instance.getColorEvent.AddListener(CheckIsHeavy);
+        MonsterManager.Instance.getColorEvent.AddListener(CheckIsHeavy);
         gameStart = true;
     }
 
@@ -209,10 +207,12 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
         if (HasArrived((Vector2)transform.position, targetPosition))
         {
+            transform.localScale = new Vector3(-1, 1, 1);
             thisPosition = startPosition;
         }
         if (HasArrived((Vector2)transform.position, startPosition))
         {
+            transform.localScale = new Vector3(1, 1, 1);
             thisPosition = targetPosition;
         }
     }
