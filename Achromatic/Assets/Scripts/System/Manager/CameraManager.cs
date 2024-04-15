@@ -274,7 +274,6 @@ public class CameraManager : SingletonBehavior<CameraManager>
             default:
                 break;
         }
-        fadeCameraCoroutine = StartCoroutine(FadeSequence(newColl, changeFadeTime));
         fadeCameraCoroutine = StartCoroutine(FadeSequence(changeFadeTime, changeDelayTime, 
             () =>
             {
@@ -287,7 +286,6 @@ public class CameraManager : SingletonBehavior<CameraManager>
         fadeCameraCoroutine = StartCoroutine(FadeSequence(fadeTime, fadeDelay, action));
     }
 
-    IEnumerator FadeSequence(Collider2D coll, float time)
     IEnumerator FadeSequence(float fadeTime, float fadeDelay, UnityAction action)
     {
         InputManager.Instance.CanInput = false;
@@ -297,7 +295,6 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
         while (true)
         {
-            i += Time.deltaTime / time;
             i += Time.deltaTime / fadeTime;
             lerp = Mathf.Lerp(0, 1, i);
             cameraFade.m_Alpha = lerp;
@@ -310,16 +307,11 @@ public class CameraManager : SingletonBehavior<CameraManager>
         }
         i = 0;
         lerp = 1;
-        confiner.m_BoundingShape2D = coll;
-        yield return Yields.WaitSeconds(changeDelayTime);
-        InputManager.Instance.CanInput = true;
-=======
         action?.Invoke();
         yield return Yields.WaitSeconds(fadeDelay);
->>>>>>> 11-Map-Interaction-Objects
+        InputManager.Instance.CanInput = true;
         while (true)
         {
-            i += Time.deltaTime / time;
             i += Time.deltaTime / fadeTime;
             lerp = Mathf.Lerp(1, 0, i);
             cameraFade.m_Alpha = lerp;

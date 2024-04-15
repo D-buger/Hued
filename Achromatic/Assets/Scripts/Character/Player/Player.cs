@@ -93,6 +93,7 @@ public class Player : MonoBehaviour, IAttack
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
 
+    private float dashEffectTime = 5;
     private Collision2D parryDashCollision;
     private void Awake()
     {
@@ -121,6 +122,7 @@ public class Player : MonoBehaviour, IAttack
         {
             effectList[i].Stop();
         }
+
     }
 
     void Start()
@@ -272,6 +274,7 @@ public class Player : MonoBehaviour, IAttack
         rigid.drag = 0;
         rigid.mass = 0;
         DashTrail.Clear();
+        DashTrail.startLifetime = stat.dashingTime * dashEffectTime;
         DashTrail.Play();
 
         dashPos.x = dashPos.x - transform.position.x;
@@ -304,7 +307,6 @@ public class Player : MonoBehaviour, IAttack
         yield return Yields.WaitSeconds(stat.dashCooldown - stat.dashAfterDelay);
         canDash = true;
     }
-
     IEnumerator ParryDashSequence(Vector2 dashPos)
     {
         isParry = false;
@@ -321,6 +323,7 @@ public class Player : MonoBehaviour, IAttack
         rigid.drag = 0;
         rigid.mass = 0;
         DashTrail.Clear();
+        DashTrail.startLifetime = stat.parryDashTime * dashEffectTime;
         DashTrail.Play();
 
         dashPos.x = dashPos.x - transform.position.x;
