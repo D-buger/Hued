@@ -490,7 +490,7 @@ public class Player : MonoBehaviour, IAttack
             if (isDash || isParryDash)
             {
                 int damage = isParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<Monster>().Hit(damage, 
+                collision.gameObject.GetComponent<Monster>()?.Hit(damage, 
                     collision.transform.position - transform.position, false, damage);
             }
         }
