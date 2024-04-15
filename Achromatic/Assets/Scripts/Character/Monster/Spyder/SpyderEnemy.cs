@@ -20,8 +20,6 @@ public class SpyderEnemy : Monster, IAttack, IParry
     private SpyderMonsterStats stat;
     [SerializeField, Space]
     private Projectile rangedAttack;
-    [SerializeField]
-    private Projectile earthAttack;
 
     [Header("Animation")]
     [SerializeField]
@@ -45,11 +43,13 @@ public class SpyderEnemy : Monster, IAttack, IParry
     [SerializeField, Tooltip("몬스터 기준 이동 범위")]
     private float runPosition;
 
+    public ParticleSystem[] earthObjectGroup;
+
+    public UnityEvent<eActivableColor> spyderColorEvent;
+
     public GameObject[] earthObjectGroup1;
     public GameObject[] earthObjectGroup2;
     public GameObject[] earthObjectGroup3;
-    public UnityEvent<eActivableColor> spyderColorEvent;
-
 
     private Vector2 startPosition;
     private Vector2 targetPosition;
@@ -236,8 +236,6 @@ public class SpyderEnemy : Monster, IAttack, IParry
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
         double yAngle = Math.Atan2(horizontalValue, verticalValue);
 
-        Debug.Log(horizontalValue);
-        Debug.Log(verticalValue);
         if (value.x <= 0)
         {
             transform.localScale = new Vector2(1, 1);
@@ -281,8 +279,6 @@ public class SpyderEnemy : Monster, IAttack, IParry
                 animState = AnimaState.Ground;
                 SetCurrentAniamtion(animState);
                 yield return Yields.WaitSeconds(1.8f);
-                Projectile earthProjectileLeft = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
-                Projectile earthProjectileRight = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
                 rigid.velocity = Vector2.up * stat.earthAttackJump;
                 isEarthAttack = true;
 
@@ -345,24 +341,26 @@ public class SpyderEnemy : Monster, IAttack, IParry
         {
             yield return new WaitForSeconds(0.6f);
 
+            ActivateParticle(earthObjectGroup);
+
+            isEarthAttack = false;
+
             ActivateObjects(earthObjectGroup1);
-            yield return new WaitForSeconds(stat.earthAttackTime);
+            yield return new WaitForSeconds(0.1f);
             DeactivateObjects(earthObjectGroup1);
-            yield return new WaitForSeconds(stat.earthAttackDalay);
+            yield return new WaitForSeconds(0.3f);
 
             ActivateObjects(earthObjectGroup2);
-            yield return new WaitForSeconds(stat.earthAttackTime);
+            yield return new WaitForSeconds(0.1f);
             DeactivateObjects(earthObjectGroup2);
-            yield return new WaitForSeconds(stat.earthAttackDalay);
+            yield return new WaitForSeconds(0.3f);
 
             ActivateObjects(earthObjectGroup3);
-            yield return new WaitForSeconds(stat.earthAttackTime);
+            yield return new WaitForSeconds(0.1f);
             DeactivateObjects(earthObjectGroup3);
-            yield return new WaitForSeconds(stat.earthAttackDalay);
-            isEarthAttack = false;
+            yield return new WaitForSeconds(0.3f);
         }
     }
-
     private void ActivateObjects(GameObject[] objects)
     {
         foreach (GameObject obj in objects)
@@ -378,6 +376,30 @@ public class SpyderEnemy : Monster, IAttack, IParry
             obj.SetActive(false);
         }
     }
+
+        private void ActivateParticle(ParticleSystem[] objects)
+    {
+         StartCoroutine(PlayObjects(objects));
+    }
+    private IEnumerator PlayObjects(ParticleSystem[] objects)
+    {
+        int objectsPerBatch = 2;
+        int batches = Mathf.CeilToInt((float)objects.Length / objectsPerBatch);
+
+        for (int i = 0; i < batches; i++)
+        {
+            for (int j = 0; j < objectsPerBatch; j++)
+            {
+                int index = i * objectsPerBatch + j;
+                if (index < objects.Length && objects[index] != null)
+                {
+                    objects[index].Play();
+                }
+            }
+            yield return new WaitForSeconds(stat.earthAttackTime);
+        }
+    }
+
     public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
     {
         if (!isHeavyAttack)
