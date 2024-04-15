@@ -5,6 +5,8 @@ using UnityEngine.TerrainUtils;
 
 public class Projectile : MonoBehaviour
 {
+    [SerializeField]
+    private SpyderEnemy spyderEnemy;
     private Rigidbody2D rigid;
 
     private Vector2 moveDirection = Vector2.zero;
@@ -53,7 +55,7 @@ public class Projectile : MonoBehaviour
 
     public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, eActivableColor color)
     {
-        // spyderEnemy.spyderColorEvent.AddListener(CheckIsHeavyAttack);
+        spyderEnemy?.spyderColorEvent.AddListener(CheckIsHeavyAttack);
 
         attackFrom = shotFrom;
         transform.position = from;
