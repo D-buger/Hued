@@ -7,7 +7,7 @@ public interface IMove
     void WaitMove(MonsterStat stat, Vector2 sartPos, Vector2 endPos);
     void BettleMove(MonsterStat stat, Vector2 playerPos, Vector2 distancePos);
 }
-public class Monster : MonoBehaviour
+public class Monster : MonoBehaviour, IAttack
 {
     private SpriteRenderer render;
     private Animator anim;
@@ -15,6 +15,10 @@ public class Monster : MonoBehaviour
 
     bool isDead = false;
 
+    public void AfterAttack(Vector2 attackDir)
+    {
+        throw new System.NotImplementedException();
+    }
 
     public void CheckDead(bool Dead, bool isAnim, int MonsterHP)
     {
@@ -32,5 +36,10 @@ public class Monster : MonoBehaviour
     {
         anim.SetTrigger("deathTrigger");
         gameObject.SetActive(false);
+    }
+
+    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    {
+        throw new System.NotImplementedException();
     }
 }
