@@ -5,10 +5,16 @@ using UnityEngine;
 
 public class ColorObjectManager : MonoBehaviour
 {
+    private int OBJECT_LAYER { get; set; }
+    private int COLOR_OBJECT_LAYER { get; set; }
+
     private Dictionary<eActivableColor, List<ColorObject>> colorObjects = new Dictionary<eActivableColor, List<ColorObject>>();
 
     private void Awake()
     {
+        OBJECT_LAYER = LayerMask.NameToLayer("Object");
+        COLOR_OBJECT_LAYER = LayerMask.NameToLayer("ColorObject");
+
         ColorObject[] objects = transform.GetComponentsInChildren<ColorObject>();
         List<ColorObject>[] objectColorList = new List<ColorObject>[(int)eActivableColor.MAX_COLOR];
         for(int i =0; i < objectColorList.Length; i++)
@@ -32,6 +38,7 @@ public class ColorObjectManager : MonoBehaviour
         {
             DisableColors((eActivableColor)i);
         }
+        PlayManager.Instance.ActivationColorEvent.AddListener(EnableColors);
     }
 
     public void EnableColors(eActivableColor color)
@@ -39,6 +46,7 @@ public class ColorObjectManager : MonoBehaviour
         for(int i = 0;i < colorObjects[color].Count; i++)
         {
             colorObjects[color][i].EnableObject(color);
+            colorObjects[color][i].ChangeLayer(COLOR_OBJECT_LAYER);
         }
     }
     public void DisableColors(eActivableColor color)
@@ -46,6 +54,8 @@ public class ColorObjectManager : MonoBehaviour
         for (int i = 0; i < colorObjects[color].Count; i++)
         {
             colorObjects[color][i].DisableObject();
+            colorObjects[color][i].ChangeLayer(OBJECT_LAYER);
         }
     }
+
 }
