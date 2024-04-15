@@ -6,14 +6,14 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SocialPlatforms;
+using Spine.Unity;
 using static UnityEngine.RuleTile.TilingRuleOutput;
+using Spine.Unity.Examples;
 
 public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 {
     [Header("Components")]
     private Rigidbody2D rigid;
-    private SpriteRenderer renderer;
-    private Animator anim;
     private GameObject attackPoint;
     private Attack meleeAttack;
     [SerializeField]
@@ -22,6 +22,22 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     private Projectile rangedAttack;
     [SerializeField]
     private Projectile earthAttack;
+
+
+
+    [Header("Animation")]
+    [SerializeField]
+    private SkeletonAnimation skeletonAnimation;
+    [SerializeField]
+    private AnimationReferenceAsset[] aniClip;
+
+    public enum AnimaState
+    {
+        Idle, Walk, Charge, Ground, Spit, Detection, Dead
+    }
+    private AnimaState animState;
+
+    private string currentAnimation;
 
     private float elapsedTime = 0;
     private float arrivalThreshold = 1f;
@@ -45,9 +61,9 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
-    private int currentHP;
+    public int currentHP;
 
-    private bool isDead = false;
+    public bool isDead = false;
     private bool isBettle = false;
     private bool canAttack = true;
     private bool isAttack = false;
@@ -61,8 +77,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
-        renderer = GetComponent<SpriteRenderer>();
-        anim = GetComponent<Animator>();
         attackPoint = transform.GetChild(0).gameObject;
         meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
@@ -78,7 +92,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         currentHP = stat.MonsterHP;
         thisPosition = targetPosition;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, null);
-        MonsterManager.Instance.getColorEvent.AddListener(CheckIsHeavy);
+        //MonsterManager.Instance.getColorEvent.AddListener(CheckIsHeavy);
         gameStart = true;
     }
 
@@ -95,12 +109,13 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     {
         if (isDead)
         {
-            return;
+            StartCoroutine(Dead());
         }
         CheckPlayer();
         if (isWait)
         {
             WaitSituation();
+            animState = AnimaState.Walk;
         }
         else if (canAttack && isBettle)
         {
@@ -111,7 +126,50 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         {
             CheckWaitTime();
         }
+        SetCurrentAniamtion(animState);
+        if (!gameStart)
+        {
+            gameStart = true;
+        }
     }
+    private void AsncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
+    {
+        if (animClip.name.Equals(currentAnimation))
+            return;
+
+        skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
+        skeletonAnimation.loop = loop;
+        skeletonAnimation.timeScale = timeScale;
+        currentAnimation = animClip.name;
+    }
+    private void SetCurrentAniamtion(AnimaState _state)
+    {
+        switch (_state)
+        {
+            case AnimaState.Idle:
+                AsncAnimation(aniClip[(int)AnimaState.Idle], true, 1f);
+                break;
+            case AnimaState.Walk:
+                AsncAnimation(aniClip[(int)AnimaState.Walk], true, 1f);
+                break;
+            case AnimaState.Charge:
+                AsncAnimation(aniClip[(int)AnimaState.Charge], false, 1f);
+                break;
+            case AnimaState.Ground:
+                AsncAnimation(aniClip[(int)AnimaState.Ground], false, 1f);
+                break;
+            case AnimaState.Spit:
+                AsncAnimation(aniClip[(int)AnimaState.Spit], false, 1f);
+                break;
+            case AnimaState.Detection:
+                AsncAnimation(aniClip[(int)AnimaState.Detection], false, 1f);
+                break;
+            case AnimaState.Dead:
+                AsncAnimation(aniClip[(int)AnimaState.Dead], false, 1f);
+                break;
+        }
+    }
+
     private void CheckPlayer()
     {
         if (IsBetween(PlayerPos.x, startPosition.x, targetPosition.x))
@@ -183,17 +241,23 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
         if (value.x <= 0)
         {
+            transform.localScale = new Vector2(1, 1);
             check = new Vector2(-0.998f, 0);
         }
         else
         {
+            transform.localScale = new Vector2(-1, 1);
             check = new Vector2(0.998f, 0);
         }
 
-        anim.SetTrigger("attackTrigger");
-
+        animState = AnimaState.Detection;
+        SetCurrentAniamtion(animState);
+        yield return Yields.WaitSeconds(1.34f);
         if (isfirstAttack)
         {
+            yield return Yields.WaitSeconds(0.10f);
+            animState = AnimaState.Spit;
+            SetCurrentAniamtion(animState);
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             isfirstAttack = false;
             attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
@@ -204,6 +268,9 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             float randomChance = UnityEngine.Random.value;
             if (facingPlayer && randomChance <= stat.specialAttackPercent/100)
             {
+                animState = AnimaState.Charge;
+                SetCurrentAniamtion(animState);
+                yield return Yields.WaitSeconds(1.3f);
                 facingPlayer = false;
 
                 meleeAttack?.AttackAble(-value, stat.attackDamage, isHeavy);
@@ -211,6 +278,9 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             }
             else
             {
+                animState = AnimaState.Ground;
+                SetCurrentAniamtion(animState);
+                yield return Yields.WaitSeconds(1.8f);
                 Projectile earthProjectileLeft = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
                 Projectile earthProjectileRight = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
                 rigid.velocity = Vector2.up * stat.earthAttackJump;
@@ -221,6 +291,9 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         }
         else if (distanceToPlayer > stat.meleeAttackRange && distanceToPlayer < stat.rangedAttackRange)
         {
+            animState = AnimaState.Spit;
+            SetCurrentAniamtion(animState);
+            yield return Yields.WaitSeconds(0.14f);
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             isfirstAttack = false;
             attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
@@ -244,11 +317,11 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
             if (horizontalValue > 0)
             {
-                renderer.flipX = false;
+                skeletonAnimation.initialFlipX = false;
             }
             else
             {
-                renderer.flipX = true;
+                skeletonAnimation.initialFlipX = true;
             }
 
             if (PlayerPos == null)
@@ -266,7 +339,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             }
         }
     }
-    IEnumerator SpawnObjects()
+    private IEnumerator SpawnObjects()
     {
         while (isEarthAttack)
         {
@@ -290,7 +363,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         }
     }
 
-    void ActivateObjects(GameObject[] objects)
+    private void ActivateObjects(GameObject[] objects)
     {
         foreach (GameObject obj in objects)
         {
@@ -298,7 +371,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         }
     }
 
-    void DeactivateObjects(GameObject[] objects)
+    private void DeactivateObjects(GameObject[] objects)
     {
         foreach (GameObject obj in objects)
         {
@@ -336,12 +409,17 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         if (currentHP <= 0 && !isDead)
         {
             isDead = true;
-            anim.SetTrigger("deathTrigger");
-        }
+;        }
     }
-    public void Dead()
+    private IEnumerator Dead()
     {
+        skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
+        skeletonAnimation.state.GetCurrent(0).TimeScale = 1;
+        animState = AnimaState.Dead;
+        SetCurrentAniamtion(animState);
+        yield return new WaitForSeconds(1.5f);
         gameObject.SetActive(false);
+        yield return null;
     }
 
     private void OnDrawGizmos()

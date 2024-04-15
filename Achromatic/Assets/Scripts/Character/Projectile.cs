@@ -22,14 +22,13 @@ public class Projectile : MonoBehaviour
     private bool isShooting = false;
     private bool isParried = false;
 
-    private SpyderEnemy spyderEnemy;
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
     }
 
 
-    private void Update()
+    /*private void Update()
     {
         if (isShooting)
         {
@@ -38,7 +37,7 @@ public class Projectile : MonoBehaviour
                 Destroy(gameObject);
             }
         }
-    }
+    }*/
 
     public void CheckIsHeavyAttack(eActivableColor color)
     {
@@ -85,7 +84,7 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.gameObject.Equals(attackFrom) && !collision.CompareTag(PlayManager.ATTACK_TAG))
+        if (!collision.gameObject.Equals(attackFrom) && !collision.CompareTag(PlayManager.ATTACK_TAG) && collision.CompareTag(PlayManager.PLAYER_TAG))
         {
             collision.GetComponent<IAttack>()?.Hit(damage, moveDirection, isHeavyAttack);
             Destroy(gameObject);
