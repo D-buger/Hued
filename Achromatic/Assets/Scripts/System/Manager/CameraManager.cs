@@ -2,6 +2,7 @@ using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using Cinemachine;
 
 public class CameraManager : SingletonBehavior<CameraManager>
@@ -274,9 +275,20 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 break;
         }
         fadeCameraCoroutine = StartCoroutine(FadeSequence(newColl, changeFadeTime));
+        fadeCameraCoroutine = StartCoroutine(FadeSequence(changeFadeTime, changeDelayTime, 
+            () =>
+            {
+                confiner.m_BoundingShape2D = newColl;
+            }));
+    }
+
+    public void CameraFade(float fadeTime, float fadeDelay, UnityAction action)
+    {
+        fadeCameraCoroutine = StartCoroutine(FadeSequence(fadeTime, fadeDelay, action));
     }
 
     IEnumerator FadeSequence(Collider2D coll, float time)
+    IEnumerator FadeSequence(float fadeTime, float fadeDelay, UnityAction action)
     {
         InputManager.Instance.CanInput = false;
 
@@ -286,6 +298,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
         while (true)
         {
             i += Time.deltaTime / time;
+            i += Time.deltaTime / fadeTime;
             lerp = Mathf.Lerp(0, 1, i);
             cameraFade.m_Alpha = lerp;
             if (i > 1)
@@ -300,9 +313,14 @@ public class CameraManager : SingletonBehavior<CameraManager>
         confiner.m_BoundingShape2D = coll;
         yield return Yields.WaitSeconds(changeDelayTime);
         InputManager.Instance.CanInput = true;
+=======
+        action?.Invoke();
+        yield return Yields.WaitSeconds(fadeDelay);
+>>>>>>> 11-Map-Interaction-Objects
         while (true)
         {
             i += Time.deltaTime / time;
+            i += Time.deltaTime / fadeTime;
             lerp = Mathf.Lerp(1, 0, i);
             cameraFade.m_Alpha = lerp;
             if (i > 1)

@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Proto_MonsterStat_01
   m_EditorClassIdentifier: 
   monsterHP: 5
-  enemyColor: 0
+  enemyColor: 1
   senseCircle: 10
   moveSpeed: 1
   attackDamage: 1
   attackTime: 0.3
   attackCooldown: 1
+  contactDamage: 1
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
