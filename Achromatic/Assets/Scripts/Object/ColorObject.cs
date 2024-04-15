@@ -44,4 +44,9 @@ public class ColorObject : MonoBehaviour
         coll.forceReceiveLayers |= (1 << LayerMask.NameToLayer(PlayManager.PLAYER_TAG));
         coll.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.PLAYER_TAG));
     }
+
+    public void ChangeLayer(int layer)
+    {
+        gameObject.layer = layer;
+    }
 }

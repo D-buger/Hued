@@ -1,0 +1,300 @@
+
+Red_Crystal_Spider_anime_(ver.1).png
+size: 142,754
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+body_1
+  rotate: false
+  xy: 2, 368
+  size: 78, 72
+  orig: 80, 74
+  offset: 0, 1
+  index: -1
+body_2
+  rotate: true
+  xy: 76, 157
+  size: 66, 61
+  orig: 68, 62
+  offset: 0, 0
+  index: -1
+body_3
+  rotate: false
+  xy: 82, 303
+  size: 49, 45
+  orig: 51, 46
+  offset: 1, 1
+  index: -1
+body_shell_1
+  rotate: false
+  xy: 2, 582
+  size: 98, 69
+  orig: 98, 70
+  offset: 0, 0
+  index: -1
+body_shell_2
+  rotate: false
+  xy: 82, 389
+  size: 57, 49
+  orig: 58, 51
+  offset: 0, 1
+  index: -1
+l_b_leg_1_1
+  rotate: false
+  xy: 41, 75
+  size: 31, 27
+  orig: 32, 27
+  offset: 0, 0
+  index: -1
+l_b_leg_1_2
+  rotate: false
+  xy: 107, 636
+  size: 32, 35
+  orig: 33, 35
+  offset: 0, 0
+  index: -1
+l_b_leg_1_3
+  rotate: false
+  xy: 85, 440
+  size: 49, 60
+  orig: 49, 60
+  offset: 0, 0
+  index: -1
+l_b_leg_2_1
+  rotate: true
+  xy: 102, 588
+  size: 46, 38
+  orig: 46, 38
+  offset: 0, 0
+  index: -1
+l_b_leg_2_2
+  rotate: true
+  xy: 2, 150
+  size: 30, 47
+  orig: 31, 48
+  offset: 1, 1
+  index: -1
+l_b_leg_2_3
+  rotate: false
+  xy: 2, 519
+  size: 90, 61
+  orig: 90, 61
+  offset: 0, 0
+  index: -1
+l_eye_1
+  rotate: false
+  xy: 41, 46
+  size: 31, 27
+  orig: 32, 28
+  offset: 1, 0
+  index: -1
+l_eye_2
+  rotate: true
+  xy: 39, 7
+  size: 20, 25
+  orig: 20, 25
+  offset: 0, 0
+  index: -1
+l_eye_3
+  rotate: true
+  xy: 117, 117
+  size: 20, 21
+  orig: 22, 22
+  offset: 1, 0
+  index: -1
+l_f_leg_1_1
+  rotate: false
+  xy: 82, 225
+  size: 47, 76
+  orig: 48, 77
+  offset: 1, 0
+  index: -1
+l_f_leg_1_2
+  rotate: true
+  xy: 75, 83
+  size: 35, 37
+  orig: 35, 37
+  offset: 0, 0
+  index: -1
+l_f_leg_1_3
+  rotate: false
+  xy: 74, 46
+  size: 36, 35
+  orig: 36, 37
+  offset: 0, 1
+  index: -1
+l_f_leg_2_1
+  rotate: true
+  xy: 94, 502
+  size: 40, 46
+  orig: 40, 47
+  offset: 0, 0
+  index: -1
+l_f_leg_2_2
+  rotate: true
+  xy: 107, 717
+  size: 35, 33
+  orig: 35, 33
+  offset: 0, 0
+  index: -1
+l_f_leg_2_3
+  rotate: false
+  xy: 51, 104
+  size: 22, 27
+  orig: 22, 27
+  offset: 0, 0
+  index: -1
+r_b_leg_1_1
+  rotate: true
+  xy: 107, 11
+  size: 24, 27
+  orig: 26, 29
+  offset: 1, 0
+  index: -1
+r_b_leg_1_2
+  rotate: false
+  xy: 114, 81
+  size: 26, 34
+  orig: 28, 35
+  offset: 1, 1
+  index: -1
+r_b_leg_1_3
+  rotate: true
+  xy: 82, 350
+  size: 37, 57
+  orig: 37, 59
+  offset: 0, 1
+  index: -1
+r_b_leg_2_1
+  rotate: true
+  xy: 76, 120
+  size: 35, 39
+  orig: 37, 41
+  offset: 1, 1
+  index: -1
+r_b_leg_2_2
+  rotate: false
+  xy: 107, 673
+  size: 32, 42
+  orig: 34, 44
+  offset: 1, 1
+  index: -1
+r_b_leg_2_3
+  rotate: false
+  xy: 2, 299
+  size: 78, 67
+  orig: 79, 68
+  offset: 0, 0
+  index: -1
+r_crystal_1
+  rotate: true
+  xy: 39, 29
+  size: 15, 34
+  orig: 15, 34
+  offset: 0, 0
+  index: -1
+r_crystal_2
+  rotate: false
+  xy: 102, 544
+  size: 38, 42
+  orig: 39, 42
+  offset: 1, 0
+  index: -1
+r_crystal_3
+  rotate: true
+  xy: 2, 231
+  size: 66, 75
+  orig: 68, 76
+  offset: 1, 1
+  index: -1
+r_crystal_4
+  rotate: false
+  xy: 51, 133
+  size: 23, 47
+  orig: 23, 49
+  offset: 0, 1
+  index: -1
+r_crystal_5
+  rotate: false
+  xy: 2, 20
+  size: 35, 35
+  orig: 37, 35
+  offset: 1, 0
+  index: -1
+r_eye_1
+  rotate: true
+  xy: 112, 37
+  size: 15, 28
+  orig: 16, 29
+  offset: 1, 1
+  index: -1
+r_eye_2
+  rotate: true
+  xy: 2, 2
+  size: 16, 24
+  orig: 17, 25
+  offset: 0, 1
+  index: -1
+r_eye_3
+  rotate: true
+  xy: 117, 139
+  size: 16, 22
+  orig: 17, 22
+  offset: 0, 0
+  index: -1
+r_f_leg_1_1
+  rotate: true
+  xy: 2, 182
+  size: 47, 72
+  orig: 49, 73
+  offset: 1, 1
+  index: -1
+r_f_leg_1_2
+  rotate: true
+  xy: 2, 94
+  size: 35, 37
+  orig: 36, 38
+  offset: 1, 0
+  index: -1
+r_f_leg_1_3
+  rotate: false
+  xy: 2, 57
+  size: 37, 35
+  orig: 39, 35
+  offset: 1, 0
+  index: -1
+r_f_leg_2_1
+  rotate: true
+  xy: 2, 131
+  size: 17, 47
+  orig: 19, 48
+  offset: 1, 1
+  index: -1
+r_f_leg_2_2
+  rotate: true
+  xy: 75, 15
+  size: 29, 30
+  orig: 29, 32
+  offset: 0, 1
+  index: -1
+r_f_leg_2_3
+  rotate: true
+  xy: 112, 54
+  size: 25, 28
+  orig: 26, 30
+  offset: 0, 1
+  index: -1
+spider_body
+  rotate: false
+  xy: 2, 442
+  size: 81, 75
+  orig: 81, 75
+  offset: 0, 0
+  index: -1
+spider_head
+  rotate: false
+  xy: 2, 653
+  size: 103, 99
+  orig: 103, 99
+  offset: 0, 0
+  index: -1

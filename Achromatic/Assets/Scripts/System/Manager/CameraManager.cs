@@ -288,6 +288,8 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
     IEnumerator FadeSequence(float fadeTime, float fadeDelay, UnityAction action)
     {
+        InputManager.Instance.CanInput = false;
+
         float i = 0;
         float lerp = 0;
 
@@ -307,6 +309,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
         lerp = 1;
         action?.Invoke();
         yield return Yields.WaitSeconds(fadeDelay);
+        InputManager.Instance.CanInput = true;
         while (true)
         {
             i += Time.deltaTime / fadeTime;
@@ -319,7 +322,6 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
             yield return null;
         }
-
 
     }
 

@@ -53,7 +53,8 @@ public class Trap : MonoBehaviour
                 CameraManager.Instance.CameraFade(cameraFadeTime, 0,
                     () =>
                     {
-                        collision.gameObject.transform.position = goBackPosition[smallDistanceIndex];
+                        PlayManager.Instance.GetPlayer.transform.position = goBackPosition[smallDistanceIndex];
+                        
                     });
             }
         }

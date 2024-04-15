@@ -93,6 +93,7 @@ public class Player : MonoBehaviour, IAttack
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
 
+    private float dashEffectTime = 5;
     private Collision2D parryDashCollision;
     private void Awake()
     {
@@ -121,6 +122,7 @@ public class Player : MonoBehaviour, IAttack
         {
             effectList[i].Stop();
         }
+
     }
 
     void Start()
@@ -134,7 +136,7 @@ public class Player : MonoBehaviour, IAttack
 
         stat.currentHP = stat.playerHP;
 
-        groundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object"));
+        groundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object")) | (1 << LayerMask.NameToLayer("ColorObject"));
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
     }
@@ -179,11 +181,6 @@ public class Player : MonoBehaviour, IAttack
         }
 
         rigid.velocity = new Vector2(horizontalMove, rigid.velocity.y);
-    }
-
-    void SetAnimation()
-    {
-
     }
 
     void Turn()
@@ -272,6 +269,7 @@ public class Player : MonoBehaviour, IAttack
         rigid.drag = 0;
         rigid.mass = 0;
         DashTrail.Clear();
+        DashTrail.startLifetime = stat.dashingTime * dashEffectTime;
         DashTrail.Play();
 
         dashPos.x = dashPos.x - transform.position.x;
@@ -304,7 +302,6 @@ public class Player : MonoBehaviour, IAttack
         yield return Yields.WaitSeconds(stat.dashCooldown - stat.dashAfterDelay);
         canDash = true;
     }
-
     IEnumerator ParryDashSequence(Vector2 dashPos)
     {
         isParry = false;
@@ -321,6 +318,7 @@ public class Player : MonoBehaviour, IAttack
         rigid.drag = 0;
         rigid.mass = 0;
         DashTrail.Clear();
+        DashTrail.startLifetime = stat.parryDashTime * dashEffectTime;
         DashTrail.Play();
 
         dashPos.x = dashPos.x - transform.position.x;
@@ -492,7 +490,7 @@ public class Player : MonoBehaviour, IAttack
             if (isDash || isParryDash)
             {
                 int damage = isParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<TestEnemy>().Hit(damage, 
+                collision.gameObject.GetComponent<Monster>()?.Hit(damage, 
                     collision.transform.position - transform.position, false, damage);
             }
         }
@@ -519,10 +517,17 @@ public class Player : MonoBehaviour, IAttack
     {
         if (isDash && collision.CompareTag(PlayManager.ATTACK_TAG))
         {
-            if (collision.GetComponent<Attack>().isCanParryAttack(PlayManager.PLAYER_TAG))
+            Attack attack = collision.GetComponent<Attack>();
+            Projectile projectile = collision.GetComponent<Projectile>();
+            if (attack != null && attack.isCanParryAttack(PlayManager.PLAYER_TAG))
             {
                 parryCondition = true;
             }
+            else if(projectile != null)
+            {
+                parryCondition = true;
+            }
+
         }
 
     }

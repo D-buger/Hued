@@ -105,12 +105,12 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
                 attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized, 
-                    projectileRange ,projectileSpeed, stat.attackDamage, false);
+                    projectileRange ,projectileSpeed, stat.attackDamage, false, eActivableColor.RED);
             }
             else
             {
                 attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
-                   projectileRange, projectileSpeed, stat.attackDamage, true);
+                   projectileRange, projectileSpeed, stat.attackDamage, true, eActivableColor.RED);
             }
         }
         else

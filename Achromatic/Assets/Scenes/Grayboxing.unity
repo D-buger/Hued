@@ -2285,6 +2285,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -4.2947598
       objectReference: {fileID: 0}
+    - target: {fileID: 862719702365529166, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+      propertyPath: changeFadeTime
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 862719702365529166, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+      propertyPath: changeDelayTime
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 1848125885448803405, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_Follow
       value: 
