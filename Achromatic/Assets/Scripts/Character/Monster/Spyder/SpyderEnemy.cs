@@ -112,6 +112,10 @@ public class SpyderEnemy : Monster, IAttack, IParry
         {
             StartCoroutine(Dead());
         }
+        else
+        {
+            CheckDead();
+        }
         CheckPlayer();
         if (isWait)
         {
@@ -443,11 +447,11 @@ public class SpyderEnemy : Monster, IAttack, IParry
                 rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
             }
         }
-        CheckDead();
     }
 
     private IEnumerator Dead()
     {
+        isDead = false;
         skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
         skeletonAnimation.state.GetCurrent(0).TimeScale = 1;
         animState = AnimaState.Dead;
