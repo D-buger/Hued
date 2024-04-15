@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
@@ -330,8 +329,8 @@ public class Player : MonoBehaviour, IAttack
         float originGravityScale = rigid.gravityScale;
         float originLiniearDrag = rigid.drag;
         float originMass = rigid.mass;
-        coll.forceReceiveLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        coll.forceSendLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        coll.forceReceiveLayers &= ~PlayManager.Instance.EnemyMask;
+        coll.forceSendLayers &= ~PlayManager.Instance.EnemyMask;
         rigid.gravityScale = 0f;
         rigid.drag = 0;
         rigid.mass = 0;
@@ -368,8 +367,8 @@ public class Player : MonoBehaviour, IAttack
             }
             parryDashCollision = null;
         }
-        coll.forceReceiveLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        coll.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        coll.forceReceiveLayers |= PlayManager.Instance.EnemyMask;
+        coll.forceSendLayers |= PlayManager.Instance.EnemyMask;
 
         isParryDash = false;
         DashTrail.Stop();
@@ -422,12 +421,12 @@ public class Player : MonoBehaviour, IAttack
 
         if (!isCriticalAttack)
         {
-            attack.AttackAble(angleVec.normalized, stat.attackDamage, false, stat.colorAttackDamage);
+            attack.AttackAble(angleVec.normalized, stat.attackDamage, stat.colorAttackDamage);
         }
         else
         {
             isCriticalAttack = false;
-            attack.AttackAble(angleVec.normalized, stat.criticalAttackDamage, false, stat.colorCriticalAttackDamage);
+            attack.AttackAble(angleVec.normalized, stat.criticalAttackDamage, stat.colorCriticalAttackDamage);
         }
 
         yield return Yields.WaitSeconds(stat.attackTime);
@@ -543,7 +542,7 @@ public class Player : MonoBehaviour, IAttack
             {
                 parryCondition = true;
             }
-            else if(projectile != null)
+            else if(projectile != null && projectile.IsParryAllow)
             {
                 parryCondition = true;
             }

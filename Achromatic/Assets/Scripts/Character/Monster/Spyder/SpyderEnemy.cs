@@ -8,7 +8,6 @@ using UnityEngine.Events;
 using UnityEngine.SocialPlatforms;
 using Spine.Unity;
 using static UnityEngine.RuleTile.TilingRuleOutput;
-using Spine.Unity.Examples;
 
 public class SpyderEnemy : Monster, IAttack, IParry
 {
@@ -58,6 +57,8 @@ public class SpyderEnemy : Monster, IAttack, IParry
     private Vector3 endPos;
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
+    private LayerMask originLayer;
+    private LayerMask colorVisibleLayer;
 
     private bool isBettle = false;
     private bool canAttack = true;
@@ -86,18 +87,23 @@ public class SpyderEnemy : Monster, IAttack, IParry
 
         currentHP = stat.MonsterHP;
         thisPosition = targetPosition;
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, null);
-        MonsterManager.Instance.getColorEvent.AddListener(CheckIsHeavy);
+        originLayer = gameObject.layer;
+        colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor, null);
+        MonsterManager.Instance?.getColorEvent.AddListener(CheckIsHeavy);
         gameStart = true;
+
+        PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
+        PlayManager.Instance.UpdateColorthing();
     }
 
-    private void CheckIsHeavy(eActivableColor playerColor)
+    private void CheckIsHeavy(eActivableColor color)
     {
-        if (playerColor == stat.enemyColor)
+        if (color == stat.enemyColor)
         {
             isHeavy = false;
         }
-        spyderColorEvent?.Invoke(playerColor);
+        spyderColorEvent?.Invoke(color);
     }
 
     private void Update()
@@ -217,6 +223,17 @@ public class SpyderEnemy : Monster, IAttack, IParry
     {
         return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
     }
+    private void IsActiveColor(eActivableColor color)
+    {
+        if (color != stat.enemyColor)
+        {
+            gameObject.layer = originLayer;
+        }
+        else
+        {
+            gameObject.layer = colorVisibleLayer;
+        }
+    }
 
 
     public void Attack(Vector2 vec)
@@ -256,9 +273,11 @@ public class SpyderEnemy : Monster, IAttack, IParry
             animState = AnimaState.Spit;
             SetCurrentAniamtion(animState);
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
-            attack.transform.rotation = Quaternion.Euler(0,0, (float)yAngle);
+            attack.transform.rotation = Quaternion.Euler(0, 0, (float)yAngle);
             attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                     stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, eActivableColor.RED);
+            spyderColorEvent.AddListener(attack.CheckIsHeavyAttack);
+            PlayManager.Instance.UpdateColorthing();
             isfirstAttack = false;
         }
         else if (distanceToPlayer < stat.meleeAttackRange)
@@ -271,7 +290,7 @@ public class SpyderEnemy : Monster, IAttack, IParry
                 yield return Yields.WaitSeconds(1.3f);
                 facingPlayer = false;
 
-                meleeAttack?.AttackAble(-value, stat.attackDamage, isHeavy);
+                meleeAttack?.AttackAble(-value, stat.attackDamage);
                 rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
             }
             else
@@ -294,6 +313,7 @@ public class SpyderEnemy : Monster, IAttack, IParry
             attack.transform.rotation = Quaternion.Euler(horizontalValue, verticalValue, 0);
             attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                     stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, eActivableColor.RED);
+            spyderColorEvent.AddListener(attack.CheckIsHeavyAttack);
 
         }
         yield return Yields.WaitSeconds(stat.attackTime);

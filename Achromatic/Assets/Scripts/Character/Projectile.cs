@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.TerrainUtils;
 
 public class Projectile : MonoBehaviour
 {
-    [SerializeField]
-    private SpyderEnemy spyderEnemy;
     private Rigidbody2D rigid;
+    private SpriteRenderer renderer;
 
     private Vector2 moveDirection = Vector2.zero;
     private float moveSpeed = 1f;
@@ -27,6 +27,7 @@ public class Projectile : MonoBehaviour
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
+        renderer = GetComponent<SpriteRenderer>();
     }
 
 
@@ -46,17 +47,17 @@ public class Projectile : MonoBehaviour
         if (color == enemyColor)
         {
             isHeavyAttack = false;
+            renderer.color = Color.white;
         }
         else
         {
             isHeavyAttack = true;
+            renderer.color = Color.black;
         }
     }
 
     public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, eActivableColor color)
     {
-        spyderEnemy?.spyderColorEvent.AddListener(CheckIsHeavyAttack);
-
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;

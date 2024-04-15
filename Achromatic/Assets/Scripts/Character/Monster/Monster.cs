@@ -8,7 +8,6 @@ using UnityEngine.Events;
 using UnityEngine.SocialPlatforms;
 using Spine.Unity;
 using static UnityEngine.RuleTile.TilingRuleOutput;
-using Spine.Unity.Examples;
 
 public class Monster : MonoBehaviour, IAttack
 {

@@ -23,6 +23,8 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     private const int FILTER_MAX_GAUGE = 100;
 
+    public LayerMask EnemyMask => (1 << LayerMask.NameToLayer(ENEMY_TAG)) | (1 << LayerMask.NameToLayer("ColorEnemy"));
+
     [HideInInspector]
     public CameraManager cameraManager;
 
@@ -42,7 +44,9 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private ColorObjectManager colorObjectManager;
     private List<eActivableColor> activationColors = new List<eActivableColor>();
 
+    public UnityEvent<eActivableColor> FilterColorAttackEvent;
     public UnityEvent<eActivableColor> ActivationColorEvent;
+
     public bool ContainsActivationColors(eActivableColor color) => activationColors.Contains(color) || (haveColor == color && isFilterOn);
 
     private Player player;
@@ -54,6 +58,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private bool canFilterOn = false;
     private bool isFilterOn = false;
     private bool isFilterInputCooldown = false;
+    private bool activeOnce = false;
     
     public eActivableColor ActivationColors
     {
@@ -84,6 +89,11 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
         volumeProfile.activationColor.Override(activateColor);
     }
+
+    public void UpdateColorthing()
+    {
+        FilterColorAttackEvent?.Invoke(isFilterOn ? haveColor : eActivableColor.NONE);
+    }
     private void Start()
     {
         InputManager.Instance.FilterEvent.AddListener(ActiveFilter);
@@ -92,6 +102,14 @@ public class PlayManager : SingletonBehavior<PlayManager>
     }
     private void Update()
     {
+        if (!activeOnce)
+        {
+            activeOnce = true;
+
+            FilterColorAttackEvent?.Invoke(haveColor);
+        }
+
+
         if (isFilterInputCooldown)
         {
             filterCooldown += Time.deltaTime;
@@ -108,11 +126,13 @@ public class PlayManager : SingletonBehavior<PlayManager>
             if (isFilterOn)
             {
                 colorObjectManager.EnableColors(haveColor);
+                FilterColorAttackEvent?.Invoke(haveColor);
                 filterGauge -= filterPercentPerSec * Time.deltaTime;
             }
             else
             {
                 colorObjectManager.DisableColors(haveColor);
+                FilterColorAttackEvent?.Invoke(eActivableColor.NONE);
                 if (canFilterOn)
                 {
                     filterGauge += filterRecoveryPersec * Time.deltaTime;
