@@ -158,7 +158,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         Vector2 value = new Vector2(horizontalValue, verticalValue);
         Vector2 check = new Vector2(1.0f, 0);
         float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
-        Debug.Log(angleToPlayer);
+        //Debug.Log(angleToPlayer);
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
 
         if (value.x <= 0)

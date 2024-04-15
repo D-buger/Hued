@@ -181,11 +181,6 @@ public class Player : MonoBehaviour, IAttack
         rigid.velocity = new Vector2(horizontalMove, rigid.velocity.y);
     }
 
-    void SetAnimation()
-    {
-
-    }
-
     void Turn()
     {
         if (playerFaceRight && transform.rotation.y == 0)
@@ -492,7 +487,7 @@ public class Player : MonoBehaviour, IAttack
             if (isDash || isParryDash)
             {
                 int damage = isParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<TestEnemy>().Hit(damage, 
+                collision.gameObject.GetComponent<Monster>().Hit(damage, 
                     collision.transform.position - transform.position, false, damage);
             }
         }
