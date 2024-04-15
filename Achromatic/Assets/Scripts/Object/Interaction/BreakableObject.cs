@@ -28,6 +28,7 @@ public class BreakableObject : MonoBehaviour
         isBreak = true;
         coll.enabled = false;
         renderer.sprite = breakSprite;
+        particle.Play();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
