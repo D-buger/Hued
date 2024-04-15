@@ -10,7 +10,7 @@ using Spine.Unity;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 using Spine.Unity.Examples;
 
-public class SpyderEnemy : MonoBehaviour, IAttack, IParry
+public class SpyderEnemy : Monster, IAttack, IParry
 {
     [Header("Components")]
     private Rigidbody2D rigid;
@@ -22,8 +22,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     private Projectile rangedAttack;
     [SerializeField]
     private Projectile earthAttack;
-
-    private int currentHP;
 
     [Header("Animation")]
     [SerializeField]
@@ -61,7 +59,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
-    public bool isDead = false;
     private bool isBettle = false;
     private bool canAttack = true;
     private bool isAttack = false;
@@ -188,15 +185,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     {
         return value >= Mathf.Min(start, end) && value <= Mathf.Max(start, end);
     }
-    private void CheckWaitTime()
-    {
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime >= stat.usualTime)
-        {
-            elapsedTime = 0f;
-            isWait = true;
-        }
-    }
 
     private void WaitSituation()
     {
@@ -214,6 +202,15 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         {
             transform.localScale = new Vector3(1, 1, 1);
             thisPosition = targetPosition;
+        }
+    }
+    public void CheckWaitTime()
+    {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= stat.usualTime)
+        {
+            elapsedTime = 0f;
+            isWait = true;
         }
     }
     private bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
@@ -236,9 +233,11 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         Vector2 value = new Vector2(horizontalValue, verticalValue);
         Vector2 check = new Vector2(1.0f, 0);
         float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
-        Debug.Log(angleToPlayer);
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
+        double yAngle = Math.Atan2(horizontalValue, verticalValue);
 
+        Debug.Log(horizontalValue);
+        Debug.Log(verticalValue);
         if (value.x <= 0)
         {
             transform.localScale = new Vector2(1, 1);
@@ -259,9 +258,10 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             animState = AnimaState.Spit;
             SetCurrentAniamtion(animState);
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
-            isfirstAttack = false;
+            attack.transform.rotation = Quaternion.Euler(0,0, (float)yAngle);
             attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                     stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, eActivableColor.RED);
+            isfirstAttack = false;
         }
         else if (distanceToPlayer < stat.meleeAttackRange)
         {
@@ -295,7 +295,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             SetCurrentAniamtion(animState);
             yield return Yields.WaitSeconds(0.14f);
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
-            isfirstAttack = false;
+            attack.transform.rotation = Quaternion.Euler(horizontalValue, verticalValue, 0);
             attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                     stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, eActivableColor.RED);
 
@@ -378,7 +378,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             obj.SetActive(false);
         }
     }
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
     {
         if (!isHeavyAttack)
         {
@@ -404,13 +404,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         CheckDead();
     }
 
-    private void CheckDead()
-    {
-        if (currentHP <= 0 && !isDead)
-        {
-            isDead = true;
-;        }
-    }
     private IEnumerator Dead()
     {
         skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
@@ -453,9 +446,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
     }
 
-    public void AfterAttack(Vector2 attackDir)
-    {
-    }
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
