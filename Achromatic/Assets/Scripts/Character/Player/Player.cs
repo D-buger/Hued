@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// 
@@ -122,7 +125,6 @@ public class Player : MonoBehaviour, IAttack
         {
             effectList[i].Stop();
         }
-
     }
 
     void Start()
@@ -139,6 +141,8 @@ public class Player : MonoBehaviour, IAttack
         groundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object")) | (1 << LayerMask.NameToLayer("ColorObject"));
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
+
+        UISystem.Instance.hpSliderEvent?.Invoke(currentHP);
     }
 
     private void Update()
@@ -296,10 +300,24 @@ public class Player : MonoBehaviour, IAttack
         }
         parryCondition = false;
 
+        StartCoroutine(DashCooldownSequence());
         yield return Yields.WaitSeconds(stat.dashAfterDelay);
         canParryDash = true;
-
-        yield return Yields.WaitSeconds(stat.dashCooldown - stat.dashAfterDelay);
+    }
+    IEnumerator DashCooldownSequence()
+    {
+        float time = 0;
+        while (true)
+        {
+            time += Time.deltaTime;
+            UISystem.Instance.dashCooldownEvent(time / stat.dashCooldown);
+            if(time > stat.dashCooldown)
+            {
+                break;
+            }
+            yield return null;
+        }
+        UISystem.Instance.dashCooldownEvent(1);
         canDash = true;
     }
     IEnumerator ParryDashSequence(Vector2 dashPos)
@@ -459,6 +477,7 @@ public class Player : MonoBehaviour, IAttack
         {
             attackDir.y = 0;
             currentHP -= damage;
+            UISystem.Instance.hpSliderEvent.Invoke(currentHP);
             ani.SetTrigger("hitTrigger");
             StartCoroutine(HitReboundSequence(attackDir.normalized, stat.hitReboundPower, stat.hitReboundTime, 0.1f));
         }
@@ -481,6 +500,7 @@ public class Player : MonoBehaviour, IAttack
     private void Dead()
     {
         Debug.Log("Player Dead");
+        SceneManager.LoadScene(0);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

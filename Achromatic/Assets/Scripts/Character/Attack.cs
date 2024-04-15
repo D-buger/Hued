@@ -56,6 +56,7 @@ public class Attack : MonoBehaviour
             attackTime += Time.deltaTime;
         }
     }
+
     public void SetAttack(string from, IAttack after, IParry parry = null)
     {
         attackFrom = from;

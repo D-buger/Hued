@@ -73,7 +73,6 @@ public class PlayManager : SingletonBehavior<PlayManager>
         }
     }
 
-
     protected override void OnAwake()
     {
         cameraManager = Camera.main.GetComponentInChildren<CameraManager>();
@@ -104,25 +103,33 @@ public class PlayManager : SingletonBehavior<PlayManager>
             }
         }
 
-        if (isFilterOn)
+        if(haveColor != eActivableColor.NONE)
         {
-            colorObjectManager.EnableColors(haveColor);
-            filterGauge -= filterPercentPerSec * Time.deltaTime;
-        }
-        else
-        {
-            colorObjectManager.DisableColors(haveColor);
-            if (canFilterOn)
+            if (isFilterOn)
             {
-                filterGauge += filterRecoveryPersec * Time.deltaTime;
+                colorObjectManager.EnableColors(haveColor);
+                filterGauge -= filterPercentPerSec * Time.deltaTime;
             }
             else
             {
-                filterGauge += filterCoolRecoveryPerSec * Time.deltaTime;
+                colorObjectManager.DisableColors(haveColor);
+                if (canFilterOn)
+                {
+                    filterGauge += filterRecoveryPersec * Time.deltaTime;
+                }
+                else
+                {
+                    filterGauge += filterCoolRecoveryPerSec * Time.deltaTime;
+                }
             }
+            UISystem.Instance.filterSliderEvent.Invoke(filterGauge / FILTER_MAX_GAUGE);
         }
-        FilterCheck();
+        else
+        {
+            UISystem.Instance.filterSliderEvent.Invoke(-1);
+        }
 
+        FilterCheck();
     }
     private void FilterCheck()
     {
