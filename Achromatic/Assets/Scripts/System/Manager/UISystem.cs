@@ -55,7 +55,7 @@ public class UISystem : SingletonBehavior<UISystem>
 
     private void dashCooldownUI(float cooldown)
     {
-        if (cooldown >= 1)
+        if (cooldown >= 1 || cooldown <= 0)
         {
             dashCooldown.gameObject.SetActive(false);
         }

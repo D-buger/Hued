@@ -310,14 +310,14 @@ public class Player : MonoBehaviour, IAttack
         while (true)
         {
             time += Time.deltaTime;
-            UISystem.Instance.dashCooldownEvent(time / stat.dashCooldown);
+            UISystem.Instance.dashCooldownEvent(1 - time / stat.dashCooldown);
             if(time > stat.dashCooldown)
             {
                 break;
             }
             yield return null;
         }
-        UISystem.Instance.dashCooldownEvent(1);
+        UISystem.Instance.dashCooldownEvent(0);
         canDash = true;
     }
     IEnumerator ParryDashSequence(Vector2 dashPos)
