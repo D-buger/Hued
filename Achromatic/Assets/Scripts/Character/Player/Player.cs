@@ -17,29 +17,29 @@ using UnityEngine;
 /// </summary>
 
 
-enum ePlayerState : int
+public enum ePlayerState : int
 {
     IDLE = 0,
-    RUNNING = 1,
-    JUMPING = 2,
+    RUN = 1,
+    JUMP = 2,
     DASH = 4,
     GROGGY = 8,
     HIT = 16,
-    ATTACK = 32
+    ATTACK = 32,
+    DEAD
 }
 
 public class Player : MonoBehaviour, IAttack
 {
-    private Rigidbody2D rigid;
-    private BoxCollider2D coll;
-    private SpriteRenderer renderer;
-    private Animator ani;
+    public Rigidbody2D RigidbodyComp { get; private set; }
+    public BoxCollider2D ColliderComp { get; private set; }
+    public SpriteRenderer RendererComp { get; private set; }
+    public Animator AnimatorComp { get; private set; }
 
     private List<ParticleSystem> effectList = new List<ParticleSystem>();
 
     private ParticleSystem parryEffect;
     private ParticleSystem DashTrail;
-    private ParticleSystem runningEffect;
     private ParticleSystem attackHitEffect;
     private ParticleSystem jumpEffect;
 
@@ -67,7 +67,10 @@ public class Player : MonoBehaviour, IAttack
             }
             
         }
-    } 
+    }
+
+    private Dictionary<ePlayerState, PlayerBaseState> playerStates;
+    private PlayerFSM playerFSM;
 
     private bool isJump = false;
     private bool canJump = true;
@@ -83,34 +86,30 @@ public class Player : MonoBehaviour, IAttack
     private bool isParry = false;
     private bool isInvincibility = false;
     private bool isHit = false;
-    private bool onGround = false;
+    public bool OnGround { get; private set; }
 
     private float horizontalMove = 0;
     private bool playerFaceRight = true;
     private ePlayerState state;
 
-    private LayerMask groundLayer;
+    public LayerMask GroundLayer { get; private set; }
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
 
     private Collision2D parryDashCollision;
     private void Awake()
     {
-        rigid = GetComponent<Rigidbody2D>();
-        coll = GetComponent<BoxCollider2D>();
-        renderer = GetComponent<SpriteRenderer>();
-        ani = GetComponent<Animator>();
-
+        RigidbodyComp = GetComponent<Rigidbody2D>();
+        ColliderComp = GetComponent<BoxCollider2D>();
+        RendererComp = GetComponent<SpriteRenderer>();
+        AnimatorComp = GetComponent<Animator>();
         CameraObject = FindObjectOfType<CameraFollowObject>();
-
-        attackPoint = transform.GetChild(0).gameObject;
-        attack = transform.GetChild(0).GetChild(0).GetComponent<Attack>();
 
         GameObject effects = transform.GetChild(1).gameObject;
         parryEffect = effects.transform.GetChild(0).GetComponent<ParticleSystem>();
         DashTrail = effects.transform.GetChild(1).GetComponent<ParticleSystem>();
         runningEffect = effects.transform.GetChild(2).GetComponent<ParticleSystem>();
-        attackHitEffect = attackPoint.GetComponentInChildren<ParticleSystem>();
+        //attackHitEffect = attackPoint.GetComponentInChildren<ParticleSystem>();
 
         effectList.Add(parryEffect);
         effectList.Add(DashTrail);
@@ -121,20 +120,38 @@ public class Player : MonoBehaviour, IAttack
         {
             effectList[i].Stop();
         }
+
+        PlayerIdleState idle = new PlayerIdleState(this);
+        PlayerRunState run = new PlayerRunState(this, runningEffect);
+        PlayerAttackState attack = new PlayerAttackState(this, transform.GetChild(0).gameObject);
+        PlayerJumpState jump = new PlayerJumpState(this);
+        PlayerDashState dash = new PlayerDashState(this);
+        PlayerGroggyState groggy = new PlayerGroggyState(this);
+        PlayerHitState hit = new PlayerHitState(this);
+        PlayerDeadState dead = new PlayerDeadState(this);
+
+        playerStates.Add(ePlayerState.IDLE, idle);
+        playerStates.Add(ePlayerState.RUN, run);
+        playerStates.Add(ePlayerState.ATTACK, attack);
+        playerStates.Add(ePlayerState.JUMP, jump);
+        playerStates.Add(ePlayerState.DASH, dash);
+        playerStates.Add(ePlayerState.GROGGY, groggy);
+        playerStates.Add(ePlayerState.HIT, hit);
+        playerStates.Add(ePlayerState.DEAD, dead);
+
     }
 
     void Start()
     {
-        InputManager.Instance.MoveEvent.AddListener(Move);
+        
         InputManager.Instance.JumpEvent.AddListener(Jump);
         InputManager.Instance.DashEvent.AddListener(Dash);
         InputManager.Instance.LightAttackEvent.AddListener(LightAttack);
 
-        attack.SetAttack(PlayManager.PLAYER_TAG, this);
-
+        playerFSM = new PlayerFSM(playerStates[ePlayerState.IDLE]);
         stat.currentHP = stat.playerHP;
 
-        groundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object")) | (1 << LayerMask.NameToLayer("ColorObject"));
+        GroundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object")) | (1 << LayerMask.NameToLayer("ColorObject"));
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
     }
@@ -143,25 +160,25 @@ public class Player : MonoBehaviour, IAttack
     {
         Turn();
 
-        RaycastHit2D raycastHit = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, bottomOffset, groundLayer);
+        RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
         if (raycastHit.collider != null)
         {
-            onGround = true;
-            ani.SetBool("onGround", true);
+            OnGround = true;
+            AnimatorComp.SetBool("onGround", true);
         }
         else
         {
-            onGround = false;
-            ani.SetBool("onGround", false);
+            OnGround = false;
+            AnimatorComp.SetBool("onGround", false);
         }
-        if (rigid.velocity.y < fallSpeedYDampingChangeThreshold
+        if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold
             && !CameraManager.Instance.IsLerpingYDamping
             && !CameraManager.Instance.LerpedFromPlayerFalling)
         {
             CameraManager.Instance.LerpedFromPlayerFalling = true;
             CameraManager.Instance.LerpYDamping(true);
         }
-        if(rigid.velocity.y >= 0f && 
+        if(RigidbodyComp.velocity.y >= 0f && 
             !CameraManager.Instance.IsLerpingYDamping
             && CameraManager.Instance.LerpedFromPlayerFalling)
         {
@@ -178,15 +195,15 @@ public class Player : MonoBehaviour, IAttack
             return;
         }
 
-        rigid.velocity = new Vector2(horizontalMove, rigid.velocity.y);
+        RigidbodyComp.velocity = new Vector2(horizontalMove, RigidbodyComp.velocity.y);
     }
 
-    void SetAnimation()
+    public void ChangeState(ePlayerState state)
     {
 
-    }
+    } 
 
-    void Turn()
+    private void Turn()
     {
         if (playerFaceRight && transform.rotation.y == 0)
         {
@@ -199,6 +216,17 @@ public class Player : MonoBehaviour, IAttack
             CameraObject.CallTurn();
         }
     }
+    public void ControlParticles(ePlayerState state, bool onoff)
+    {
+        switch(state) 
+        {
+            case ePlayerState.IDLE:
+                break;
+            case ePlayerState.ATTACK:
+                break;
+            default:
+        }
+    }
 
     void Move(float dir)
     {
@@ -207,23 +235,6 @@ public class Player : MonoBehaviour, IAttack
             return;
         }
 
-        ani.SetBool("isRunning", dir != 0 ? true : false);
-        if (dir != 0)
-        {
-            playerFaceRight = dir > 0 ? true : false;
-        }
-        horizontalMove = dir * stat.moveSpeed;
-
-        if (!onGround || dir == 0)
-        {
-            runningEffect.Stop();
-            
-        }
-        else if(dir != 0 && !runningEffect.isPlaying && onGround && !isDash && !isParryDash && !isJump)
-        {
-            runningEffect.Play();
-        }
-        
     }
 
     void Jump()
@@ -364,8 +375,8 @@ public class Player : MonoBehaviour, IAttack
 
     IEnumerator ParrySequence()
     {
-        Color originColor = renderer.color;
-        renderer.color = Color.gray;
+        Color originColor = GetComponent<Renderer>().color;
+        GetComponent<Renderer>().color = Color.gray;
 
         isInvincibility = true;
 
@@ -383,7 +394,7 @@ public class Player : MonoBehaviour, IAttack
             yield return null;
         } while (isParry);
 
-        renderer.color = originColor;
+        GetComponent<Renderer>().color = originColor;
     }
 
     private void LightAttack(Vector2 mousePos)
