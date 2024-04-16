@@ -7,19 +7,24 @@ public class Voronoi : MonoBehaviour
     public Vector2Int imageDim;
     public int regionAmount;
 
+    private SpriteRenderer renderer;
+
+    private Texture2D image;
+    private void Awake()
+    {
+        renderer = GetComponent<SpriteRenderer>();
+    }
     private void Start()
     {
-        GetComponent<SpriteRenderer>().sprite = Sprite.Create(GetDiagram(), new Rect(0, 0, imageDim.x, imageDim.y), Vector2.one * 0.5f);
+        image = renderer.sprite.texture;
+        renderer.sprite = Sprite.Create(GetDiagram(), new Rect(0, 0, imageDim.x, imageDim.y), Vector2.one * 0.5f);
     }
-
     Texture2D GetDiagram()
     {
         Vector2Int[] centroids = new Vector2Int[regionAmount];
-        Color[] regions = new Color[regionAmount];
         for(int i = 0; i < regionAmount; i++)
         {
             centroids[i] = new Vector2Int(Random.Range(0, imageDim.x), Random.Range(0, imageDim.y));
-            regions[i] = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f), 1f);
         }
         Color[] pixelColors = new Color[imageDim.x * imageDim.y];
         for(int x = 0; x < imageDim.x; x++)
@@ -27,7 +32,8 @@ public class Voronoi : MonoBehaviour
             for(int y = 0; y < imageDim.y; y++)
             {
                 int index = x * imageDim.x + y;
-                pixelColors[index] = regions[GetClosestCentroidIndex(new Vector2Int(x, y), centroids)];
+                int centroidIndex = GetClosestCentroidIndex(new Vector2Int(x, y), centroids);
+                pixelColors[index] = image.GetPixel(centroids[centroidIndex].x, centroids[centroidIndex].y);
             }
         }
         return GetImageFromColorArray(pixelColors);

@@ -11,7 +11,7 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode RIGHT = KeyCode.D;
     const KeyCode LOOK_UP = KeyCode.W;
     const KeyCode LOOK_DOWN = KeyCode.S;
-    const KeyCode DASH = KeyCode.LeftShift;
+    const KeyCode DASH = KeyCode.Mouse1;
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
 

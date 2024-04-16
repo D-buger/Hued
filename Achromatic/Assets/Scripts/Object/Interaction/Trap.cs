@@ -50,12 +50,11 @@ public class Trap : MonoBehaviour
                         smallDistanceIndex = i;
                     }
                 }
-                Debug.Log(collision.gameObject.name);
                 CameraManager.Instance.CameraFade(cameraFadeTime, 0,
                     () =>
                     {
-                        Debug.Log(collision.gameObject.name);
-                        collision.gameObject.transform.position = goBackPosition[smallDistanceIndex];
+                        PlayManager.Instance.GetPlayer.transform.position = goBackPosition[smallDistanceIndex];
+                        
                     });
             }
         }
