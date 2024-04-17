@@ -6,7 +6,7 @@ public class TimeToDestory : MonoBehaviour
 {
     public float timeCheck = 0;
     [SerializeField]
-    private SpyderMonsterStats stat;
+    private SpiderMonsterStats stat;
     void Update()
     {
         timeCheck += Time.deltaTime;
