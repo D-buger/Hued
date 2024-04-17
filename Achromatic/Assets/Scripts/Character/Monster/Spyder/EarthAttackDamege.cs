@@ -5,7 +5,7 @@ using UnityEngine;
 public class EarthAttackDamege : MonoBehaviour
 {
     [SerializeField]
-    private SpyderMonsterStats stat;
+    private SpiderMonsterStats stat;
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))

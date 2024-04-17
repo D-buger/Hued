@@ -27,11 +27,6 @@ public class Monster : MonoBehaviour, IAttack
         col = GetComponent<Collider2D>();
     }
 
-    public void AfterAttack(Vector2 attackDir)
-    {
-        throw new System.NotImplementedException();
-    }
-
     public virtual void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
     {
 
@@ -42,5 +37,9 @@ public class Monster : MonoBehaviour, IAttack
         {
             isDead = true;
         }
+    }
+
+    void IAttack.AfterAttack(Vector2 attackDir)
+    {
     }
 }

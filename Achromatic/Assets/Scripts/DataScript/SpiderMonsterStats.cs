@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "SpyderMonsterStats", menuName = "Scriptable Object/SpyderMonsterStat")]
-public class SpyderMonsterStats : MonsterStat
+[CreateAssetMenu(fileName = "SpiderMonsterStats", menuName = "Scriptable Object/SpiderMonsterStat")]
+public class SpiderMonsterStats : MonsterStat
 {
     [Tooltip("근접 어택 사거리")]
     public float meleeAttackRange = 1.0f;
