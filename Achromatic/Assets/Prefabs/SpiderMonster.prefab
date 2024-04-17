@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 3029426164028853613}
   - component: {fileID: 6673812027509248250}
   - component: {fileID: 172978105296708143}
+  - component: {fileID: 7263476530491881648}
   m_Layer: 8
   m_Name: SpiderMonster
   m_TagString: Enemy
@@ -242,6 +243,20 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 3.6454926, y: 1.9901986}
   m_EdgeRadius: 0
+--- !u!114 &7263476530491881648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 373732617570613022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b6eb746ee8495248a38042807706bd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectilePrefab: {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
+  poolSize: 3
 --- !u!1001 &3258161174444856539
 PrefabInstance:
   m_ObjectHideFlags: 0

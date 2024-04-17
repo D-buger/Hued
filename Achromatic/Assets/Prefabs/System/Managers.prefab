@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5462545886198939100}
-  - component: {fileID: 5326377435757984511}
   - component: {fileID: 3576984265398549775}
   - component: {fileID: 7469853638090151738}
   - component: {fileID: 6829903000797311902}
@@ -36,20 +35,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5326377435757984511
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4853712015748426014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b6eb746ee8495248a38042807706bd2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
-  poolSize: 10
 --- !u!114 &3576984265398549775
 MonoBehaviour:
   m_ObjectHideFlags: 0
