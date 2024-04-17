@@ -13,5 +13,6 @@ public abstract class PlayerBaseState
 
     public abstract void OnStateEnter();
     public abstract void OnStateUpdate();
+    public virtual void OnStateFixedUpdate() { }
     public abstract void OnStateExit();
 }

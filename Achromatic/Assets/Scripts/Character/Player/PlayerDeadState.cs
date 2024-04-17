@@ -16,7 +16,6 @@ public class PlayerDeadState : PlayerBaseState
     {
 
     }
-
     public override void OnStateUpdate()
     {
 

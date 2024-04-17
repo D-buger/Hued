@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class PlayerIdleState : PlayerBaseState
 {
@@ -8,9 +9,13 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-
+        //Debug.Log("Player State : Idle");
     }
     public override void OnStateUpdate()
+    {
+
+    }
+    public override void OnStateFixedUpdate()
     {
 
     }
