@@ -112,6 +112,26 @@ public class Balances : MonoBehaviour
             isMove = true;
             prevDist = dist;
 
+            if (leftReactionForce < rightReactionForce)
+            {
+                limit.min = upperTranslation;
+                limit.max = balanceBottomLeft.limits.max;
+                balanceBottomLeft.limits = limit;
+
+                limit.min = balanceBottomRight.limits.min;
+                limit.max = lowerTranslation;
+                balanceBottomRight.limits = limit;
+            }
+            else
+            {
+                limit.min = upperTranslation;
+                limit.max = balanceBottomRight.limits.max;
+                balanceBottomRight.limits = limit;
+
+                limit.min = balanceBottomLeft.limits.min;
+                limit.max = lowerTranslation;
+                balanceBottomLeft.limits = limit;
+            }
         }
     }
 
