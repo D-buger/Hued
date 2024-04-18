@@ -25,7 +25,8 @@ public enum ePlayerState : int
     DASH,
     GROGGY,
     HIT ,
-    ATTACK ,
+    ATTACK,
+    ATTACK_REBOUND,
     DEAD
 }
 
@@ -69,8 +70,6 @@ public class Player : MonoBehaviour, IAttack
     private Dictionary<ePlayerState, PlayerBaseState> playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
     private PlayerFSM playerFSM;
 
-    private bool isAttackRebound = false;
-
     public bool IsDash { get; set; } = false;
     public bool IsParryDash { get; set; } = false;
 
@@ -98,7 +97,7 @@ public class Player : MonoBehaviour, IAttack
         parryEffect = effects.transform.GetChild(0).GetComponent<ParticleSystem>();
         dashEffect = effects.transform.GetChild(1).GetComponent<ParticleSystem>();
         runningEffect = effects.transform.GetChild(2).GetComponent<ParticleSystem>();
-        //attackHitEffect = attackPoint.GetComponentInChildren<ParticleSystem>();
+        attackHitEffect = transform.GetChild(0).GetComponentInChildren<ParticleSystem>();
 
         effectList.Add(parryEffect);
         effectList.Add(dashEffect);
@@ -113,6 +112,7 @@ public class Player : MonoBehaviour, IAttack
         PlayerIdleState idle = new PlayerIdleState(this);
         PlayerRunState run = new PlayerRunState(this);
         PlayerAttackState attack = new PlayerAttackState(this, transform.GetChild(0).gameObject);
+        PlayerAttackReboundState afterAttack = new PlayerAttackReboundState(this);
         PlayerJumpState jump = new PlayerJumpState(this);
         PlayerDashState dash = new PlayerDashState(this);
         PlayerGroggyState groggy = new PlayerGroggyState(this);
@@ -122,6 +122,7 @@ public class Player : MonoBehaviour, IAttack
         playerStates.Add(ePlayerState.IDLE, idle);
         playerStates.Add(ePlayerState.RUN, run);
         playerStates.Add(ePlayerState.ATTACK, attack);
+        playerStates.Add(ePlayerState.ATTACK_REBOUND, afterAttack);
         playerStates.Add(ePlayerState.JUMP, jump);
         playerStates.Add(ePlayerState.DASH, dash);
         playerStates.Add(ePlayerState.GROGGY, groggy);
@@ -204,8 +205,8 @@ public class Player : MonoBehaviour, IAttack
     {
         switch (state)
         {
-            case ePlayerState.ATTACK:
-                
+            case ePlayerState.ATTACK_REBOUND:
+                EffectPlayOrStop(attackHitEffect, onoff);
                 break;
             case ePlayerState.DASH:
                 if(index == 0)
@@ -240,8 +241,9 @@ public class Player : MonoBehaviour, IAttack
 
     public void AfterAttack(Vector2 attackDir)
     {
-        //StartCoroutine(AttackReboundSequence(attackDir.normalized, stat.attackReboundPower, stat.attackReboundTime, 0.05f));
-        
+        PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[ePlayerState.ATTACK_REBOUND];
+        afterAttackState.AfterAttack(attackDir);
+        ChangeState(ePlayerState.ATTACK_REBOUND);
     }
 
 

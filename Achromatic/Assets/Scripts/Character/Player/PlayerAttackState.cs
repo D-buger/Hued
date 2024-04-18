@@ -8,7 +8,6 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 public class PlayerAttackState : PlayerBaseState
 {
     private Coroutine attackCoroutine;
-    private Coroutine afterAttackCoroutine;
 
     private GameObject attackPoint;
     private Attack meleeAttack;
@@ -73,23 +72,6 @@ public class PlayerAttackState : PlayerBaseState
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.attackCooldown);
         canAttack = true;
-    }
-
-    public void AfterAttack(Vector2 attackDir)
-    {
-        afterAttackCoroutine = CoroutineHandler.StartCoroutine(AttackReboundSequence(attackDir.normalized, player.GetPlayerStat.attackReboundPower, player.GetPlayerStat.attackReboundTime, 0.05f));
-
-    }
-
-    IEnumerator AttackReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
-    {
-        player.RigidbodyComp.velocity = Vector2.zero;
-        player.ControlParticles(ePlayerState.ATTACK ,true);
-        player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
-        yield return Yields.WaitSeconds(reboundTime);
-        player.ControlParticles(ePlayerState.ATTACK, false);
-
     }
 
     public override void OnStateFixedUpdate()
