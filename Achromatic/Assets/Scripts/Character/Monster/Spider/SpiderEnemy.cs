@@ -9,6 +9,8 @@ using System.Collections.Generic;
 
 public class SpiderEnemy : Monster, IAttack
 {
+    private MonsterFSM fsm;
+
     private Rigidbody2D rigid;
     private GameObject attackPoint;
     private Attack meleeAttack;
@@ -54,12 +56,13 @@ public class SpiderEnemy : Monster, IAttack
     private GameObject[] earthObjects;
 
 
-    private Vector2 startPosition;
-    private Vector2 targetPosition;
+    private Vector2 leftPosition;
+    private Vector2 rightPosition;
     private Vector2 thisPosition;
     private Vector2 startSpiderPosition;
-    private Vector3 gizmoStartPos;
-    private Vector3 gizmoEndPos;
+
+    private Vector3 gizmoLeftPos;
+    private Vector3 gizmoRightPos;
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
     private LayerMask originLayer;
@@ -70,7 +73,6 @@ public class SpiderEnemy : Monster, IAttack
     private bool isBattle = false;
     private bool canAttack = true;
     private bool isAttack = false;
-    private bool isWait = true;
     private bool isFirstAttack = true;
     private bool isPlayerBetween = false;
     private bool isEarthAttack = false;
@@ -86,15 +88,16 @@ public class SpiderEnemy : Monster, IAttack
     private void Start()
     {
         startSpiderPosition = new Vector3(transform.position.x, transform.position.y, 0);
-        gizmoStartPos = new Vector3(transform.position.x + runPosition, transform.position.y);
-        gizmoEndPos = new Vector3(transform.position.x - runPosition, transform.position.y);
-        startPosition.y = transform.position.y;
-        targetPosition.y = transform.position.y;
-        startPosition.x += transform.position.x + runPosition;
-        targetPosition.x += transform.position.x - runPosition;
+        gizmoLeftPos = new Vector3(transform.position.x + runPosition, transform.position.y);
+        gizmoRightPos = new Vector3(transform.position.x - runPosition, transform.position.y);
+
+        leftPosition.y = transform.position.y;
+        rightPosition.y = transform.position.y;
+        leftPosition.x += transform.position.x + runPosition;
+        rightPosition.x += transform.position.x - runPosition;
 
         currentHP = stat.MonsterHP;
-        thisPosition = targetPosition;
+        thisPosition = rightPosition;
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor, null);
@@ -203,21 +206,21 @@ public class SpiderEnemy : Monster, IAttack
         animState = EanimState.Walk;
         SetCurrentAniamtion(animState);
         transform.position = Vector2.MoveTowards(transform.position, thisPosition, stat.moveSpeed * Time.deltaTime);
-        if (thisPosition == startPosition)
+        if (thisPosition == leftPosition)
         {
             transform.localScale = new Vector3(-1, 1, 1);
         }
-        else if (thisPosition == targetPosition)
+        else if (thisPosition == rightPosition)
         {
             transform.localScale = new Vector3(1, 1, 1);
         }
-        if (HasArrived((Vector2)transform.position, targetPosition))
+        if (HasArrived((Vector2)transform.position, rightPosition))
         {
-            thisPosition = startPosition;
+            thisPosition = leftPosition;
         }
-        if (HasArrived((Vector2)transform.position, startPosition))
+        if (HasArrived((Vector2)transform.position, leftPosition))
         {
-            thisPosition = targetPosition;
+            thisPosition = rightPosition;
         }
     }
     public void CheckWaitTime()
@@ -530,9 +533,9 @@ public class SpiderEnemy : Monster, IAttack
         else
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(gizmoStartPos, 0.5f);
+            Gizmos.DrawWireSphere(gizmoLeftPos, 0.5f);
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(gizmoEndPos, 0.5f);
+            Gizmos.DrawWireSphere(gizmoRightPos, 0.5f);
         }
     }
 }
