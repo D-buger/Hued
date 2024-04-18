@@ -67,7 +67,7 @@ public class Player : MonoBehaviour, IAttack
         }
     }
 
-    private Dictionary<ePlayerState, PlayerBaseState> playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
+    private Dictionary<ePlayerState, PlayerBaseState> playerStates;
     private PlayerFSM playerFSM;
 
     public bool IsDash { get; set; } = false;
@@ -87,6 +87,8 @@ public class Player : MonoBehaviour, IAttack
     public Collision2D ParryDashCollision { get; set;}
     private void Awake()
     {
+        playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
+
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<BoxCollider2D>();
         RendererComp = GetComponent<SpriteRenderer>();
@@ -109,6 +111,10 @@ public class Player : MonoBehaviour, IAttack
             effectList[i].Stop();
         }
 
+    }
+
+    void Start()
+    {
         PlayerIdleState idle = new PlayerIdleState(this);
         PlayerRunState run = new PlayerRunState(this);
         PlayerAttackState attack = new PlayerAttackState(this, transform.GetChild(0).gameObject);
@@ -129,10 +135,6 @@ public class Player : MonoBehaviour, IAttack
         playerStates.Add(ePlayerState.HIT, hit);
         playerStates.Add(ePlayerState.DEAD, dead);
 
-    }
-
-    void Start()
-    {
         playerFSM = new PlayerFSM(playerStates[ePlayerState.IDLE]);
         stat.currentHP = stat.playerHP;
 
