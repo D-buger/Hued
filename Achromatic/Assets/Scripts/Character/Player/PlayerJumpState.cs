@@ -12,7 +12,10 @@ public class PlayerJumpState : PlayerBaseState
     {
         InputManager.Instance.JumpEvent.AddListener(() =>
         {
-            player.ChangeState(ePlayerState.JUMP);
+            if (player.CanChangeState)
+            {
+                player.ChangeState(ePlayerState.JUMP);
+            }
         });
     }
 

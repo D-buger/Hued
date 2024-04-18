@@ -70,6 +70,7 @@ public class Player : MonoBehaviour, IAttack
     private Dictionary<ePlayerState, PlayerBaseState> playerStates;
     private PlayerFSM playerFSM;
 
+    public bool CanChangeState { get; set; } = true;
     public bool IsDash { get; set; } = false;
     public bool IsParryDash { get; set; } = false;
 
@@ -138,7 +139,7 @@ public class Player : MonoBehaviour, IAttack
         playerFSM = new PlayerFSM(playerStates[ePlayerState.IDLE]);
         stat.currentHP = stat.playerHP;
 
-        GroundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object")) | (1 << LayerMask.NameToLayer("ColorObject"));
+        GroundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("ColorObject"));
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
     }

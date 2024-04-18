@@ -26,7 +26,10 @@ public class PlayerAttackState : PlayerBaseState
         {
             attackAngle = dir;
 
-            player.ChangeState(ePlayerState.ATTACK);
+            if (player.CanChangeState)
+            {
+                player.ChangeState(ePlayerState.ATTACK);
+            }
         });
     }
 

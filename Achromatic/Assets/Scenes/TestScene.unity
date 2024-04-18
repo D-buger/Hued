@@ -15768,7 +15768,7 @@ GameObject:
   - component: {fileID: 1485196026}
   - component: {fileID: 1485196025}
   - component: {fileID: 1485196027}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: SecretRoom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18721,7 +18721,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5848780895007076428, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 2147496951
+      value: 2147492855
       objectReference: {fileID: 0}
     - target: {fileID: 8862348449487942730, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_StopNaN

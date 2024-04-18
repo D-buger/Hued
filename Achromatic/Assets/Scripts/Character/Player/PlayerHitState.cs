@@ -29,6 +29,7 @@ public class PlayerHitState : PlayerBaseState
 
     IEnumerator HitReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
     {
+        player.CanChangeState = false;
         player.IsInvincibility = true;
         player.AnimatorComp.SetTrigger("hitTrigger");
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
@@ -36,6 +37,7 @@ public class PlayerHitState : PlayerBaseState
         yield return Yields.WaitSeconds(reboundTime);
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);
+        player.CanChangeState = true;
         player.ChangePrevState();
 
         yield return Yields.WaitSeconds(Mathf.Max(0, Mathf.Abs(player.GetPlayerStat.hitInvincibilityTime - player.GetPlayerStat.hitBehaviourLimitTime)));

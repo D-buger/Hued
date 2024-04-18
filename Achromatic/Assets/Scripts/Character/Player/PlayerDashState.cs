@@ -11,6 +11,7 @@ public class PlayerDashState : PlayerBaseState
 
     private bool canParryDash = true;
     private bool canDash = true;
+    private bool canDashAfterParry = true;
     private bool isParry = false;
 
     private Vector2 dashDirection;
@@ -18,7 +19,7 @@ public class PlayerDashState : PlayerBaseState
     {
         InputManager.Instance.DashEvent.AddListener((Vector2 dir) =>
         {
-            if (canDash || (canParryDash && isParry))
+            if ( player.CanChangeState && (canDash || canParryDash))
             {
                 dashDirection = dir;
 
@@ -29,13 +30,17 @@ public class PlayerDashState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-        if (canParryDash && isParry)
+        if (canParryDash && isParry && !player.IsDash)
         {
             parryDashCoroutine = CoroutineHandler.StartCoroutine(ParryDashSequence(dashDirection));
         }
-        else if (canDash)
+        else if (canDash && !isParry && canDashAfterParry && !player.IsParryDash)
         {
             dashCoroutine = CoroutineHandler.StartCoroutine(DashSequence(dashDirection));
+        }
+        else
+        {
+            player.ChangeState(ePlayerState.IDLE);
         }
     }
 
@@ -46,6 +51,7 @@ public class PlayerDashState : PlayerBaseState
 
     IEnumerator DashSequence(Vector2 dashPos)
     {
+        player.CanChangeState = false;
         player.IsDash = true;
         canDash = false;
         canParryDash = false;
@@ -82,7 +88,8 @@ public class PlayerDashState : PlayerBaseState
         player.ParryCondition = false;
         player.IsDash = false;
 
-        player.ChangePrevState();
+        player.CanChangeState = true;
+        player.ChangeState(ePlayerState.IDLE);
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
 
@@ -107,9 +114,11 @@ public class PlayerDashState : PlayerBaseState
 
     IEnumerator ParryDashSequence(Vector2 dashPos)
     {
+        player.CanChangeState = false;
         isParry = false;
         player.IsParryDash = true;
         canParryDash = false;
+        canDashAfterParry = false;
         player.IsCriticalAttack = true;
 
         float originGravityScale = player.RigidbodyComp.gravityScale;
@@ -157,9 +166,11 @@ public class PlayerDashState : PlayerBaseState
         player.ControlParticles(ePlayerState.DASH, false);
         player.IsParryDash = false;
 
-        player.ChangePrevState();
+        player.CanChangeState = true;
+        player.ChangeState(ePlayerState.IDLE);
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
+        canDashAfterParry = true;
     }
 
 
