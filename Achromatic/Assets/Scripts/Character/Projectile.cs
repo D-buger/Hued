@@ -13,6 +13,7 @@ public class Projectile : MonoBehaviour
     private Vector2 moveDirection = Vector2.zero;
     private float moveSpeed = 1f;
     private float moveRange = 5f;
+    private float delayTime = 2f;
     private int damage = 1;
 
     private bool isHeavyAttack = true;
@@ -29,10 +30,6 @@ public class Projectile : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         renderer = GetComponent<SpriteRenderer>();
-    }
-    public void Initialize()
-    {
-        gameObject.SetActive(false);
     }
 
     /*private void Update()
@@ -94,6 +91,15 @@ public class Projectile : MonoBehaviour
     public void ReturnToPool()
     {
         gameObject.SetActive(false);
+    }
+    public void ReturnStart()
+    {
+        StartCoroutine(TimeToReturnObject(delayTime));
+    }
+    public IEnumerator TimeToReturnObject(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ReturnToPool();
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
