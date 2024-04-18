@@ -18,9 +18,12 @@ public class PlayerDashState : PlayerBaseState
     {
         InputManager.Instance.DashEvent.AddListener((Vector2 dir) =>
         {
-            dashDirection = dir;
+            if (canDash || (canParryDash && isParry))
+            {
+                dashDirection = dir;
 
-            player.ChangeState(ePlayerState.DASH);
+                player.ChangeState(ePlayerState.DASH);
+            }
         });
     }
 
@@ -34,7 +37,6 @@ public class PlayerDashState : PlayerBaseState
         {
             dashCoroutine = CoroutineHandler.StartCoroutine(DashSequence(dashDirection));
         }
-        player.ChangePrevState();
     }
 
     public override void OnStateUpdate()
@@ -80,6 +82,7 @@ public class PlayerDashState : PlayerBaseState
         player.ParryCondition = false;
         player.IsDash = false;
 
+        player.ChangePrevState();
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
 
@@ -154,6 +157,7 @@ public class PlayerDashState : PlayerBaseState
         player.ControlParticles(ePlayerState.DASH, false);
         player.IsParryDash = false;
 
+        player.ChangePrevState();
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
     }

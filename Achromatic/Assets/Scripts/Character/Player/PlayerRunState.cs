@@ -14,7 +14,7 @@ public class PlayerRunState : PlayerBaseState
         {
             this.moveDir = moveDir;
 
-            if (moveDir != 0)
+            if (moveDir != 0 && !player.IsDash && !player.IsParryDash)
             {
                 player.ChangeState(ePlayerState.RUN);
             }
