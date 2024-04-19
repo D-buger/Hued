@@ -6,11 +6,14 @@ using UnityEngine;
 
 public class Balances : MonoBehaviour
 {
-    private readonly float MAX_TORQUE = float.MaxValue;
+    private readonly int UP_DIR = -1;
+    private readonly int DOWN_DIR = 1;
+    private readonly float POSITION_RANGE = 0.1f;
+
     private readonly float CHECK_REACTION_FORCE_TIME = 0.05f;
 
     [SerializeField]
-    private float moterSpeed = 1f;
+    private float motorSpeed = 1f;
 
     private SliderJoint2D balanceBottomLeft;
     private SliderJoint2D balanceBottomRight;
@@ -18,8 +21,7 @@ public class Balances : MonoBehaviour
     private Rigidbody2D balanceRigidLeft;
     private Rigidbody2D balanceRigidRight;
 
-    private JointMotor2D moter;
-    private JointTranslationLimits2D limit;
+    private JointMotor2D motor;
 
     private int leftReactionForce = 0;
     private int rightReactionForce = 0;
@@ -27,10 +29,10 @@ public class Balances : MonoBehaviour
     private int curDist = 0;
     private int prevDist = 0;
     private float distTime = 0;
+    private int toGetForceValue = 1;
+
     private bool isMove = false;
 
-    private float lowerTranslation;
-    private float upperTranslation;
     private float translationForthDist;
     private void Awake()
     {
@@ -42,33 +44,41 @@ public class Balances : MonoBehaviour
 
     private void Start()
     {
-        moter.maxMotorTorque = 0;
-        moter.motorSpeed = -moterSpeed;
-        balanceBottomLeft.motor = moter;
-        balanceBottomRight.motor = moter;
+        motor.maxMotorTorque = 0;
+        motor.motorSpeed = 0;
+        balanceBottomLeft.motor = motor;
+        balanceBottomRight.motor = motor;
 
-        lowerTranslation = balanceBottomLeft.limits.max;
-        upperTranslation = balanceBottomRight.limits.min;
-        translationForthDist = ((lowerTranslation - upperTranslation) / 4);
-
-        limit.min = balanceBottomLeft.limits.min;
-        limit.max = upperTranslation + (translationForthDist * 2);
-        balanceBottomLeft.limits = limit;
-        limit.min = balanceBottomRight.limits.min;
-        balanceBottomRight.limits = limit;
+        translationForthDist = ((balanceBottomLeft.limits.max - balanceBottomLeft.limits.min) / 4);
     }
 
 
     private void Update()
     {
-         if (balanceRigidLeft.velocity.y == 0 || balanceRigidRight.velocity.y == 0)
-         {
-             JointMoveCheck();
-         }
-        else
+        if (balanceRigidLeft.velocity.y < 0)
         {
-            isMove = false;
+            motor.motorSpeed = UP_DIR * motorSpeed;
+            balanceBottomRight.motor = motor;
         }
+        else if (balanceRigidLeft.velocity.y > 0)
+        {
+            motor.motorSpeed = DOWN_DIR * motorSpeed;
+            balanceBottomRight.motor = motor;
+        }
+
+        if (balanceRigidRight.velocity.y < 0)
+        {
+            motor.motorSpeed = UP_DIR * motorSpeed;
+            balanceBottomLeft.motor = motor;
+        }
+        else if (balanceRigidRight.velocity.y > 0)
+        {
+            motor.motorSpeed = DOWN_DIR * motorSpeed;
+            balanceBottomLeft.motor = motor;
+        }
+
+
+        JointMoveCheck();
     }
     private void JointMoveCheck()
     {
@@ -81,7 +91,6 @@ public class Balances : MonoBehaviour
             distTime += Time.deltaTime;
             if (distTime > CHECK_REACTION_FORCE_TIME)
             {
-                Debug.Log(dist);
                 JointMove(dist);
             }
         }
@@ -94,63 +103,37 @@ public class Balances : MonoBehaviour
 
     private void JointMove(int dist)
     {
-        if (curDist != dist && !isMove)
-        {
             if (dist == 0)
             {
-                Debug.Log("0 dist");
-                isMove = true;
                 curDist = dist;
 
-                limit.min = upperTranslation + (translationForthDist * 2);
-                limit.max = lowerTranslation;
-
-                balanceBottomLeft.limits = limit;
-                balanceBottomRight.limits = limit;
+                motor.maxMotorTorque = 0;
+                balanceBottomLeft.motor = motor;
+                balanceBottomRight.motor = motor;
             }
-            else if (dist <= 1)
+            else
             {
-                Debug.Log("1 dist");
-                isMove = true;
                 curDist = dist;
 
                 if (leftReactionForce < rightReactionForce)
                 {
-                    limit.min = upperTranslation + translationForthDist;
-                    limit.max = lowerTranslation - translationForthDist;
+                    motor.maxMotorTorque = (rightReactionForce * Physics2D.gravity.y * -1) + toGetForceValue;
 
-                    balanceBottomLeft.limits = limit;
-                    balanceBottomRight.limits = limit;
+                    //motor.motorSpeed = UP_DIR * motorSpeed;
+                    //balanceBottomLeft.motor = motor;
+                    //motor.motorSpeed = DOWN_DIR * motorSpeed;
+                    //balanceBottomRight.motor = motor;
+                }
+                else
+                {
+                    motor.maxMotorTorque = (leftReactionForce * Physics2D.gravity.y * -1) + toGetForceValue;
+
+                    //motor.motorSpeed = DOWN_DIR * motorSpeed;
+                    //balanceBottomLeft.motor = motor;
+                    //motor.motorSpeed = UP_DIR * motorSpeed;
+                    //balanceBottomRight.motor = motor;
                 }
             }
-            else
-            {
-                Debug.Log("2 dist");
-                isMove = true;
-                curDist = 2;
-
-                //if (leftReactionForce < rightReactionForce)
-                //{
-                //    limit.min = upperTranslation;
-                //    limit.max = balanceBottomLeft.limits.max;
-                //    balanceBottomLeft.limits = limit;
-
-                //    limit.min = balanceBottomRight.limits.min;
-                //    limit.max = lowerTranslation;
-                //    balanceBottomRight.limits = limit;
-                //}
-                //else
-                //{
-                //    limit.min = upperTranslation;
-                //    limit.max = balanceBottomRight.limits.max;
-                //    balanceBottomRight.limits = limit;
-
-                //    limit.min = balanceBottomLeft.limits.min;
-                //    limit.max = lowerTranslation;
-                //    balanceBottomLeft.limits = limit;
-                //}
-            }
-        }
     }
 
     private void JointStop()
