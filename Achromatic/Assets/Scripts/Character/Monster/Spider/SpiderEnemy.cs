@@ -4,8 +4,6 @@ using UnityEngine.Events;
 using Spine.Unity;
 using Newtonsoft.Json.Linq;
 using TextAsset = UnityEngine.TextAsset;
-using static UnityEngine.Rendering.DebugUI;
-using System.Collections.Generic;
 
 public class SpiderEnemy : Monster, IAttack
 {
@@ -36,15 +34,10 @@ public class SpiderEnemy : Monster, IAttack
         Detection,
         Dead
     }
+    [SerializeField]
     private EanimState animState;
 
     private string currentAnimation;
-
-    [SerializeField, Tooltip("몬스터 기준 이동 범위")]
-    private float runPosition;
-    private float elapsedTime = 0;
-    private float arrivalThreshold = 1f;
-    private float distanceToPlayer = 0;
     private float angleThreshold = 52f;
 
 
@@ -55,39 +48,31 @@ public class SpiderEnemy : Monster, IAttack
     [SerializeField]
     private GameObject[] earthObjects;
 
+    public Vector3 gizmoLeftPos;
+    public Vector3 gizmoRightPos;
 
-    private Vector2 leftPosition;
-    private Vector2 rightPosition;
-    private Vector2 thisPosition;
-    private Vector2 startSpiderPosition;
-
-    private Vector3 gizmoLeftPos;
-    private Vector3 gizmoRightPos;
-
+    public Vector2 startSpiderPosition;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
     private LayerMask originLayer;
     private LayerMask colorVisibleLayer;
 
     private JObject jsonObject;
 
-    private bool isBattle = false;
-    private bool canAttack = true;
     private bool isAttack = false;
     private bool isFirstAttack = true;
-    private bool isPlayerBetween = false;
     private bool isEarthAttack = false;
     private bool isHeavy = false;
     private bool isGameStart = true;
 
     private void Awake()
     {
+        fsm = GetComponent<MonsterFSM>();
         rigid = GetComponent<Rigidbody2D>();
         attackPoint = transform.GetChild(0).gameObject;
         meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
     private void Start()
     {
-        startSpiderPosition = new Vector3(transform.position.x, transform.position.y, 0);
         gizmoLeftPos = new Vector3(transform.position.x + runPosition, transform.position.y);
         gizmoRightPos = new Vector3(transform.position.x - runPosition, transform.position.y);
 
@@ -95,6 +80,7 @@ public class SpiderEnemy : Monster, IAttack
         rightPosition.y = transform.position.y;
         leftPosition.x += transform.position.x + runPosition;
         rightPosition.x += transform.position.x - runPosition;
+        startSpiderPosition = new Vector2(gizmoLeftPos.x - runPosition, transform.position.y);
 
         currentHP = stat.MonsterHP;
         thisPosition = rightPosition;
@@ -111,6 +97,36 @@ public class SpiderEnemy : Monster, IAttack
         {
             jsonObject = JObject.Parse(animationJson.text);
         }
+        CheckStateChange();
+    }
+    private void Update()
+    {
+        CheckPlayer(startSpiderPosition);
+        if (canAttack && isBattle)
+        {
+            Attack();
+        }
+        SetCurrentAniamtion(animState);
+    }
+
+    public override void CheckStateChange()
+    {
+        if (isWait)
+        {
+            fsm.ChangeState("Idle");
+            animState = EanimState.Walk;
+            SetCurrentAniamtion(animState);
+        }
+        if (isPlayerBetween)
+        {
+            fsm.ChangeState("Chase");
+            animState = EanimState.Walk;
+            SetCurrentAniamtion(animState);
+        }
+        if (isBattle)
+        {
+            fsm.ChangeState("Attack");
+        }
     }
 
     private void CheckIsHeavy(eActivableColor color)
@@ -122,25 +138,6 @@ public class SpiderEnemy : Monster, IAttack
         spyderColorEvent?.Invoke(color);
     }
 
-    private void Update()
-    {
-        CheckPlayer();
-        if (isWait)
-        {
-            WaitSituation();
-            animState = EanimState.Walk;
-        }
-        else if (canAttack && isBattle)
-        {
-            Attack(PlayerPos);
-        }
-
-        if (!isPlayerBetween)
-        {
-            CheckWaitTime();
-        }
-        SetCurrentAniamtion(animState);
-    }
     private void AsncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
     {
         if (animClip.name.Equals(currentAnimation))
@@ -181,61 +178,6 @@ public class SpiderEnemy : Monster, IAttack
                 break;
         }
     }
-
-    private void CheckPlayer()
-    {
-        distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
-        float distanceToMonster = Vector2.Distance(startSpiderPosition, PlayerPos);
-        if (distanceToMonster <= runPosition)
-        {
-            isPlayerBetween = true;
-            isBattle = true;
-            isWait = false;
-            elapsedTime = 0f;
-        }
-        else
-        {
-            isPlayerBetween = false;
-        }
-    }
-
-    private void WaitSituation()
-    {
-        currentHP = stat.MonsterHP;
-        isBattle = false;
-        animState = EanimState.Walk;
-        SetCurrentAniamtion(animState);
-        transform.position = Vector2.MoveTowards(transform.position, thisPosition, stat.moveSpeed * Time.deltaTime);
-        if (thisPosition == leftPosition)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-        else if (thisPosition == rightPosition)
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        if (HasArrived((Vector2)transform.position, rightPosition))
-        {
-            thisPosition = leftPosition;
-        }
-        if (HasArrived((Vector2)transform.position, leftPosition))
-        {
-            thisPosition = rightPosition;
-        }
-    }
-    public void CheckWaitTime()
-    {
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime >= stat.usualTime)
-        {
-            elapsedTime = 0f;
-            isWait = true;
-        }
-    }
-    private bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
-    {
-        return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
-    }
     private void IsActiveColor(eActivableColor color)
     {
         if (color != stat.enemyColor)
@@ -249,12 +191,21 @@ public class SpiderEnemy : Monster, IAttack
     }
 
 
-    public void Attack(Vector2 vec)
+    public override void Attack()
     {
-        StartCoroutine(MoveToPlayer());
+        if (canAttack && !isAttack)
+        {
+            StartCoroutine(AttackSequence(PlayerPos));
+        }
+        if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle)
+        {
+            isBattle = false;
+            isPlayerBetween = true;
+            isWait = false;
+        }
     }
 
-    IEnumerator AttackSequence(Vector2 attackAngle)
+    private IEnumerator AttackSequence(Vector2 attackAngle)
     {
         isAttack = true;
         canAttack = false;
@@ -300,50 +251,11 @@ public class SpiderEnemy : Monster, IAttack
             StartCoroutine(Spit(horizontalValue, verticalValue, ZAngle));
         }
         yield return Yields.WaitSeconds(stat.attackTime);
-        meleeAttack?.AttackDisable();
         yield return Yields.WaitSeconds(stat.attackCooldown);
         isAttack = false;
         canAttack = true;
     }
 
-    private IEnumerator MoveToPlayer()
-    {
-        while (!isAttack && !isWait)
-        {
-            yield return new WaitForSeconds(stat.attackCooldown);
-            float horizontalValue = PlayerPos.x - transform.position.x;
-
-            if (PlayerPos == null)
-            {
-                yield break;
-            }
-
-            if (horizontalValue >= 0)
-            {
-                transform.localScale = new Vector3(-1, 1, 1);
-            }
-            else
-            {
-                transform.localScale = new Vector3(1, 1, 1);
-            }
-
-            if (distanceToPlayer <= stat.rangedAttackRange && canAttack)
-            {
-                StartCoroutine(AttackSequence(PlayerPos));
-                yield break;
-            }
-            else if (distanceToPlayer > stat.rangedAttackRange)
-            {
-                if (!isAttack && canAttack)
-                {
-                    animState = EanimState.Walk;
-                    SetCurrentAniamtion(animState);
-                    transform.position = Vector2.MoveTowards(transform.position, PlayerPos, stat.moveSpeed * Time.deltaTime);
-                    StartCoroutine(MoveToPlayer());
-                }
-            }
-        }
-    }
     public IEnumerator Spit(float horizontalValue, float verticalValue, float ZAngle)
     {
         if (isWait)
@@ -399,7 +311,6 @@ public class SpiderEnemy : Monster, IAttack
         isEarthAttack = true;
 
         StartCoroutine(SpawnObjects());
-        yield return new WaitForSeconds(stat.earthAttackTime);
     }
     private IEnumerator SpawnObjects()
     {
@@ -510,6 +421,10 @@ public class SpiderEnemy : Monster, IAttack
     }
     private void OnDrawGizmos()
     {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(gizmoLeftPos, 0.5f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(gizmoRightPos, 0.5f);
         if (null != stat)
         {
             if (stat.meleeAttackRange >= distanceToPlayer)
@@ -522,20 +437,6 @@ public class SpiderEnemy : Monster, IAttack
             }
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.senseCircle);
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.rangedAttackRange);
-        }
-        if (!isGameStart)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(new Vector3(transform.position.x + runPosition, transform.position.y), 0.5f);
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(new Vector3(transform.position.x - runPosition, transform.position.y), 0.5f);
-        }
-        else
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(gizmoLeftPos, 0.5f);
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(gizmoRightPos, 0.5f);
         }
     }
 }

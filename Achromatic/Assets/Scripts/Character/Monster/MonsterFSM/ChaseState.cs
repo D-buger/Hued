@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class ChaseState : MonsterState
 {
-    private Monster monster;
+    public ChaseState(Monster monster) : base(monster)
+    {
+    }
     public override void Enter()
     {
-        
     }
 
     public override void Execute()
     {
-        // 플레이어를 추적하는 동작
+        monster.MoveToPlayer();
     }
 
     public override void Exit()
     {
-        
     }
 }

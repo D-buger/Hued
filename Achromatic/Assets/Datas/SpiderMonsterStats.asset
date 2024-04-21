@@ -14,21 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterHP: 5
   enemyColor: 1
-  senseCircle: 2
-  moveSpeed: 1
+  senseCircle: 8
+  moveSpeed: 1.4
   attackDamage: 1
   attackTime: 0.3
-  attackCooldown: 1
+  attackCooldown: 2
   contactDamage: 1
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  meleeAttackRange: 5
-  AttackRange: 5
   usualTime: 3
+  meleeAttackRange: 3
+  AttackRange: 3
   rangedAttackDamege: 1
   rangedAttackSpeed: 250
-  rangedAttackRange: 7
+  rangedAttackRange: 5
   specialAttackRound: 70
   specialAttackSpeed: 3
   earthAttackSpeed: 150

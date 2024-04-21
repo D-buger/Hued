@@ -6,16 +6,15 @@ public class MonsterFSM : MonoBehaviour
 {
     private Dictionary<string, MonsterState> states = new Dictionary<string, MonsterState>();
     private MonsterState currentState;
+    private Monster monster;
 
-    private void Start()
+    private void Awake()
     {
-        states.Add("Idle", new IdleState());
-        states.Add("Chase", new ChaseState());
-        states.Add("Attack", new AttackState());
-
-        ChangeState("Idle");
+        monster = GetComponent<Monster>();
+        states.Add("Idle", new IdleState(monster));
+        states.Add("Chase", new ChaseState(monster));
+        states.Add("Attack", new AttackState(monster));
     }
-
     private void Update()
     {
         if (currentState != null)
