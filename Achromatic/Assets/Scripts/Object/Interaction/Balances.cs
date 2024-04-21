@@ -108,21 +108,21 @@ public class Balances : MonoBehaviour
         }
         else 
         {
-            if (dist == 0)
-            {
-                if(balanceBottomLeft.jointTranslation > limitMiddle)
-                {
-                    leftMotor.motorSpeed = DOWN_DIR * motorSpeed;
-                }
-                else
-                {
-                    leftMotor.motorSpeed = DOWN_DIR * motorSpeed;
-                }
-            }
-            else
-            {
+            //if (dist == 0)
+            //{
+            //    if(balanceBottomLeft.jointTranslation > limitMiddle)
+            //    {
+            //        leftMotor.motorSpeed = DOWN_DIR * motorSpeed;
+            //    }
+            //    else
+            //    {
+            //        leftMotor.motorSpeed = DOWN_DIR * motorSpeed;
+            //    }
+            //}
+            //else
+            //{
                 leftMotor.motorSpeed = 0;
-            }
+            //}
         }
 
         if (rightReactionForce < 0)
@@ -135,14 +135,14 @@ public class Balances : MonoBehaviour
         }
         else
         {
-            if (dist == 0)
-            {
+            //if (dist == 0)
+            //{
 
-            }
-            else
-            {
+            //}
+            //else
+            //{
                 rightMotor.motorSpeed = 0;
-            }
+            //}
         }
 
         if(dist == 0)
