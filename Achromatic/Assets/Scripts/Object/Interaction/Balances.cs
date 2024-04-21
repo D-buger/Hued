@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class Balances : MonoBehaviour
 {
-    private readonly int UP_DIR = 1;
-    private readonly int DOWN_DIR = -1;
+    private readonly int UP_DIR = -1;
+    private readonly int DOWN_DIR = 1;
 
     private readonly float CHECK_REACTION_FORCE_TIME = 0.05f;
 
@@ -31,6 +31,7 @@ public class Balances : MonoBehaviour
     private float distTime = 0;
 
     private float limitMiddle;
+    private float toGetForceValue = 2;
     private void Awake()
     {
         balanceRigidLeft = transform.GetChild(0).GetComponent<Rigidbody2D>();
@@ -62,10 +63,8 @@ public class Balances : MonoBehaviour
         leftReactionForce = balanceBottomLeft.reactionForce.y;
         rightReactionForce = balanceBottomRight.reactionForce.y;
 
-        int dist = Convert.ToInt32(Mathf.Abs(leftReactionForce - rightReactionForce));
-        Debug.Log(Mathf.Abs(leftReactionForce - rightReactionForce));
-
-        if (leftMotor.motorSpeed == 0 && rightMotor.motorSpeed == 0)
+        int dist = Mathf.CeilToInt(Mathf.Abs(leftReactionForce - rightReactionForce));
+        if (balanceBottomLeft.motor.motorSpeed == 0 && balanceBottomRight.motor.motorSpeed == 0)
         {
             if (prevDist == dist)
             {
@@ -83,22 +82,21 @@ public class Balances : MonoBehaviour
         }
         else
         {
-            if (dist == 0)
-            {
-                CheckMiddle(balanceBottomLeft, leftMotor);
-                CheckMiddle(balanceBottomRight, rightMotor);
-            }
+            bool isCheckMiddle = dist == 0 ? true : false;
+
+            CheckStop(balanceBottomLeft, leftMotor, isCheckMiddle);
+            CheckStop(balanceBottomRight, rightMotor, isCheckMiddle);
         }
     }
 
     private void JointMove(int dist)
     {
-        float leftReactionForce = balanceBottomLeft.reactionForce.y - balanceBottomRight.reactionForce.y;
-        float rightReactionForce = balanceBottomRight.reactionForce.y - balanceBottomLeft.reactionForce.y;
-        //Debug.Log(leftReactionForce + " " + rightReactionForce);
+        float leftReactionForce = balanceBottomRight.reactionForce.y - balanceBottomLeft.reactionForce.y;
+        float rightReactionForce = balanceBottomLeft.reactionForce.y - balanceBottomRight.reactionForce.y;
+        //Debug.Log(leftReactionForce + " " + rightReactionForce + " " + dist);
 
-        leftMotor.maxMotorTorque = Mathf.Abs(leftReactionForce);
-        rightMotor.maxMotorTorque = Mathf.Abs(rightReactionForce);
+        leftMotor.maxMotorTorque = (Mathf.CeilToInt(Mathf.Abs(leftReactionForce)) * Physics2D.gravity.y * -1) + toGetForceValue;
+        rightMotor.maxMotorTorque = (Mathf.CeilToInt(Mathf.Abs(rightReactionForce)) * Physics2D.gravity.y * -1) + toGetForceValue;
 
         if (leftReactionForce < 0)
         {
@@ -108,9 +106,23 @@ public class Balances : MonoBehaviour
         {
             leftMotor.motorSpeed = DOWN_DIR * motorSpeed;
         }
-        else
+        else 
         {
-            leftMotor.motorSpeed = 0;
+            if (dist == 0)
+            {
+                if(balanceBottomLeft.jointTranslation > limitMiddle)
+                {
+                    leftMotor.motorSpeed = DOWN_DIR * motorSpeed;
+                }
+                else
+                {
+                    leftMotor.motorSpeed = DOWN_DIR * motorSpeed;
+                }
+            }
+            else
+            {
+                leftMotor.motorSpeed = 0;
+            }
         }
 
         if (rightReactionForce < 0)
@@ -123,33 +135,45 @@ public class Balances : MonoBehaviour
         }
         else
         {
-            rightMotor.motorSpeed = 0;
+            if (dist == 0)
+            {
+
+            }
+            else
+            {
+                rightMotor.motorSpeed = 0;
+            }
         }
 
-        if (dist == 0)
+        if(dist == 0)
         {
-            CheckMiddle(balanceBottomLeft, leftMotor);
-            CheckMiddle(balanceBottomRight, rightMotor);
+            CheckStop(balanceBottomLeft, leftMotor, true);
+            CheckStop(balanceBottomRight, rightMotor, true);
         }
 
         balanceBottomLeft.motor = leftMotor;
         balanceBottomRight.motor = rightMotor;
     }
 
-    private void CheckMiddle(SliderJoint2D joint, JointMotor2D motor)
+    private void CheckStop(SliderJoint2D joint, JointMotor2D motor, bool isStopMiddle)
     {
-        if (motor.motorSpeed < 0 && joint.jointTranslation >= limitMiddle)
-        {
-            motor.motorSpeed = 0;
+        if (isStopMiddle) { 
+            if ((joint.motor.motorSpeed < 0 && joint.jointTranslation >= limitMiddle) ||
+                joint.motor.motorSpeed > 0 && joint.jointTranslation <= limitMiddle)
+            {
+                Debug.Log(joint.name + " touch middle");
+                motor.motorSpeed = 0;
+                joint.motor = motor;
+            }
         }
-        else if (motor.motorSpeed > 0 && joint.jointTranslation <= limitMiddle)
+
+        if (joint.motor.motorSpeed != 0 && 
+            (joint.limitState == JointLimitState2D.UpperLimit ||
+            joint.limitState == JointLimitState2D.LowerLimit))
         {
+            Debug.Log(joint.name + " touch up or down");
             motor.motorSpeed = 0;
-        }
-        else if (joint.limitState == JointLimitState2D.UpperLimit ||
-            joint.limitState == JointLimitState2D.LowerLimit)
-        {
-            motor.motorSpeed = 0;
+            joint.motor = motor;
         }
     }
 }
