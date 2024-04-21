@@ -4,18 +4,20 @@ using UnityEngine;
 
 public class IdleState : MonsterState
 {
-    private Monster monster;
+    public IdleState(Monster monster) : base(monster)
+    {
+    }
     public override void Enter()
     {
-        monster.isWait = true;
+        Debug.Log("대기 시퀀스 진입");
     }
 
     public override void Execute()
     {
+        monster.WaitSituation();
     }
 
     public override void Exit()
     {
-        monster.isWait = false;
     }
 }

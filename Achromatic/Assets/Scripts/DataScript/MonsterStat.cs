@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "MonsterStat", menuName = "Scriptable Object/MonsterStat")]
@@ -21,7 +19,8 @@ public class MonsterStat : ScriptableObject
 
     public eActivableColor enemyColor;
 
-    public float senseCircle = 2f;
+    [Tooltip("최대 사거리")]
+    public float senseCircle = 5f;
 
     public float moveSpeed = 1f;
 
