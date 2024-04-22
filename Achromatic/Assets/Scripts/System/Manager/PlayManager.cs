@@ -108,9 +108,8 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
         if (isFilterOn)
         {
-            Vector2 playerPositionInClipSpace = Camera.main.WorldToViewportPoint(player.transform.position);
+            Vector2 playerPositionInClipSpace = Camera.main.WorldToScreenPoint(player.transform.position);
             playerFilterPosition = new Vector4(playerPositionInClipSpace.x, playerPositionInClipSpace.y, 0, 1);
-            Debug.Log(playerFilterPosition);
 
             colorObjectManager.EnableColors(haveColor);
             filterGauge -= filterPercentPerSec * Time.deltaTime;

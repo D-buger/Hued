@@ -5,6 +5,7 @@ Shader"Unlit/Grayscale"
         _MainTex ("Texture", 2D) = "white" {}
         _Color ("ActivationColor", Color) = (0, 0, 0, 1)
         _Filter ("VisibleColor", Vector) = (0.5, 0.5, 0, 0)
+        _Radius ("VisibleColorRadius", float) = 100
     }
     SubShader
     {
@@ -42,6 +43,7 @@ Shader"Unlit/Grayscale"
             float4 _MainTex_ST;
             float4 _Color;
             float4 _Filter;
+            float _Radius;
                      
             v2f vert(appdata v)
             {
@@ -76,7 +78,7 @@ Shader"Unlit/Grayscale"
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
                 
-                if(_Filter.w == 0 || distance(i.screenPos.xy, _Filter.xy) > 0.1){
+                if(_Filter.w == 0 || distance(i.vertex, _Filter.xy) > _Radius){
                     float gray = col.r * 0.299 + col.g * 0.587 + col.b * 0.114;
                     float4 grayscale = float4(gray, gray, gray, 1);
                     //h = ����, s = ä��, v = ����
