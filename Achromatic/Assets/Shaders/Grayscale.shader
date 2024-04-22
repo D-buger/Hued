@@ -76,7 +76,7 @@ Shader"Unlit/Grayscale"
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
                 
-                if(distance(i.screenPos.xy, _Filter.xy) > 0.3){
+                if(_Filter.w == 0 || distance(i.screenPos.xy, _Filter.xy) > 0.1){
                     float gray = col.r * 0.299 + col.g * 0.587 + col.b * 0.114;
                     float4 grayscale = float4(gray, gray, gray, 1);
                     //h = ����, s = ä��, v = ����
@@ -118,27 +118,6 @@ Shader"Unlit/Grayscale"
             }
             ENDHLSL 
         }
-        // Pass
-        // {
-        //     HLSLPROGRAM
-        //     #pragma vertex vert
-        //     #pragma fragment frag
-
-        //     float _UpperFeather;
-        //     float _BottomFeather;
-
-        //     fixed4 frag(v2f i) : SV_Target
-        //     {
-        //         fixed4 col = tex2D(_MainTex, i.uv);
-        //         float2 newVU = i.uv * 2 - 1;
-        //         float ring = length(newVU);
-
-        //         return fixed4(ring.xxx, 1);
-        //     }
-
-
-        //     ENDHLSL 
-        // }
     }
     Fallback "Diffuse"
 }
