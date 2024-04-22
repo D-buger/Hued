@@ -10,11 +10,13 @@ public class Grayscale : VolumeComponent, IPostProcessComponent
 {
     private const string SHADER_NAME = "Unlit/Grayscale";
     private const string PROPERTY_COLOR = "_Color";
+    private const string PROPERTY_VECTOR = "_Filter";
 
     private Material material;
 
     public BoolParameter isEnable = new BoolParameter(false);
     public Vector4Parameter activationColor = new Vector4Parameter(new Vector4(0f, 0f, 0f, 1f));
+    public Vector4Parameter playerPosition = new Vector4Parameter(new Vector4(0f, 0f, 0f, 0f));
 
     public bool IsActive()
     {
@@ -56,6 +58,7 @@ public class Grayscale : VolumeComponent, IPostProcessComponent
         }
 
         material.SetColor(PROPERTY_COLOR, activationColor.value);
+        material.SetVector(PROPERTY_VECTOR, playerPosition.value);
 
         commandBuffer.Blit(source, destination, material);
 

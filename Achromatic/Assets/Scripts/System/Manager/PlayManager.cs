@@ -38,6 +38,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private Grayscale volumeProfile;
     private Color activateColor = Color.black;
     private eActivableColor haveColor = eActivableColor.NONE;
+    private Vector4 playerFilterPosition = Vector4.zero;
 
     private ColorObjectManager colorObjectManager;
     private List<eActivableColor> activationColors = new List<eActivableColor>();
@@ -84,6 +85,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
         player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
 
         volumeProfile.activationColor.Override(activateColor);
+        volumeProfile.activationColor.Override(playerFilterPosition);
     }
     private void Start()
     {
@@ -106,11 +108,14 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
         if (isFilterOn)
         {
+            Vector2 playerPositionInClipSpace = Camera.main.WorldToViewportPoint(player.transform.position);
+            playerFilterPosition = new Vector4(playerPositionInClipSpace.x, playerPositionInClipSpace.y, 0, 1);
             colorObjectManager.EnableColors(haveColor);
             filterGauge -= filterPercentPerSec * Time.deltaTime;
         }
         else
         {
+            playerFilterPosition = Vector4.zero;
             colorObjectManager.DisableColors(haveColor);
             if (canFilterOn)
             {
@@ -121,6 +126,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
                 filterGauge += filterCoolRecoveryPerSec * Time.deltaTime;
             }
         }
+        volumeProfile.activationColor.Override(playerFilterPosition);
         FilterCheck();
 
     }
