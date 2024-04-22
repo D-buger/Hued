@@ -47,7 +47,7 @@ public class Attack : MonoBehaviour
 
     private void Start()
     {
-        ignoreLayers = LayerMask.GetMask("IgnoreAttack");
+        ignoreLayers = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("IgnoreAttack"));
     }
     private void Update()
     {

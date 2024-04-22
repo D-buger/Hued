@@ -43,6 +43,7 @@ public class Player : MonoBehaviour, IAttack
     private ParticleSystem dashEffect;
     private ParticleSystem runningEffect;
     private ParticleSystem attackHitEffect;
+    private ParticleSystem hitEffect;
 
     public CameraFollowObject CameraObject { get; set; }
 
@@ -101,11 +102,13 @@ public class Player : MonoBehaviour, IAttack
         dashEffect = effects.transform.GetChild(1).GetComponent<ParticleSystem>();
         runningEffect = effects.transform.GetChild(2).GetComponent<ParticleSystem>();
         attackHitEffect = transform.GetChild(0).GetComponentInChildren<ParticleSystem>();
+        hitEffect = effects.transform.GetChild(3).GetComponent<ParticleSystem>();
 
         effectList.Add(parryEffect);
         effectList.Add(dashEffect);
         effectList.Add(runningEffect);
         effectList.Add(attackHitEffect);
+        effectList.Add(hitEffect);
 
         for (int i = 0; i < effects.transform.childCount; i++)
         {
@@ -223,6 +226,9 @@ public class Player : MonoBehaviour, IAttack
                 break;
             case ePlayerState.RUN:
                 EffectPlayOrStop(runningEffect, onoff);
+                break;
+            case ePlayerState.HIT:
+                EffectPlayOrStop(hitEffect, onoff);
                 break;
             default:
                 break;

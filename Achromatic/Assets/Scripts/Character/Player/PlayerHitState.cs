@@ -33,11 +33,13 @@ public class PlayerHitState : PlayerBaseState
         player.CanChangeState = false;
         player.IsInvincibility = true;
         player.AnimatorComp.SetTrigger("hitTrigger");
+        player.ControlParticles(ePlayerState.HIT, true);
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
         PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
         yield return Yields.WaitSeconds(reboundTime);
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);
+        player.ControlParticles(ePlayerState.HIT, false);
         player.CanChangeState = true;
         player.ChangeState(ePlayerState.IDLE);
 
