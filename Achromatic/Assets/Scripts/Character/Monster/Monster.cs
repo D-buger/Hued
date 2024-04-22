@@ -4,7 +4,6 @@ public abstract class Monster : MonoBehaviour, IAttack
 {
     [SerializeField]
     private MonsterStat baseStat;
-    [HideInInspector]
     public int currentHP;
 
     [HideInInspector]
@@ -23,9 +22,13 @@ public abstract class Monster : MonoBehaviour, IAttack
     public float distanceToPlayer = 0;
     [HideInInspector]
     public bool isDead = false;
+    [HideInInspector]
     public bool isWait = true;
+    [HideInInspector]
     public bool isBattle = false;
+    [HideInInspector]
     public bool isPlayerBetween = false;
+    [HideInInspector]
     public bool canAttack = true;
 
     public void CheckPlayer(Vector2 startSpriderPos)
@@ -122,13 +125,22 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
 
     }
+    public void HPDown(int HitDamage)
+    {
+        currentHP -= HitDamage;
+    }
     public void CheckDead()
     {
         if (currentHP <= 0)
         {
             isDead = true;
         }
+        if (isDead)
+        {
+            Dead();
+        }
     }
+    public abstract void Dead();
     void IAttack.AfterAttack(Vector2 attackDir)
     {
     }

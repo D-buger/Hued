@@ -4,6 +4,8 @@ using UnityEngine.Events;
 using Spine.Unity;
 using Newtonsoft.Json.Linq;
 using TextAsset = UnityEngine.TextAsset;
+using Unity.VisualScripting;
+using System;
 
 public class SpiderEnemy : Monster, IAttack
 {
@@ -372,42 +374,44 @@ public class SpiderEnemy : Monster, IAttack
         {
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                currentHP -= criticalDamage;
+                HPDown(criticalDamage);
                 rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
             }
             else
             {
-                currentHP -= damage;
+                HPDown(damage);
                 rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
             }
         }
         else
         {
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                currentHP -= damage;
-                rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-            }
+            HPDown(damage);
+            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
         }
         if (!isDead)
         {
             CheckDead();
         }
-        if (isDead)
-        {
-            StartCoroutine(Dead());
-        }
     }
 
-    private IEnumerator Dead()
+    public override void Dead()
     {
+        StartCoroutine(DeadSequence());
+    }
+
+    private IEnumerator DeadSequence()
+    {
+        float deadDelayTime = 1.3f;
+        isBattle = false;
+        isWait = false;
+        isPlayerBetween = false;
         isDead = false;
-        float deathAnimTime = 1.5f;
+        StopCoroutine(AttackSequence(PlayerPos));
         skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
         skeletonAnimation.state.GetCurrent(0).TimeScale = 1;
         animState = EanimState.Dead;
         SetCurrentAniamtion(animState);
-        yield return new WaitForSeconds(deathAnimTime);
+        yield return new WaitForSeconds(deadDelayTime);
         gameObject.SetActive(false);
     }
 
