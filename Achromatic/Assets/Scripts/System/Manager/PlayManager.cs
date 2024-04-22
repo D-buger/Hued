@@ -63,12 +63,14 @@ public class PlayManager : SingletonBehavior<PlayManager>
             if (!activationColors.Contains(value) && haveColor != value)
             {
                 haveColor = value;
+                volumeProfile.FilterColor.Override(ActivableColor2Color(haveColor));
             }
             else if (!activationColors.Contains(value) && haveColor == value)
             {
                 haveColor = eActivableColor.NONE;
+                volumeProfile.FilterColor.Override(ActivableColor2Color(haveColor));
                 activationColors.Add(value);
-                SetColor(value);
+                SetActivateColor(value);
                 ActivationColorEvent?.Invoke(value);
             }
         }
@@ -85,6 +87,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
         player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
 
         volumeProfile.activationColor.Override(activateColor);
+        volumeProfile.FilterColor.Override(activateColor);
         volumeProfile.playerPosition.Override(playerFilterPosition);
     }
     private void Start()
@@ -164,24 +167,29 @@ public class PlayManager : SingletonBehavior<PlayManager>
             }
         }
     }
-
-    private void SetColor(eActivableColor color)
+    Color ActivableColor2Color(eActivableColor color)
     {
-        switch(color)
+        Color result = new Color(0, 0, 0, 0);
+        switch (color)
         {
             case eActivableColor.RED:
-                activateColor.r = 1;
+                result.r = 1;
                 break;
             case eActivableColor.BLUE:
-                activateColor.g = 1;
+                result.b = 1;
                 break;
             case eActivableColor.GREEN:
-                activateColor.b = 1;
+                result.g = 1;
                 break;
             default:
-                return;
+                return result;
         }
-        volumeProfile.activationColor.Override(activateColor);
+        return result;
+    }
 
+    private void SetActivateColor(eActivableColor color)
+    {
+        activateColor += ActivableColor2Color(color);
+        volumeProfile.activationColor.Override(activateColor);
     }
 }
