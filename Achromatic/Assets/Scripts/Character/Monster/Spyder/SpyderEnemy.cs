@@ -8,9 +8,8 @@ using UnityEngine.Events;
 using UnityEngine.SocialPlatforms;
 using Spine.Unity;
 using static UnityEngine.RuleTile.TilingRuleOutput;
-using Spine.Unity.Examples;
 
-public class SpyderEnemy : MonoBehaviour, IAttack, IParry
+public class SpyderEnemy : Monster, IAttack, IParry
 {
     [Header("Components")]
     private Rigidbody2D rigid;
@@ -20,10 +19,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     private SpyderMonsterStats stat;
     [SerializeField, Space]
     private Projectile rangedAttack;
-    [SerializeField]
-    private Projectile earthAttack;
-
-
 
     [Header("Animation")]
     [SerializeField]
@@ -47,11 +42,13 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     [SerializeField, Tooltip("몬스터 기준 이동 범위")]
     private float runPosition;
 
+    public ParticleSystem[] earthObjectGroup;
+
+    public UnityEvent<eActivableColor> spyderColorEvent;
+
     public GameObject[] earthObjectGroup1;
     public GameObject[] earthObjectGroup2;
     public GameObject[] earthObjectGroup3;
-    public UnityEvent<eActivableColor> spyderColorEvent;
-
 
     private Vector2 startPosition;
     private Vector2 targetPosition;
@@ -60,10 +57,9 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     private Vector3 endPos;
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
+    private LayerMask originLayer;
+    private LayerMask colorVisibleLayer;
 
-    public int currentHP;
-
-    public bool isDead = false;
     private bool isBettle = false;
     private bool canAttack = true;
     private bool isAttack = false;
@@ -91,18 +87,23 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
         currentHP = stat.MonsterHP;
         thisPosition = targetPosition;
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, null);
-        //MonsterManager.Instance.getColorEvent.AddListener(CheckIsHeavy);
+        originLayer = gameObject.layer;
+        colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor, null);
+        MonsterManager.Instance?.getColorEvent.AddListener(CheckIsHeavy);
         gameStart = true;
+
+        PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
+        PlayManager.Instance.UpdateColorthing();
     }
 
-    private void CheckIsHeavy(eActivableColor playerColor)
+    private void CheckIsHeavy(eActivableColor color)
     {
-        if (playerColor == stat.enemyColor)
+        if (color == stat.enemyColor)
         {
             isHeavy = false;
         }
-        spyderColorEvent?.Invoke(playerColor);
+        spyderColorEvent?.Invoke(color);
     }
 
     private void Update()
@@ -190,15 +191,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
     {
         return value >= Mathf.Min(start, end) && value <= Mathf.Max(start, end);
     }
-    private void CheckWaitTime()
-    {
-        elapsedTime += Time.deltaTime;
-        if (elapsedTime >= stat.usualTime)
-        {
-            elapsedTime = 0f;
-            isWait = true;
-        }
-    }
 
     private void WaitSituation()
     {
@@ -209,16 +201,38 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
         if (HasArrived((Vector2)transform.position, targetPosition))
         {
+            transform.localScale = new Vector3(-1, 1, 1);
             thisPosition = startPosition;
         }
         if (HasArrived((Vector2)transform.position, startPosition))
         {
+            transform.localScale = new Vector3(1, 1, 1);
             thisPosition = targetPosition;
+        }
+    }
+    public void CheckWaitTime()
+    {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= stat.usualTime)
+        {
+            elapsedTime = 0f;
+            isWait = true;
         }
     }
     private bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
     {
         return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
+    }
+    private void IsActiveColor(eActivableColor color)
+    {
+        if (color != stat.enemyColor)
+        {
+            gameObject.layer = originLayer;
+        }
+        else
+        {
+            gameObject.layer = colorVisibleLayer;
+        }
     }
 
 
@@ -236,8 +250,8 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         Vector2 value = new Vector2(horizontalValue, verticalValue);
         Vector2 check = new Vector2(1.0f, 0);
         float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
-        //Debug.Log(angleToPlayer);
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
+        double yAngle = Math.Atan2(horizontalValue, verticalValue);
 
         if (value.x <= 0)
         {
@@ -259,9 +273,12 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             animState = AnimaState.Spit;
             SetCurrentAniamtion(animState);
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
-            isfirstAttack = false;
+            attack.transform.rotation = Quaternion.Euler(0, 0, (float)yAngle);
             attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                     stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, eActivableColor.RED);
+            spyderColorEvent.AddListener(attack.CheckIsHeavyAttack);
+            PlayManager.Instance.UpdateColorthing();
+            isfirstAttack = false;
         }
         else if (distanceToPlayer < stat.meleeAttackRange)
         {
@@ -273,7 +290,7 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
                 yield return Yields.WaitSeconds(1.3f);
                 facingPlayer = false;
 
-                meleeAttack?.AttackAble(-value, stat.attackDamage, isHeavy);
+                meleeAttack?.AttackAble(-value, stat.attackDamage);
                 rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
             }
             else
@@ -281,8 +298,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
                 animState = AnimaState.Ground;
                 SetCurrentAniamtion(animState);
                 yield return Yields.WaitSeconds(1.8f);
-                Projectile earthProjectileLeft = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
-                Projectile earthProjectileRight = Instantiate(earthAttack.gameObject).GetComponent<Projectile>();
                 rigid.velocity = Vector2.up * stat.earthAttackJump;
                 isEarthAttack = true;
 
@@ -295,9 +310,10 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             SetCurrentAniamtion(animState);
             yield return Yields.WaitSeconds(0.14f);
             Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
-            isfirstAttack = false;
+            attack.transform.rotation = Quaternion.Euler(horizontalValue, verticalValue, 0);
             attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                     stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, eActivableColor.RED);
+            spyderColorEvent.AddListener(attack.CheckIsHeavyAttack);
 
         }
         yield return Yields.WaitSeconds(stat.attackTime);
@@ -345,24 +361,26 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         {
             yield return new WaitForSeconds(0.6f);
 
+            ActivateParticle(earthObjectGroup);
+
+            isEarthAttack = false;
+
             ActivateObjects(earthObjectGroup1);
-            yield return new WaitForSeconds(stat.earthAttackTime);
+            yield return new WaitForSeconds(0.1f);
             DeactivateObjects(earthObjectGroup1);
-            yield return new WaitForSeconds(stat.earthAttackDalay);
+            yield return new WaitForSeconds(0.3f);
 
             ActivateObjects(earthObjectGroup2);
-            yield return new WaitForSeconds(stat.earthAttackTime);
+            yield return new WaitForSeconds(0.1f);
             DeactivateObjects(earthObjectGroup2);
-            yield return new WaitForSeconds(stat.earthAttackDalay);
+            yield return new WaitForSeconds(0.3f);
 
             ActivateObjects(earthObjectGroup3);
-            yield return new WaitForSeconds(stat.earthAttackTime);
+            yield return new WaitForSeconds(0.1f);
             DeactivateObjects(earthObjectGroup3);
-            yield return new WaitForSeconds(stat.earthAttackDalay);
-            isEarthAttack = false;
+            yield return new WaitForSeconds(0.3f);
         }
     }
-
     private void ActivateObjects(GameObject[] objects)
     {
         foreach (GameObject obj in objects)
@@ -378,7 +396,31 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
             obj.SetActive(false);
         }
     }
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+
+        private void ActivateParticle(ParticleSystem[] objects)
+    {
+         StartCoroutine(PlayObjects(objects));
+    }
+    private IEnumerator PlayObjects(ParticleSystem[] objects)
+    {
+        int objectsPerBatch = 2;
+        int batches = Mathf.CeilToInt((float)objects.Length / objectsPerBatch);
+
+        for (int i = 0; i < batches; i++)
+        {
+            for (int j = 0; j < objectsPerBatch; j++)
+            {
+                int index = i * objectsPerBatch + j;
+                if (index < objects.Length && objects[index] != null)
+                {
+                    objects[index].Play();
+                }
+            }
+            yield return new WaitForSeconds(stat.earthAttackTime);
+        }
+    }
+
+    public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
     {
         if (!isHeavyAttack)
         {
@@ -404,13 +446,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
         CheckDead();
     }
 
-    private void CheckDead()
-    {
-        if (currentHP <= 0 && !isDead)
-        {
-            isDead = true;
-;        }
-    }
     private IEnumerator Dead()
     {
         skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
@@ -453,9 +488,6 @@ public class SpyderEnemy : MonoBehaviour, IAttack, IParry
 
     }
 
-    public void AfterAttack(Vector2 attackDir)
-    {
-    }
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))

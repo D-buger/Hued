@@ -11,7 +11,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
     private CinemachineVirtualCamera[] allVirtualCameras;
 
     [Header("Shake"), Space(10)]
-    [SerializeField]
+    [SerializeField] 
     private float shakeAmplitude = 1.2f;
     [SerializeField]
     private float shakeFrequency = 2.0f;

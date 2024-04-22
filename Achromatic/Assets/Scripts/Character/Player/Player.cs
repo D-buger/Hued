@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// 
@@ -122,7 +124,6 @@ public class Player : MonoBehaviour, IAttack
         {
             effectList[i].Stop();
         }
-
     }
 
     void Start()
@@ -139,6 +140,8 @@ public class Player : MonoBehaviour, IAttack
         groundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object")) | (1 << LayerMask.NameToLayer("ColorObject"));
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
+
+        UISystem.Instance.hpSliderEvent?.Invoke(currentHP);
     }
 
     private void Update()
@@ -296,10 +299,24 @@ public class Player : MonoBehaviour, IAttack
         }
         parryCondition = false;
 
+        StartCoroutine(DashCooldownSequence());
         yield return Yields.WaitSeconds(stat.dashAfterDelay);
         canParryDash = true;
-
-        yield return Yields.WaitSeconds(stat.dashCooldown - stat.dashAfterDelay);
+    }
+    IEnumerator DashCooldownSequence()
+    {
+        float time = 0;
+        while (true)
+        {
+            time += Time.deltaTime;
+            UISystem.Instance.dashCooldownEvent(1 - time / stat.dashCooldown);
+            if(time > stat.dashCooldown)
+            {
+                break;
+            }
+            yield return null;
+        }
+        UISystem.Instance.dashCooldownEvent(0);
         canDash = true;
     }
     IEnumerator ParryDashSequence(Vector2 dashPos)
@@ -312,8 +329,8 @@ public class Player : MonoBehaviour, IAttack
         float originGravityScale = rigid.gravityScale;
         float originLiniearDrag = rigid.drag;
         float originMass = rigid.mass;
-        coll.forceReceiveLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        coll.forceSendLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        coll.forceReceiveLayers &= ~PlayManager.Instance.EnemyMask;
+        coll.forceSendLayers &= ~PlayManager.Instance.EnemyMask;
         rigid.gravityScale = 0f;
         rigid.drag = 0;
         rigid.mass = 0;
@@ -350,8 +367,8 @@ public class Player : MonoBehaviour, IAttack
             }
             parryDashCollision = null;
         }
-        coll.forceReceiveLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        coll.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        coll.forceReceiveLayers |= PlayManager.Instance.EnemyMask;
+        coll.forceSendLayers |= PlayManager.Instance.EnemyMask;
 
         isParryDash = false;
         DashTrail.Stop();
@@ -404,12 +421,12 @@ public class Player : MonoBehaviour, IAttack
 
         if (!isCriticalAttack)
         {
-            attack.AttackAble(angleVec.normalized, stat.attackDamage, false, stat.colorAttackDamage);
+            attack.AttackAble(angleVec.normalized, stat.attackDamage, stat.colorAttackDamage);
         }
         else
         {
             isCriticalAttack = false;
-            attack.AttackAble(angleVec.normalized, stat.criticalAttackDamage, false, stat.colorCriticalAttackDamage);
+            attack.AttackAble(angleVec.normalized, stat.criticalAttackDamage, stat.colorCriticalAttackDamage);
         }
 
         yield return Yields.WaitSeconds(stat.attackTime);
@@ -459,6 +476,7 @@ public class Player : MonoBehaviour, IAttack
         {
             attackDir.y = 0;
             currentHP -= damage;
+            UISystem.Instance.hpSliderEvent.Invoke(currentHP);
             ani.SetTrigger("hitTrigger");
             StartCoroutine(HitReboundSequence(attackDir.normalized, stat.hitReboundPower, stat.hitReboundTime, 0.1f));
         }
@@ -481,6 +499,7 @@ public class Player : MonoBehaviour, IAttack
     private void Dead()
     {
         Debug.Log("Player Dead");
+        SceneManager.LoadScene(0);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -523,7 +542,7 @@ public class Player : MonoBehaviour, IAttack
             {
                 parryCondition = true;
             }
-            else if(projectile != null)
+            else if(projectile != null && projectile.IsParryAllow)
             {
                 parryCondition = true;
             }
