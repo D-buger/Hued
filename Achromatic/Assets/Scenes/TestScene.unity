@@ -29730,6 +29730,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4819771866463153827, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
+      propertyPath: hpSlider
+      value: 
+      objectReference: {fileID: 951074660}
+    - target: {fileID: 4819771866463153827, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
+      propertyPath: filterGauge
+      value: 
+      objectReference: {fileID: 903401876}
+    - target: {fileID: 4819771866463153827, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
+      propertyPath: dashCooldown
+      value: 
+      objectReference: {fileID: 1878669466}
     - target: {fileID: 4853712015748426014, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
       propertyPath: m_Name
       value: Managers
@@ -29774,56 +29786,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7469853638090151738, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
-      propertyPath: sprite
-      value: 
-      objectReference: {fileID: 1914674285}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4853712015748426014, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2777086142826105304}
-    - targetCorrespondingSourceObject: {fileID: 4853712015748426014, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2777086142826105308}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
---- !u!1 &2777086142826105303 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4853712015748426014, guid: aa5db9a316fb2d9438231140a2cb1cfc, type: 3}
-  m_PrefabInstance: {fileID: 2777086142826105302}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &2777086142826105304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2777086142826105303}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 901428ad155e73644adc8b6bb866a107, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hpSlider: {fileID: 951074660}
-  filterGauge: {fileID: 903401876}
-  dashCooldown: {fileID: 1878669466}
---- !u!114 &2777086142826105308
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2777086142826105303}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 493c0bbab92f66a4bb44835ce330f091, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  getColorEvent:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1001 &4921782879376343224
 PrefabInstance:
   m_ObjectHideFlags: 0
