@@ -9,6 +9,7 @@ public class ChaseState : MonsterState
     }
     public override void Enter()
     {
+       
     }
 
     public override void Execute()

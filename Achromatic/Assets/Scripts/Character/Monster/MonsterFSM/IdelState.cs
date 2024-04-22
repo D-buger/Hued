@@ -9,7 +9,6 @@ public class IdleState : MonsterState
     }
     public override void Enter()
     {
-        Debug.Log("대기 시퀀스 진입");
     }
 
     public override void Execute()
