@@ -12,12 +12,15 @@ public class UISystem : SingletonBehavior<UISystem>
     private Image filterGauge;
     [SerializeField]
     private Image dashCooldown;
+    [SerializeField]
+    private Texture2D cursorTexture;
 
     public UnityAction<int> hpSliderEvent;
     public UnityAction<float> filterSliderEvent;
     public UnityAction<float> dashCooldownEvent;
 
     private bool isSetHP = false;
+    private Vector2 cursorHotspot;
 
     protected override void OnAwake()
     {
@@ -26,6 +29,15 @@ public class UISystem : SingletonBehavior<UISystem>
         dashCooldownEvent += dashCooldownUI;
 
         dashCooldown.gameObject.SetActive(false);
+    }
+
+    private void Start()
+    {
+        if (cursorTexture != null)
+        {
+            cursorHotspot = new Vector2(cursorTexture.width / 2, cursorTexture.height / 2);
+            Cursor.SetCursor(cursorTexture, cursorHotspot, CursorMode.Auto);
+        }
     }
 
     private void hpUI(int hp)
