@@ -5979,6 +5979,10 @@ PrefabInstance:
       propertyPath: m_LocalScale.y
       value: 1.6066014
       objectReference: {fileID: 0}
+    - target: {fileID: 8755126944974787372, guid: 0c178c56fe83fb341a9e37a8dbd2a85f, type: 3}
+      propertyPath: m_SideArc
+      value: 65.99
+      objectReference: {fileID: 0}
     - target: {fileID: 8952810856532504838, guid: 0c178c56fe83fb341a9e37a8dbd2a85f, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -34495,6 +34499,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3537731206749996152, guid: fa9b1e1f569f357448cfc1f9c797bcab, type: 3}
+      propertyPath: m_SurfaceArc
+      value: 180.02
+      objectReference: {fileID: 0}
     - target: {fileID: 4348316676309349470, guid: fa9b1e1f569f357448cfc1f9c797bcab, type: 3}
       propertyPath: m_LocalScale.x
       value: 4.6000357
@@ -34509,7 +34517,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4348316676309349470, guid: fa9b1e1f569f357448cfc1f9c797bcab, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5.73
+      value: -5.74
       objectReference: {fileID: 0}
     - target: {fileID: 4348316676309349470, guid: fa9b1e1f569f357448cfc1f9c797bcab, type: 3}
       propertyPath: m_LocalPosition.z
@@ -34542,6 +34550,14 @@ PrefabInstance:
     - target: {fileID: 4348316676309349470, guid: fa9b1e1f569f357448cfc1f9c797bcab, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6516090483201651538, guid: fa9b1e1f569f357448cfc1f9c797bcab, type: 3}
+      propertyPath: m_Size.y
+      value: 1.8527626
+      objectReference: {fileID: 0}
+    - target: {fileID: 6516090483201651538, guid: fa9b1e1f569f357448cfc1f9c797bcab, type: 3}
+      propertyPath: m_Offset.y
+      value: -0.4263813
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

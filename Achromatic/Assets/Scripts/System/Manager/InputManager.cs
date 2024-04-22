@@ -20,7 +20,8 @@ public class InputManager : SingletonBehavior<InputManager>
     public UnityEvent<int> LookEvent;
     public UnityEvent<Vector2> DashEvent;
     public UnityEvent<Vector2> LightAttackEvent;
-    public UnityEvent FilterEvent; 
+    public UnityEvent FilterEvent;
+    public UnityEvent DownJumpEvent;
 
     private Camera mainCamera;
     public Vector2 MouseVec { get; private set; }
@@ -58,10 +59,15 @@ public class InputManager : SingletonBehavior<InputManager>
             LightAttackEvent?.Invoke(MouseVec);
         }
 
-        if (Input.GetKey(JUMP))
+        if (Input.GetKey(LOOK_DOWN) && Input.GetKey(JUMP))
+        {
+            DownJumpEvent?.Invoke();
+        }
+        else if (Input.GetKey(JUMP))
         {
             JumpEvent?.Invoke();
         }
+
         if(Input.GetKey(DASH))
         {
             DashEvent?.Invoke(MouseVec);
@@ -79,5 +85,6 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             LookEvent?.Invoke(1);
         }
+
     }
 }
