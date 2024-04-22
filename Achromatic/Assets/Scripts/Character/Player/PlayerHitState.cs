@@ -10,6 +10,7 @@ public class PlayerHitState : PlayerBaseState
 
     public override void OnStateEnter()
     {
+        //Debug.Log("Player State : Hit");
     }
     public override void OnStateUpdate()
     {
@@ -17,14 +18,14 @@ public class PlayerHitState : PlayerBaseState
     }
     public void Hit(int damage, Vector2 attackDir)
     {
+        player.ParryCondition = false;
+        if (!player.IsInvincibility)
+        {
             player.RigidbodyComp.velocity = Vector2.zero;
-            player.ParryCondition = false;
-            if (!player.IsInvincibility)
-            {
-                attackDir.y = 0;
-                player.currentHP -= damage;
-                hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime, 0.1f));
-            }
+            attackDir.y = 0;
+            player.currentHP -= damage;
+            hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime, 0.1f));
+        }
     }
 
     IEnumerator HitReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
@@ -38,7 +39,7 @@ public class PlayerHitState : PlayerBaseState
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);
         player.CanChangeState = true;
-        player.ChangePrevState();
+        player.ChangeState(ePlayerState.IDLE);
 
         yield return Yields.WaitSeconds(Mathf.Max(0, Mathf.Abs(player.GetPlayerStat.hitInvincibilityTime - player.GetPlayerStat.hitBehaviourLimitTime)));
         player.IsInvincibility = false;

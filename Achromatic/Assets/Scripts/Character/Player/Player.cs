@@ -245,8 +245,8 @@ public class Player : MonoBehaviour, IAttack
     public void AfterAttack(Vector2 attackDir)
     {
         PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[ePlayerState.ATTACK_REBOUND];
-        afterAttackState.AfterAttack(attackDir);
         ChangeState(ePlayerState.ATTACK_REBOUND);
+        afterAttackState.AfterAttack(attackDir);
     }
 
 
@@ -256,10 +256,9 @@ public class Player : MonoBehaviour, IAttack
         {
             return;
         }
-
         PlayerHitState hitState = (PlayerHitState)playerStates[ePlayerState.HIT];
-        hitState.Hit(damage, attackDir);
         ChangeState(ePlayerState.HIT);
+        hitState.Hit(damage, attackDir.normalized);
     }
 
     private void Dead()
