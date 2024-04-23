@@ -49,6 +49,8 @@ public class SpiderEnemy : Monster, IAttack
 
     [SerializeField]
     private GameObject[] earthObjects;
+    [SerializeField]
+    private GameObject attackTransform;
 
     public Vector3 gizmoLeftPos;
     public Vector3 gizmoRightPos;
@@ -264,7 +266,7 @@ public class SpiderEnemy : Monster, IAttack
         {
             yield break;
         }
-        float spitWaitTime = 0.12f;
+        float spitWaitTime = 0.2f;
         yield return new WaitForSeconds(spitWaitTime);
         animState = EanimState.Spit;
         SetCurrentAniamtion(animState);
@@ -276,7 +278,7 @@ public class SpiderEnemy : Monster, IAttack
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
-                projectile.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
+                projectile.Shot(gameObject, attackTransform.transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                     stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, ZAngle, eActivableColor.RED);
                 projectileObj.transform.position = transform.position;
 
