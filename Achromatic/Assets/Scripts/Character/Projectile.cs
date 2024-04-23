@@ -59,7 +59,7 @@ public class Projectile : MonoBehaviour
 
     public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotDir, eActivableColor color)
     {
-        float spitDir = shotDir + 270;
+        float spitDir = shotDir + 180;
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;

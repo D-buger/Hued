@@ -182,6 +182,7 @@ MonoBehaviour:
   - {fileID: 6720941060639957974}
   - {fileID: 3459132020746436217}
   - {fileID: 7745427353880145620}
+  attackTransform: {fileID: 8967579399920410377}
   gizmoLeftPos: {x: 0, y: 0, z: 0}
   gizmoRightPos: {x: 0, y: 0, z: 0}
   startSpiderPosition: {x: 0, y: 0}
@@ -347,6 +348,11 @@ PrefabInstance:
 --- !u!4 &4540736794799274690 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1311849716107914777, guid: 6bf674612717f0a4590bf940e5347ebb, type: 3}
+  m_PrefabInstance: {fileID: 3258161174444856539}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8967579399920410377 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5855925953420364754, guid: 6bf674612717f0a4590bf940e5347ebb, type: 3}
   m_PrefabInstance: {fileID: 3258161174444856539}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &4570896181747934751
