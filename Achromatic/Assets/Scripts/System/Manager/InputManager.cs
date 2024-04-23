@@ -6,17 +6,18 @@ using UnityEngine.Events;
 
 public class InputManager : SingletonBehavior<InputManager>
 {
-    const KeyCode JUMP = KeyCode.W;
+    const KeyCode JUMP = KeyCode.Space;
     const KeyCode LEFT = KeyCode.A;
     const KeyCode RIGHT = KeyCode.D;
-    const KeyCode SIT = KeyCode.S;
-    const KeyCode DASH = KeyCode.Space;
+    const KeyCode LOOK_UP = KeyCode.W;
+    const KeyCode LOOK_DOWN = KeyCode.S;
+    const KeyCode DASH = KeyCode.Mouse1;
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
 
     public UnityEvent JumpEvent;
     public UnityEvent<float> MoveEvent;
-    public UnityEvent SitEvent;
+    public UnityEvent<int> LookEvent;
     public UnityEvent<Vector2> DashEvent;
     public UnityEvent<Vector2> LightAttackEvent;
     public UnityEvent FilterEvent; 
@@ -24,6 +25,7 @@ public class InputManager : SingletonBehavior<InputManager>
     private Camera mainCamera;
     public Vector2 MouseVec { get; private set; }
 
+    public bool CanInput { get; set; } = true;
     protected override void OnAwake()
     {
         mainCamera = Camera.main;
@@ -32,6 +34,11 @@ public class InputManager : SingletonBehavior<InputManager>
     void Update()
     {
         MouseVec = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+        if (!CanInput)
+        {
+            return;
+        }
 
         if (Input.GetKey(LEFT))
         {
@@ -55,10 +62,6 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             JumpEvent?.Invoke();
         }
-        if (Input.GetKey(SIT))
-        {
-            SitEvent?.Invoke();
-        }
         if(Input.GetKey(DASH))
         {
             DashEvent?.Invoke(MouseVec);
@@ -67,6 +70,14 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             FilterEvent?.Invoke();
         }
-        
+
+        if (Input.GetKey(LOOK_DOWN))
+        {
+            LookEvent?.Invoke(-1);
+        }
+        if (Input.GetKey(LOOK_UP))
+        {
+            LookEvent?.Invoke(1);
+        }
     }
 }

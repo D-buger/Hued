@@ -1,36 +1,46 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SocialPlatforms;
+using Spine.Unity;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
-public interface IMove
+public class Monster : MonoBehaviour, IAttack
 {
-    void WaitMove(MonsterStat stat, Vector2 sartPos, Vector2 endPos);
-    void BettleMove(MonsterStat stat, Vector2 playerPos, Vector2 distancePos);
-}
-public class Monster : MonoBehaviour
-{
-    private SpriteRenderer render;
-    private Animator anim;
     private Collider2D col;
+    private Rigidbody rigid;
 
-    bool isDead = false;
+    private float elapsedTime = 0;
 
+    [HideInInspector]
+    public int currentHP;
+    [HideInInspector]
+    public bool isDead = false;
 
-    public void CheckDead(bool Dead, bool isAnim, int MonsterHP)
+    private void Awake()
     {
-        if (anim != null)
-        {
-            isAnim = true;
-        }
-        if (MonsterHP <= 0)
-        {
-            Dead = true;
-        }
+        rigid = GetComponent<Rigidbody>();
+        col = GetComponent<Collider2D>();
     }
 
-    public void Dead()
+    public void AfterAttack(Vector2 attackDir)
     {
-        anim.SetTrigger("deathTrigger");
-        gameObject.SetActive(false);
+        throw new System.NotImplementedException();
+    }
+
+    public virtual void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    {
+
+    }
+    public void CheckDead()
+    {
+        if (currentHP <= 0)
+        {
+            isDead = true;
+        }
     }
 }

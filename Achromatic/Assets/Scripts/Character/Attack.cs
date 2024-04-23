@@ -29,14 +29,18 @@ public class Attack : MonoBehaviour
     private int attackDamage;
     private int criticalDamage;
 
-    // 플레이어는 강공, 몬스터는 약공이여야 패링 가능
     // 몬스터의 약공 기준 => 색이 보이면 약공
     private bool isHeavyAttack;
     private bool isAttackEnable = false;
 
+    private eActivableColor attackColor;
+
     private float attackTime = 0f;
 
     private LayerMask ignoreLayers;
+
+    private LayerMask originLayer;
+    private LayerMask colorVisibleLayer;
 
     private void Awake()
     {
@@ -47,7 +51,11 @@ public class Attack : MonoBehaviour
 
     private void Start()
     {
+        originLayer = gameObject.layer;
         ignoreLayers = LayerMask.GetMask("IgnoreAttack");
+        colorVisibleLayer = LayerMask.NameToLayer("ColorObject");
+        PlayManager.Instance.FilterColorAttackEvent.AddListener(CheckIsHeavy);
+
     }
     private void Update()
     {
@@ -56,11 +64,13 @@ public class Attack : MonoBehaviour
             attackTime += Time.deltaTime;
         }
     }
-    public void SetAttack(string from, IAttack after, IParry parry = null)
+
+    public void SetAttack(string from, IAttack after, eActivableColor color = eActivableColor.MAX_COLOR, IParry parry = null)
     {
         attackFrom = from;
         afterAttack = after;
         parried = parry;
+        attackColor = color;
         AttackDisable();
     }
 
@@ -72,7 +82,7 @@ public class Attack : MonoBehaviour
         attackTime = 0f;
     }
 
-    public void AttackAble(Vector2 dir, int damage, bool isHeavy, int critical = 0)
+    public void AttackAble(Vector2 dir, int damage, int critical = 0)
     {
         col.enabled = true;
         render.enabled = true;
@@ -80,8 +90,21 @@ public class Attack : MonoBehaviour
         attackDir = dir;
         attackDamage = damage;
         criticalDamage = critical;
-        isHeavyAttack = isHeavy;
         anim.SetTrigger("attackTrigger");
+    }
+
+    private void CheckIsHeavy(eActivableColor color)
+    {
+        if(attackColor != color)
+        {
+            isHeavyAttack = true;
+            gameObject.layer = colorVisibleLayer;
+        }
+        else
+        {
+            isHeavyAttack = false;
+            gameObject.layer = originLayer;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
