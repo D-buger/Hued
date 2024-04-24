@@ -16,7 +16,7 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode FILTER = KeyCode.F;
 
     public UnityEvent JumpEvent;
-    public UnityEvent<float> MoveEvent;
+    public UnityEvent<int> MoveEvent;
     public UnityEvent<int> LookEvent;
     public UnityEvent<Vector2> DashEvent;
     public UnityEvent<Vector2> LightAttackEvent;

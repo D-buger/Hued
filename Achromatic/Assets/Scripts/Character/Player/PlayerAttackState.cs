@@ -62,12 +62,12 @@ public class PlayerAttackState : PlayerBaseState
 
         if (!player.IsCriticalAttack)
         {
-            meleeAttack.AttackAble(angleVec.normalized, player.GetPlayerStat.attackDamage, false, player.GetPlayerStat.colorAttackDamage);
+            meleeAttack.AttackAble(angleVec.normalized, player.GetPlayerStat.attackDamage, player.GetPlayerStat.colorAttackDamage);
         }
         else
         {
             player.IsCriticalAttack = false;
-            meleeAttack.AttackAble(angleVec.normalized, player.GetPlayerStat.criticalAttackDamage, false, player.GetPlayerStat.colorCriticalAttackDamage);
+            meleeAttack.AttackAble(angleVec.normalized, player.GetPlayerStat.criticalAttackDamage, player.GetPlayerStat.colorCriticalAttackDamage);
         }
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.attackTime);
