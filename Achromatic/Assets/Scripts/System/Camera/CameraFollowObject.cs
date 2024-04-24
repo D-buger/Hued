@@ -9,6 +9,9 @@ public class CameraFollowObject : MonoBehaviour
     [SerializeField]
     private float flipYRotationTime = 0.1f;
 
+    [SerializeField]
+    private Vector2 offset = Vector2.zero;
+
     private Coroutine turnCoroutine;
 
     private bool isFacingRight;
@@ -25,7 +28,7 @@ public class CameraFollowObject : MonoBehaviour
     }
     private void Update()
     {
-        transform.position = player.transform.position;
+        transform.position = (Vector2)player.transform.position + offset;
     }
 
     public void CallTurn()

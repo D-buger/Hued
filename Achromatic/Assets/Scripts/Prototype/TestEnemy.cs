@@ -31,6 +31,9 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     private bool isGroggy = false;
     private bool isDead = false;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
+
+    private LayerMask originLayer;
+    private LayerMask colorVisibleLayer;
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -47,7 +50,12 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     private void Start()
     {
         currentHP = stat.MonsterHP;
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, this);
+        originLayer = gameObject.layer;
+        colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor, this);
+
+        PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
+        PlayManager.Instance.UpdateColorthing();
     }
 
     private void Update()
@@ -105,12 +113,12 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
                 attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized, 
-                    projectileRange ,projectileSpeed, stat.attackDamage, false);
+                    projectileRange ,projectileSpeed, stat.attackDamage, false, eActivableColor.RED);
             }
             else
             {
                 attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
-                   projectileRange, projectileSpeed, stat.attackDamage, true);
+                   projectileRange, projectileSpeed, stat.attackDamage, true, eActivableColor.RED);
             }
         }
         else
@@ -121,11 +129,11 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
 
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                meleeAttack?.AttackAble(-value, stat.attackDamage, false);
+                meleeAttack?.AttackAble(-value, stat.attackDamage);
             }
             else
             {
-                meleeAttack?.AttackAble(-value, stat.attackDamage, true);
+                meleeAttack?.AttackAble(-value, stat.attackDamage);
             }
         }
         yield return Yields.WaitSeconds(stat.attackTime);
@@ -194,6 +202,18 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     public void Dead()
     {
         gameObject.SetActive(false);
+    }
+
+    private void IsActiveColor(eActivableColor color)
+    {
+        if(color != stat.enemyColor)
+        {
+            gameObject.layer = originLayer;
+        }
+        else
+        {
+            gameObject.layer = colorVisibleLayer;
+        }
     }
 
     private void OnDrawGizmos()

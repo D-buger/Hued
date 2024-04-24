@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5343168290942022328}
   - component: {fileID: 3140445288258194617}
   - component: {fileID: 3210702747081030968}
-  m_Layer: 8
+  m_Layer: 0
   m_Name: SpyderAttack 1
   m_TagString: Attack
   m_Icon: {fileID: 0}
@@ -79,7 +79,7 @@ SpriteRenderer:
   m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 9d82340b05be54d43ae53cdadaca8c60, type: 3}
-  m_Color: {r: 1, g: 0.091103174, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -168,7 +168,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.1402359, y: -0.042749345}
+  m_Offset: {x: -0.07868236, y: -0.09189069}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -179,7 +179,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 4.9348993, y: 3.2629442}
+  m_Size: {x: 1.8572136, y: 0.9778683}
   m_EdgeRadius: 0
 --- !u!50 &3210702747081030968
 Rigidbody2D:

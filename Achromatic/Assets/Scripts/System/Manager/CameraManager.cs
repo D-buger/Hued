@@ -2,6 +2,7 @@ using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using Cinemachine;
 
 public class CameraManager : SingletonBehavior<CameraManager>
@@ -10,7 +11,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
     private CinemachineVirtualCamera[] allVirtualCameras;
 
     [Header("Shake"), Space(10)]
-    [SerializeField]
+    [SerializeField] 
     private float shakeAmplitude = 1.2f;
     [SerializeField]
     private float shakeFrequency = 2.0f;
@@ -273,17 +274,28 @@ public class CameraManager : SingletonBehavior<CameraManager>
             default:
                 break;
         }
-        fadeCameraCoroutine = StartCoroutine(FadeSequence(newColl, changeFadeTime));
+        fadeCameraCoroutine = StartCoroutine(FadeSequence(changeFadeTime, changeDelayTime, 
+            () =>
+            {
+                confiner.m_BoundingShape2D = newColl;
+            }));
     }
 
-    IEnumerator FadeSequence(Collider2D coll, float time)
+    public void CameraFade(float fadeTime, float fadeDelay, UnityAction action)
     {
+        fadeCameraCoroutine = StartCoroutine(FadeSequence(fadeTime, fadeDelay, action));
+    }
+
+    IEnumerator FadeSequence(float fadeTime, float fadeDelay, UnityAction action)
+    {
+        InputManager.Instance.CanInput = false;
+
         float i = 0;
         float lerp = 0;
 
         while (true)
         {
-            i += Time.deltaTime / time;
+            i += Time.deltaTime / fadeTime;
             lerp = Mathf.Lerp(0, 1, i);
             cameraFade.m_Alpha = lerp;
             if (i > 1)
@@ -295,11 +307,12 @@ public class CameraManager : SingletonBehavior<CameraManager>
         }
         i = 0;
         lerp = 1;
-        confiner.m_BoundingShape2D = coll;
-        yield return Yields.WaitSeconds(changeDelayTime);
+        action?.Invoke();
+        yield return Yields.WaitSeconds(fadeDelay);
+        InputManager.Instance.CanInput = true;
         while (true)
         {
-            i += Time.deltaTime / time;
+            i += Time.deltaTime / fadeTime;
             lerp = Mathf.Lerp(1, 0, i);
             cameraFade.m_Alpha = lerp;
             if (i > 1)
@@ -309,7 +322,6 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
             yield return null;
         }
-
 
     }
 
