@@ -13,7 +13,6 @@ public enum eActivableColor
     MAX_COLOR
 }
 
-// °ÔÀÓ ÇÃ·¹ÀÌ ´ã´ç ¸Å´ÏÀú
 public class PlayManager : SingletonBehavior<PlayManager>
 {
     public static readonly string PLAYER_TAG = "Player";
@@ -126,9 +125,9 @@ public class PlayManager : SingletonBehavior<PlayManager>
             }
         }
   
-  if(isFilterOn){
-        if(haveColor != eActivableColor.NONE)
-        {
+        if(isFilterOn){
+            if(haveColor != eActivableColor.NONE)
+            {
             Vector2 playerPositionInClipSpace = Camera.main.WorldToScreenPoint(player.transform.position);
             playerFilterPosition = new Vector4(playerPositionInClipSpace.x, playerPositionInClipSpace.y, 0, 1);
 
@@ -152,11 +151,11 @@ public class PlayManager : SingletonBehavior<PlayManager>
                     filterGauge += filterCoolRecoveryPerSec * Time.deltaTime;
                 }
             }
-            UISystem.Instance.filterSliderEvent.Invoke(filterGauge / FILTER_MAX_GAUGE);
+            UISystem.Instance?.filterSliderEvent.Invoke(filterGauge / FILTER_MAX_GAUGE);
         }
         else
         {
-            UISystem.Instance.filterSliderEvent.Invoke(-1);
+            UISystem.Instance?.filterSliderEvent.Invoke(-1);
         }
         volumeProfile.playerPosition.Override(playerFilterPosition);
         FilterCheck();

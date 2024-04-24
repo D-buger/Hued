@@ -149,7 +149,7 @@ public class Player : MonoBehaviour, IAttack
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 
-        UISystem.Instance.hpSliderEvent?.Invoke(currentHP);
+        UISystem.Instance?.hpSliderEvent?.Invoke(currentHP);
     }
 
     private void Update()
