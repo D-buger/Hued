@@ -283,7 +283,8 @@ public class SpiderEnemy : Monster, IAttack
                 projectileObj.transform.position = transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
-                projectile.ReturnStart();
+                float spitTime = 2.0f;
+                projectile.ReturnStart(spitTime);
                 isFirstAttack = false;
             }
         }

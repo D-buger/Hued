@@ -14,7 +14,7 @@ public class SpiderMonsterStats : MonsterStat
     [Tooltip("원거리 공격 속도")]
     public float rangedAttackSpeed = 1.0f;
     [Tooltip("원거리 공격 사정거리")]
-    public float rangedAttackRange = 1.0f;
+    public float rangedAttackRange = 2.0f;
     [Tooltip("고개치기 공격 반동 파워")]
     public float specialAttackRound = 1.0f;
     [Tooltip("고개치기 공격 속도")]
