@@ -31,4 +31,8 @@ public class SpiderMonsterStats : MonsterStat
     public float earthAttackDalay = 0.3f;
     [Tooltip("고개치기 공격 확률")]
     public float specialAttackPercent = 60.0f;
+    [Tooltip("원거리 공격 확률")]
+    public int rangeAttackPercent = 33;
+    [Tooltip("돌진 땅찍기 사거리")]
+    public float compositeAttackRound = 1.0f;
 }

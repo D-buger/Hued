@@ -24,12 +24,13 @@ public abstract class Monster : MonoBehaviour, IAttack
     public bool isDead = false;
     [HideInInspector]
     public bool isWait = true;
-    [HideInInspector]
     public bool isBattle = false;
     [HideInInspector]
     public bool isPlayerBetween = false;
     [HideInInspector]
     public bool canAttack = true;
+    [HideInInspector]
+    public bool isChase = false;
 
     public void CheckPlayer(Vector2 startSpriderPos)
     {
@@ -104,7 +105,7 @@ public abstract class Monster : MonoBehaviour, IAttack
             transform.localScale = new Vector3(1, 1, 1);
         }
 
-        if (distanceToPlayer <= baseStat.senseCircle && !isBattle)
+        if (distanceToPlayer <= baseStat.senseCircle && !isBattle && !isChase)
         {
             isBattle = true;
             isWait = false;

@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using TextAsset = UnityEngine.TextAsset;
 using Unity.VisualScripting;
 using System;
+using System.Runtime.CompilerServices;
 
 public class SpiderEnemy : Monster, IAttack
 {
@@ -66,7 +67,7 @@ public class SpiderEnemy : Monster, IAttack
     private bool isFirstAttack = true;
     private bool isEarthAttack = false;
     private bool isHeavy = false;
-    private bool isGameStart = true;
+    private bool canMeleeAttack = false;
 
     private void Awake()
     {
@@ -109,6 +110,10 @@ public class SpiderEnemy : Monster, IAttack
         if (canAttack && isBattle)
         {
             Attack();
+        }
+        if (isChase)
+        {
+            MovePetton();
         }
         SetCurrentAniamtion(animState);
     }
@@ -243,16 +248,49 @@ public class SpiderEnemy : Monster, IAttack
             int randomChance = UnityEngine.Random.Range(1, 100);
             if (facingPlayer && randomChance <= stat.specialAttackPercent)
             {
-                StartCoroutine(ChargeAttack(facingPlayer, value, check));
+                StartCoroutine(ChargeAttack(value, check));
             }
             else
             {
-                StartCoroutine(GroundAtack());
+                StartCoroutine(EarthAttack());
             }
         }
         else
         {
-            StartCoroutine(Spit(horizontalValue, verticalValue, ZAngle));
+            int randomChance = UnityEngine.Random.Range(1, 100);
+            Debug.Log(randomChance);
+            if (randomChance <= stat.rangeAttackPercent)
+            {
+                StartCoroutine(Spit(horizontalValue, verticalValue, ZAngle));
+            }
+            else if (randomChance >= stat.rangeAttackPercent && stat.rangeAttackPercent + stat.rangeAttackPercent >= randomChance)
+            {
+                StartCoroutine(CompositeAttack(check));
+                yield return Yields.WaitSeconds(4.0f);
+            }
+            else
+            {
+                isChase = true;
+                isBattle = false;
+                isPlayerBetween = false;
+                isWait = false;
+                animState = EanimState.Walk;
+                SetCurrentAniamtion(animState);
+                yield return Yields.WaitSeconds(1.5f);
+                isChase = false;
+                if (isBattle)
+                {
+                    int randomGage = UnityEngine.Random.Range(1, 100);
+                    if (randomGage <= stat.specialAttackPercent)
+                    {
+                        StartCoroutine(EarthAttack());
+                    }
+                    else
+                    {
+                        StartCoroutine(ChargeAttack(value, check));
+                    }
+                }
+            }
         }
         yield return Yields.WaitSeconds(stat.attackTime);
         yield return Yields.WaitSeconds(stat.attackCooldown);
@@ -260,6 +298,15 @@ public class SpiderEnemy : Monster, IAttack
         canAttack = true;
     }
 
+    private void MovePetton()
+    {
+        transform.position = Vector2.MoveTowards(transform.position, PlayerPos, stat.moveSpeed * Time.deltaTime);
+        if (distanceToPlayer <= stat.meleeAttackRange)
+        {
+            isBattle = true;
+            isChase = false;
+        }
+    }
     public IEnumerator Spit(float horizontalValue, float verticalValue, float ZAngle)
     {
         if (isWait)
@@ -290,7 +337,7 @@ public class SpiderEnemy : Monster, IAttack
         }
     }
 
-    private IEnumerator ChargeAttack(bool facingPlayer, Vector2 value, Vector2 check)
+    private IEnumerator ChargeAttack(Vector2 value, Vector2 check)
     {
         if (isWait)
         {
@@ -303,7 +350,7 @@ public class SpiderEnemy : Monster, IAttack
         meleeAttack?.AttackAble(-value, stat.attackDamage);
         rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
     }
-    private IEnumerator GroundAtack()
+    private IEnumerator EarthAttack()
     {
         if (isWait)
         {
@@ -316,6 +363,13 @@ public class SpiderEnemy : Monster, IAttack
         isEarthAttack = true;
 
         StartCoroutine(SpawnObjects());
+    }
+    private IEnumerator CompositeAttack(Vector2 check)
+    {
+        rigid.AddForce(check * stat.compositeAttackRound, ForceMode2D.Impulse);
+        yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]); // FIX 애니메이션 속도 확인 이후 패치
+
+        StartCoroutine(EarthAttack());
     }
     private IEnumerator SpawnObjects()
     {
