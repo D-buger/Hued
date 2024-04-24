@@ -24,6 +24,7 @@ public class InputManager : SingletonBehavior<InputManager>
 
     private Camera mainCamera;
     public Vector2 MouseVec { get; private set; }
+    public int ArrowVec { get; private set; }
 
     public bool CanInput { get; set; } = true;
     protected override void OnAwake()
@@ -43,14 +44,17 @@ public class InputManager : SingletonBehavior<InputManager>
         if (Input.GetKey(LEFT))
         {
             MoveEvent?.Invoke(-1);
+            ArrowVec = -1;
         }
         else if (Input.GetKey(RIGHT))
         {
             MoveEvent?.Invoke(1);
+            ArrowVec = 1;
         }
         else
         {
             MoveEvent?.Invoke(0);
+            ArrowVec = 0;
         }
 
         if (Input.GetKey(LIGHT_ATTACK))

@@ -29,7 +29,7 @@ public class Attack : MonoBehaviour
     private int attackDamage;
     private int criticalDamage;
 
-    // ¸ó½ºÅÍÀÇ ¾à°ø ±âÁØ => »öÀÌ º¸ÀÌ¸é ¾à°ø
+    // ëª¬ìŠ¤í„°ì˜ ì•½ê³µ ê¸°ì¤€ => ìƒ‰ì´ ë³´ì´ë©´ ì•½ê³µ
     private bool isHeavyAttack;
     private bool isAttackEnable = false;
 
@@ -52,7 +52,7 @@ public class Attack : MonoBehaviour
     private void Start()
     {
         originLayer = gameObject.layer;
-        ignoreLayers = LayerMask.GetMask("IgnoreAttack");
+        ignoreLayers = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("IgnoreAttack"));
         colorVisibleLayer = LayerMask.NameToLayer("ColorObject");
         PlayManager.Instance.FilterColorAttackEvent.AddListener(CheckIsHeavy);
 
