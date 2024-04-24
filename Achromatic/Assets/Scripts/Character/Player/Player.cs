@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 /// <summary>
 /// 
@@ -87,6 +89,7 @@ public class Player : MonoBehaviour, IAttack
     private float fallSpeedYDampingChangeThreshold;
 
     public Collision2D ParryDashCollision { get; set;}
+    
     private void Awake()
     {
         playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
@@ -145,6 +148,8 @@ public class Player : MonoBehaviour, IAttack
         GroundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("ColorObject"));
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
+
+        UISystem.Instance.hpSliderEvent?.Invoke(currentHP);
     }
 
     private void Update()
@@ -269,7 +274,8 @@ public class Player : MonoBehaviour, IAttack
 
     private void Dead()
     {
-
+        Debug.Log("Player Dead");
+        SceneManager.LoadScene(0);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -278,8 +284,8 @@ public class Player : MonoBehaviour, IAttack
         {
             if (IsDash || IsParryDash)
             {
-                int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<TestEnemy>().Hit(damage, 
+                int damage = isParryDash ? stat.parryDashDamage : stat.dashDamage;
+                collision.gameObject.GetComponent<Monster>()?.Hit(damage, 
                     collision.transform.position - transform.position, false, damage);
             }
         }
@@ -312,7 +318,7 @@ public class Player : MonoBehaviour, IAttack
             {
                 ParryCondition = true;
             }
-            else if(projectile != null)
+            else if(projectile != null && projectile.IsParryAllow)
             {
                 ParryCondition = true;
             }

@@ -10,7 +10,7 @@ public class GrayscaleRenderPass : ScriptableRenderPass
     protected string RenderTag { get; }
 
     private RenderTargetIdentifier source;
-    private RenderTargetHandle tempTexture;
+    private RenderTargetHandle tempTexture; //FIX
 
     public GrayscaleRenderPass(string renderTag, RenderPassEvent passEvent)
     {

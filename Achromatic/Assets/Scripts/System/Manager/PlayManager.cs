@@ -13,7 +13,7 @@ public enum eActivableColor
     MAX_COLOR
 }
 
-// ∞‘¿” «√∑π¿Ã ¥„¥Á ∏≈¥œ¿˙
+// ¬∞√î√Ä√ì √á√É¬∑¬π√Ä√å ¬¥√£¬¥√ß ¬∏√Ö¬¥√è√Ä√∫
 public class PlayManager : SingletonBehavior<PlayManager>
 {
     public static readonly string PLAYER_TAG = "Player";
@@ -22,6 +22,8 @@ public class PlayManager : SingletonBehavior<PlayManager>
     public static readonly string COLOR_OBJECT_PARENT_TAG = "ColorObjects";
 
     private const int FILTER_MAX_GAUGE = 100;
+
+    public LayerMask EnemyMask => (1 << LayerMask.NameToLayer(ENEMY_TAG)) | (1 << LayerMask.NameToLayer("ColorEnemy"));
 
     [HideInInspector]
     public CameraManager cameraManager;
@@ -38,11 +40,14 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private Grayscale volumeProfile;
     private Color activateColor = Color.black;
     private eActivableColor haveColor = eActivableColor.NONE;
+    private Vector4 playerFilterPosition = Vector4.zero;
 
     private ColorObjectManager colorObjectManager;
     private List<eActivableColor> activationColors = new List<eActivableColor>();
 
+    public UnityEvent<eActivableColor> FilterColorAttackEvent;
     public UnityEvent<eActivableColor> ActivationColorEvent;
+
     public bool ContainsActivationColors(eActivableColor color) => activationColors.Contains(color) || (haveColor == color && isFilterOn);
 
     private Player player;
@@ -54,6 +59,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private bool canFilterOn = false;
     private bool isFilterOn = false;
     private bool isFilterInputCooldown = false;
+    private bool activeOnce = false;
     
     public eActivableColor ActivationColors
     {
@@ -62,17 +68,18 @@ public class PlayManager : SingletonBehavior<PlayManager>
             if (!activationColors.Contains(value) && haveColor != value)
             {
                 haveColor = value;
+                volumeProfile.FilterColor.Override(ActivableColor2Color(haveColor));
             }
             else if (!activationColors.Contains(value) && haveColor == value)
             {
                 haveColor = eActivableColor.NONE;
+                volumeProfile.FilterColor.Override(ActivableColor2Color(haveColor));
                 activationColors.Add(value);
-                SetColor(value);
+                SetActivateColor(value);
                 ActivationColorEvent?.Invoke(value);
             }
         }
     }
-
 
     protected override void OnAwake()
     {
@@ -84,6 +91,13 @@ public class PlayManager : SingletonBehavior<PlayManager>
         player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
 
         volumeProfile.activationColor.Override(activateColor);
+        volumeProfile.FilterColor.Override(activateColor);
+        volumeProfile.playerPosition.Override(playerFilterPosition);
+    }
+
+    public void UpdateColorthing()
+    {
+        FilterColorAttackEvent?.Invoke(isFilterOn ? haveColor : eActivableColor.NONE);
     }
     private void Start()
     {
@@ -93,6 +107,14 @@ public class PlayManager : SingletonBehavior<PlayManager>
     }
     private void Update()
     {
+        if (!activeOnce)
+        {
+            activeOnce = true;
+
+            FilterColorAttackEvent?.Invoke(haveColor);
+        }
+
+
         if (isFilterInputCooldown)
         {
             filterCooldown += Time.deltaTime;
@@ -103,26 +125,41 @@ public class PlayManager : SingletonBehavior<PlayManager>
                 filterCooldown = 0;
             }
         }
+  
+  if(isFilterOn){
+        if(haveColor != eActivableColor.NONE)
+        {
+            Vector2 playerPositionInClipSpace = Camera.main.WorldToScreenPoint(player.transform.position);
+            playerFilterPosition = new Vector4(playerPositionInClipSpace.x, playerPositionInClipSpace.y, 0, 1);
 
-        if (isFilterOn)
-        {
-            colorObjectManager.EnableColors(haveColor);
-            filterGauge -= filterPercentPerSec * Time.deltaTime;
-        }
-        else
-        {
-            colorObjectManager.DisableColors(haveColor);
-            if (canFilterOn)
-            {
-                filterGauge += filterRecoveryPersec * Time.deltaTime;
+                colorObjectManager.EnableColors(haveColor);
+                FilterColorAttackEvent?.Invoke(haveColor);
+                filterGauge -= filterPercentPerSec * Time.deltaTime;
             }
             else
             {
-                filterGauge += filterCoolRecoveryPerSec * Time.deltaTime;
-            }
-        }
-        FilterCheck();
+                colorObjectManager.DisableColors(haveColor);
+                FilterColorAttackEvent?.Invoke(eActivableColor.NONE);
+            playerFilterPosition = Vector4.zero;
 
+            colorObjectManager.DisableColors(haveColor);
+                if (canFilterOn)
+                {
+                    filterGauge += filterRecoveryPersec * Time.deltaTime;
+                }
+                else
+                {
+                    filterGauge += filterCoolRecoveryPerSec * Time.deltaTime;
+                }
+            }
+            UISystem.Instance.filterSliderEvent.Invoke(filterGauge / FILTER_MAX_GAUGE);
+        }
+        else
+        {
+            UISystem.Instance.filterSliderEvent.Invoke(-1);
+        }
+        volumeProfile.playerPosition.Override(playerFilterPosition);
+        FilterCheck();
     }
     private void FilterCheck()
     {
@@ -156,24 +193,29 @@ public class PlayManager : SingletonBehavior<PlayManager>
             }
         }
     }
-
-    private void SetColor(eActivableColor color)
+    Color ActivableColor2Color(eActivableColor color)
     {
-        switch(color)
+        Color result = new Color(0, 0, 0, 0);
+        switch (color)
         {
             case eActivableColor.RED:
-                activateColor.r = 1;
+                result.r = 1;
                 break;
             case eActivableColor.BLUE:
-                activateColor.g = 1;
+                result.b = 1;
                 break;
             case eActivableColor.GREEN:
-                activateColor.b = 1;
+                result.g = 1;
                 break;
             default:
-                return;
+                return result;
         }
-        volumeProfile.activationColor.Override(activateColor);
+        return result;
+    }
 
+    private void SetActivateColor(eActivableColor color)
+    {
+        activateColor += ActivableColor2Color(color);
+        volumeProfile.activationColor.Override(activateColor);
     }
 }

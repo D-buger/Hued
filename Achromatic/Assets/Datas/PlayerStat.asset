@@ -15,7 +15,7 @@ MonoBehaviour:
   currentHP: 1
   playerHP: 5
   moveSpeed: 7
-  jumpPower: 40
+  jumpPower: 20
   jumpCooldown: 1
   dashPower: 30
   dashingTime: 0.13
@@ -37,7 +37,7 @@ MonoBehaviour:
   criticalAttackDamage: 2
   colorAttackDamage: 3
   colorCriticalAttackDamage: 4
-  hitReboundPower: 20
+  hitReboundPower: 10
   hitReboundTime: 0.5
   hitBehaviourLimitTime: 0.1
   hitInvincibilityTime: 0.5
