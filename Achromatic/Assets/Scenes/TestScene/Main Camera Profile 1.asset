@@ -19,6 +19,12 @@ MonoBehaviour:
   activationColor:
     m_OverrideState: 1
     m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  playerPosition:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &-895390623345757790
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -37,6 +43,9 @@ MonoBehaviour:
     m_Value: 1
   activationColor:
     m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 0
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   playerPosition:
     m_OverrideState: 1
@@ -104,6 +113,12 @@ MonoBehaviour:
   activationColor:
     m_OverrideState: 1
     m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 0
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  playerPosition:
+    m_OverrideState: 0
+    m_Value: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &7344709290346334352
 MonoBehaviour:
   m_ObjectHideFlags: 3

@@ -4,21 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
-/// <summary>
-/// 
-/// isRunning
-/// isGroggy
-/// onGround
-/// 
-/// dashTrigger
-/// attackTrigger
-/// parryTrigger
-/// hitTrigger
-/// jumpTrigger
-/// 
-/// </summary>
-
-
 public enum ePlayerState : int
 {
     IDLE,
@@ -149,7 +134,7 @@ public class Player : MonoBehaviour, IAttack
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 
-        UISystem.Instance.hpSliderEvent?.Invoke(currentHP);
+        UISystem.Instance?.hpSliderEvent?.Invoke(currentHP);
     }
 
     private void Update()
@@ -243,21 +228,24 @@ public class Player : MonoBehaviour, IAttack
 
     private void EffectPlayOrStop(ParticleSystem particle, bool onoff)
     {
-        if (onoff && !particle.isPlaying)
+        if (particle != null)
         {
-            particle.Play();
-        }
-        else if (!onoff)
-        {
-            particle.Stop();
+            if (onoff && !particle.isPlaying)
+            {
+                particle.Play();
+            }
+            else if (!onoff)
+            {
+                particle.Stop();
+            }
         }
     }
 
-    public void AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 attackDir)
     {
         PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[ePlayerState.ATTACK_REBOUND];
         ChangeState(ePlayerState.ATTACK_REBOUND);
-        afterAttackState.AfterAttack(attackDir);
+        afterAttackState.OnPostAttack(attackDir);
     }
 
 

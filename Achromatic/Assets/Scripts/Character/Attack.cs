@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface IAttack
 {
-    void AfterAttack(Vector2 attackDir);
+    void OnPostAttack(Vector2 attackDir);
     void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0);
 }
 
@@ -114,7 +114,7 @@ public class Attack : MonoBehaviour
         {
             if (null != afterAttack)
             {
-                afterAttack.AfterAttack(attackDir);
+                afterAttack.OnPostAttack(attackDir);
             }
             collision.GetComponent<IAttack>()?.Hit(attackDamage, attackDir, isHeavyAttack, criticalDamage);
         }

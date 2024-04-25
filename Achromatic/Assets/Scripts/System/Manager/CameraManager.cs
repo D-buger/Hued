@@ -20,7 +20,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
     [SerializeField]
     private float fallPanAmount = 0.25f;
     [SerializeField]
-    private float fallYPanTime = 0.35f;
+    private float fallYPanDuration = 0.35f;
     public float fallSpeedYDampingChangeThreshold = -3f;
 
     [Header("Change Room"), Space(10)]
@@ -44,13 +44,15 @@ public class CameraManager : SingletonBehavior<CameraManager>
     private float normYPanAmount;
     private Vector2 startingTrackedObjectOffset;
 
+    private float deadZoneSoftZoneLimit = 2;
+
     private bool isShake = false;
     private bool isChangeFOV = false;
 
     private GameObject parent;
 
-    private CinemachineVirtualCamera cinemachine;
-    private CinemachineBasicMultiChannelPerlin cinemachineNoise;
+    private CinemachineVirtualCamera cinemachine; 
+    private CinemachineImpulseSource cinemachineNoise;
     private CinemachineVirtualCamera currentCamera;
     private CinemachineFramingTransposer framingTransposer;
     private CinemachineConfiner2D confiner;
@@ -67,7 +69,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 currentCamera = allVirtualCameras[i];
 
                 framingTransposer = currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-                cinemachineNoise = currentCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+                cinemachineNoise = currentCamera.GetComponent<CinemachineImpulseSource>();
                 confiner = currentCamera.GetComponent<CinemachineConfiner2D>();
                 cameraFade = currentCamera.GetComponent<CinemachineStoryboard>();
             }
@@ -98,28 +100,21 @@ public class CameraManager : SingletonBehavior<CameraManager>
     }
 
     #region Shake Camera
-    public void ShakeCamera(float shakeTime)
+    public void ShakeCamera()
     {
         if (!isShake)
         {
-            StartCoroutine(ShakeSequence(shakeTime));
+            StartCoroutine(ShakeSequence());
         }
     }
-    IEnumerator ShakeSequence(float shakeTime)
+    IEnumerator ShakeSequence()
     {
         isShake = true;
-        while (shakeTime > 0)
-        {
-            cinemachineNoise.m_AmplitudeGain = shakeAmplitude;
-            cinemachineNoise.m_FrequencyGain = shakeFrequency;
-
-            shakeTime -= Time.deltaTime;
-            yield return null;
-        }
-        cinemachineNoise.m_AmplitudeGain = 0f;
-        cinemachineNoise.m_FrequencyGain = 0f;
-        transform.rotation = Quaternion.Euler(0, 0, 0);
+        cinemachineNoise.m_ImpulseDefinition.m_AmplitudeGain = shakeAmplitude;
+        cinemachineNoise.m_ImpulseDefinition.m_FrequencyGain = shakeFrequency;
+        cinemachineNoise.GenerateImpulse();
         isShake = false;
+        yield return null;
     }
     #endregion
 
@@ -147,11 +142,11 @@ public class CameraManager : SingletonBehavior<CameraManager>
         }
 
         float elapsedTime = 0f;
-        while(elapsedTime < fallYPanTime)
+        while(elapsedTime < fallYPanDuration)
         {
             elapsedTime += Time.deltaTime;
 
-            float lerpedPanAmount = Mathf.Lerp(startDampAmount, endDampAmount, (elapsedTime / fallYPanTime));
+            float lerpedPanAmount = Mathf.Lerp(startDampAmount, endDampAmount, (elapsedTime / fallYPanDuration));
             framingTransposer.m_YDamping = lerpedPanAmount;
 
             yield return null;
@@ -290,32 +285,29 @@ public class CameraManager : SingletonBehavior<CameraManager>
     {
         InputManager.Instance.CanInput = false;
 
-        float i = 0;
+        float elapsedTime = 0;
         float lerp = 0;
 
         while (true)
         {
-            i += Time.deltaTime / fadeTime;
-            lerp = Mathf.Lerp(0, 1, i);
-            cameraFade.m_Alpha = lerp;
-            if (i > 1)
+            elapsedTime += Time.deltaTime / fadeTime;
+            cameraFade.m_Alpha = elapsedTime;
+            if (elapsedTime > 1)
             {
                 break;
             }
 
             yield return null;
         }
-        i = 0;
-        lerp = 1;
+        elapsedTime = 0;
         action?.Invoke();
         yield return Yields.WaitSeconds(fadeDelay);
         InputManager.Instance.CanInput = true;
         while (true)
         {
-            i += Time.deltaTime / fadeTime;
-            lerp = Mathf.Lerp(1, 0, i);
+            elapsedTime += Time.deltaTime / fadeTime;
             cameraFade.m_Alpha = lerp;
-            if (i > 1)
+            if (elapsedTime > 1)
             {
                 break;
             }
@@ -337,8 +329,8 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 {
                     deadZoneWidth = framingTransposer.m_DeadZoneWidth;
                     softZoneWidth = framingTransposer.m_SoftZoneWidth;
-                    framingTransposer.m_DeadZoneWidth = 2;
-                    framingTransposer.m_SoftZoneWidth = 2;
+                    framingTransposer.m_DeadZoneWidth = deadZoneSoftZoneLimit;
+                    framingTransposer.m_SoftZoneWidth = deadZoneSoftZoneLimit;
                 }
                 else
                 {
@@ -351,8 +343,8 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 {
                     deadZoneHeight = framingTransposer.m_DeadZoneHeight;
                     softZoneHeight = framingTransposer.m_SoftZoneHeight;
-                    framingTransposer.m_DeadZoneHeight = 2;
-                    framingTransposer.m_SoftZoneHeight = 2;
+                    framingTransposer.m_DeadZoneHeight = deadZoneSoftZoneLimit;
+                    framingTransposer.m_SoftZoneHeight = deadZoneSoftZoneLimit;
                 }
                 else
                 {

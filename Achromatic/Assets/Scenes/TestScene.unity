@@ -24745,6 +24745,87 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1281579992 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 803821799873474794, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+  m_PrefabInstance: {fileID: 4921782879376343224}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1281579997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281579992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b2d199b96b516448144ab30fb26aed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ApplyAfter: 2
+  m_ChannelMask: 1
+  m_Gain: 1
+  m_Use2DDistance: 1
+  m_UseCameraSpace: 1
+  m_ReactionSettings:
+    m_SecondaryNoise: {fileID: 0}
+    m_AmplitudeGain: 1
+    m_FrequencyGain: 1
+    m_Duration: 1
+    m_NoiseOffsets: {x: 0, y: 0, z: 0}
+--- !u!114 &1281579998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281579992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ImpulseDefinition:
+    m_ImpulseChannel: 1
+    m_ImpulseShape: 1
+    m_CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    m_ImpulseDuration: 0.2
+    m_ImpulseType: 0
+    m_DissipationRate: 0.25
+    m_RawSignal: {fileID: 0}
+    m_AmplitudeGain: 1
+    m_FrequencyGain: 1
+    m_RepeatMode: 0
+    m_Randomize: 1
+    m_TimeEnvelope:
+      m_AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      m_DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      m_AttackTime: 0
+      m_SustainTime: 0.2
+      m_DecayTime: 0.7
+      m_ScaleWithImpact: 1
+      m_HoldForever: 0
+    m_ImpactRadius: 100
+    m_DirectionMode: 0
+    m_DissipationMode: 2
+    m_DissipationDistance: 100
+    m_PropagationSpeed: 343
+  m_DefaultVelocity: {x: 0, y: 0, z: 0}
 --- !u!4 &1285605067 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1908528598593035392, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
@@ -31538,6 +31619,10 @@ PrefabInstance:
     - target: {fileID: 7017669531153467683, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
       propertyPath: m_Layer
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7055592677814107816, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
+      propertyPath: m_Mass
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7428618551749627410, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
       propertyPath: m_Layer
@@ -43759,6 +43844,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpyderMonster
       objectReference: {fileID: 0}
+    - target: {fileID: 1412515313097792691, guid: aa6bcb7e2cddf02408f5fbbeba955030, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5304773883564251389, guid: aa6bcb7e2cddf02408f5fbbeba955030, type: 3}
       propertyPath: m_LocalPosition.x
       value: 65.96
@@ -43849,6 +43938,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flipYRotationTime: 1
+  offset: {x: 0, y: 0}
 --- !u!1001 &569670523162208314
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -44096,7 +44186,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4046665912985682600, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_CullingMask.m_Bits
-      value: 9224
+      value: 41992
       objectReference: {fileID: 0}
     - target: {fileID: 4591528727039559993, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_BoundingShape2D
@@ -44126,10 +44216,17 @@ PrefabInstance:
       propertyPath: m_RenderPostProcessing
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7774467747819621514, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 803821799873474794, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1281579997}
+    - targetCorrespondingSourceObject: {fileID: 803821799873474794, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1281579998}
   m_SourcePrefab: {fileID: 100100000, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

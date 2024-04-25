@@ -143,7 +143,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         canAttack = true;
     }
 
-    public void AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 attackDir)
     {
 
     }

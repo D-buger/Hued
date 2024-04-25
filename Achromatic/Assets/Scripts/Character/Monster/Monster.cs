@@ -27,7 +27,7 @@ public class Monster : MonoBehaviour, IAttack
         col = GetComponent<Collider2D>();
     }
 
-    public void AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 attackDir)
     {
         throw new System.NotImplementedException();
     }

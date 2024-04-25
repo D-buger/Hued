@@ -35,7 +35,7 @@ public class PlayerHitState : PlayerBaseState
         player.AnimatorComp.SetTrigger("hitTrigger");
         player.ControlParticles(ePlayerState.HIT, true);
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
+        PlayManager.Instance.cameraManager.ShakeCamera();
         yield return Yields.WaitSeconds(reboundTime);
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);
