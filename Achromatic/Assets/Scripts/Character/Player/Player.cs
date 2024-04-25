@@ -521,7 +521,7 @@ public class Player : MonoBehaviour, IAttack
         {
             Attack attack = collision.GetComponent<Attack>();
             Projectile projectile = collision.GetComponent<Projectile>();
-            if (attack != null && attack.isCanParryAttack(PlayManager.PLAYER_TAG))
+            if (attack != null && attack.IsCanParryAttack(PlayManager.PLAYER_TAG))
             {
                 parryCondition = true;
             }

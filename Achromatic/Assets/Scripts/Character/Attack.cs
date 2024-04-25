@@ -24,7 +24,8 @@ public class Attack : MonoBehaviour
     public IParry Parried => parried;
 
     private string attackFrom;
-    public bool isCanParryAttack(string me) => !string.Equals(me, attackFrom) && !isHeavyAttack;
+    public string AttackOwner => attackFrom;
+    public bool IsCanParryAttack(string me) => !string.Equals(me, attackFrom) && !isHeavyAttack;
     private Vector2 attackDir;
     private int attackDamage;
     private int criticalDamage;
@@ -47,7 +48,7 @@ public class Attack : MonoBehaviour
 
     private void Start()
     {
-        ignoreLayers = LayerMask.GetMask("IgnoreAttack");
+        ignoreLayers = LayerMask.GetMask("IgnoreAttack") | LayerMask.GetMask("Object");
     }
     private void Update()
     {
