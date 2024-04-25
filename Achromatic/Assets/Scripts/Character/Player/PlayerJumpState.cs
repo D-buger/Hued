@@ -16,6 +16,7 @@ public class PlayerJumpState : PlayerBaseState
             {
                 player.ChangeState(ePlayerState.JUMP);
             }
+            
         });
     }
 
