@@ -61,13 +61,17 @@ public class Player : MonoBehaviour, IAttack
         }
         set
         {
-            stat.currentHP = value;
+            stat.currentHP = Mathf.Min(value, stat.playerHP);
             if (stat.currentHP < 0)
             {
                 Dead();
             }
             
         }
+    }
+    public void FillPlayerHPMax()
+    {
+        currentHP = stat.playerHP;
     }
 
     private Dictionary<ePlayerState, PlayerBaseState> playerStates;

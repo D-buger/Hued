@@ -53,6 +53,10 @@ public class PlayManager : SingletonBehavior<PlayManager>
     public Player GetPlayer => player;
 
     private float filterGauge = 100;
+    public void FillFillterGaugeFull()
+    {
+        filterGauge = 100;
+    }
     private float filterCooldown = 0;
 
     private bool canFilterOn = false;

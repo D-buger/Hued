@@ -14,13 +14,15 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode DASH = KeyCode.Mouse1;
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
+    const KeyCode INTERECTION = KeyCode.E;
 
     public UnityEvent JumpEvent;
     public UnityEvent<int> MoveEvent;
     public UnityEvent<int> LookEvent;
     public UnityEvent<Vector2> DashEvent;
     public UnityEvent<Vector2> LightAttackEvent;
-    public UnityEvent FilterEvent; 
+    public UnityEvent FilterEvent;
+    public UnityEvent InterectionEvent;
 
     private Camera mainCamera;
     public Vector2 MouseVec { get; private set; }
@@ -82,6 +84,11 @@ public class InputManager : SingletonBehavior<InputManager>
         if (Input.GetKey(LOOK_UP))
         {
             LookEvent?.Invoke(1);
+        }
+
+        if (Input.GetKeyDown(INTERECTION))
+        {
+            InterectionEvent?.Invoke();
         }
     }
 }
