@@ -7,14 +7,14 @@ public abstract class Monster : MonoBehaviour, IAttack
     public int currentHP;
 
     [HideInInspector]
-    public Vector2 leftPosition;
+    public Vector2 monsterRunleftPosition;
     [HideInInspector]
-    public Vector2 rightPosition;
+    public Vector2 monsterRunRightPosition;
     [HideInInspector]
-    public Vector2 thisPosition;
-    [Tooltip("몬스터 기준 이동 범위")]
-    public float runPosition;
+    public Vector2 MonsterPosition;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
+
+    public float runPosition;
 
     private float elapsedTime = 0;
     private float arrivalThreshold = 1f;
@@ -22,8 +22,19 @@ public abstract class Monster : MonoBehaviour, IAttack
     public float distanceToPlayer = 0;
     [HideInInspector]
     public bool isDead = false;
+
+    [System.Flags]
+    public enum EMonsterState
+    {
+        isWait = 1 << 0,
+        isPlayerBetween = 1 << 1,
+        isBattle = 1 << 2
+    }
+    [HideInInspector]
+    public EMonsterState state = 0;
     [HideInInspector]
     public bool isWait = true;
+    [HideInInspector]
     public bool isBattle = false;
     [HideInInspector]
     public bool isPlayerBetween = false;
@@ -32,11 +43,10 @@ public abstract class Monster : MonoBehaviour, IAttack
     [HideInInspector]
     public bool isChase = false;
 
-    public void CheckPlayer(Vector2 startSpriderPos)
+    public virtual void CheckPlayer(Vector2 startMonsterPos)
     {
-        distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
-        float distanceToMonster = Vector2.Distance(startSpriderPos, PlayerPos);
-        if (distanceToMonster <= runPosition && !isBattle && canAttack)
+        distanceToPlayer = Vector2.Distance(startMonsterPos, PlayerPos);
+        if (distanceToPlayer <= runPosition && !isBattle && canAttack)
         {
             isPlayerBetween = true;
             isWait = false;
@@ -48,26 +58,26 @@ public abstract class Monster : MonoBehaviour, IAttack
             CheckWaitTime();
         }
     }
-    public void WaitSituation()
+    public virtual void WaitSituation()
     {
         currentHP = baseStat.MonsterHP;
         isBattle = false;
-        transform.position = Vector2.MoveTowards(transform.position, thisPosition, baseStat.moveSpeed * Time.deltaTime);
-        if (thisPosition == leftPosition)
+        transform.position = Vector2.MoveTowards(transform.position, MonsterPosition, baseStat.moveSpeed * Time.deltaTime);
+        if (MonsterPosition == monsterRunleftPosition)
         {
             transform.localScale = new Vector3(-1, 1, 1);
         }
-        else if (thisPosition == rightPosition)
+        else if (MonsterPosition == monsterRunRightPosition)
         {
             transform.localScale = new Vector3(1, 1, 1);
         }
-        if (HasArrived((Vector2)transform.position, rightPosition))
+        if (HasArrived((Vector2)transform.position, monsterRunRightPosition))
         {
-            thisPosition = leftPosition;
+            MonsterPosition = monsterRunleftPosition;
         }
-        if (HasArrived((Vector2)transform.position, leftPosition))
+        if (HasArrived((Vector2)transform.position, monsterRunleftPosition))
         {
-            thisPosition = rightPosition;
+            MonsterPosition = monsterRunRightPosition;
         }
     }
     private bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
@@ -75,10 +85,10 @@ public abstract class Monster : MonoBehaviour, IAttack
         return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
     }
 
-    public void CheckWaitTime()
+    public virtual void CheckWaitTime()
     {
         elapsedTime += Time.deltaTime;
-        if (elapsedTime >= baseStat.usualTime && !isWait && !isBattle && canAttack)
+        if (elapsedTime >= baseStat.timeToWait && !isWait && !isBattle && canAttack)
         {
             elapsedTime = 0f;
             isWait = true;
@@ -87,23 +97,15 @@ public abstract class Monster : MonoBehaviour, IAttack
             CheckStateChange();
         }
     }
-    public void MoveToPlayer()
+    public virtual void MoveToPlayer()
     {
-        float horizontalValue = PlayerPos.x - transform.position.x;
-
         if (PlayerPos == null)
         {
             return;
         }
+        float horizontalValue = PlayerPos.x - transform.position.x;
 
-        if (horizontalValue >= 0)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-        else
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
+        transform.localScale = (horizontalValue >= 0) ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
 
         if (distanceToPlayer <= baseStat.senseCircle && !isBattle && !isChase)
         {
@@ -112,12 +114,9 @@ public abstract class Monster : MonoBehaviour, IAttack
             isPlayerBetween = false;
             CheckStateChange();
         }
-        else if (distanceToPlayer > baseStat.senseCircle)
+        else if (distanceToPlayer > baseStat.senseCircle && isPlayerBetween && canAttack)
         {
-            if (isPlayerBetween && canAttack)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
-            }
+            transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
         }
     }
     public abstract void Attack();
@@ -126,18 +125,15 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
 
     }
-    public void HPDown(int HitDamage)
+    public virtual void HPDown(int hitDamage)
     {
-        currentHP -= HitDamage;
+        currentHP -= hitDamage;
     }
-    public void CheckDead()
+    public virtual void CheckDead()
     {
         if (currentHP <= 0)
         {
             isDead = true;
-        }
-        if (isDead)
-        {
             Dead();
         }
     }

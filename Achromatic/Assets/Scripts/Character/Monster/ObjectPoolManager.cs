@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 public class ObjectPoolManager : MonoBehaviour
 {
-    public static ObjectPoolManager Instance;
+    public static ObjectPoolManager instance;
 
     [SerializeField]
     private GameObject projectilePrefab;
@@ -14,7 +14,7 @@ public class ObjectPoolManager : MonoBehaviour
 
     void Awake()
     {
-        Instance = this;
+        instance = this;
         InitializePool();
     }
 

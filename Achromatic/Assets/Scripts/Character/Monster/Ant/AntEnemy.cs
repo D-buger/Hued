@@ -6,6 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using static SpiderEnemy;
+using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 using static UnityEngine.Rendering.DebugUI;
 
 public class AntEnemy : Monster, IAttack
@@ -32,15 +33,6 @@ public class AntEnemy : Monster, IAttack
     private bool isCounter = false;
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
-    void Start()
-    {
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     private void CheckIsHeavy(eActivableColor color)
     {
         if (color == stat.enemyColor)
@@ -117,7 +109,7 @@ public class AntEnemy : Monster, IAttack
         meleeAttack?.AttackAble(-dir, stat.attackDamage);
         rigid.AddForce(check * stat.swordAttackRebound, ForceMode2D.Impulse);
         yield return Yields.WaitSeconds(0.0f); // FIX 근접 공격 애니메이션 JSON 파싱
-        GameObject projectileObj = ObjectPoolManager.Instance.GetProjectileFromPool();
+        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool();
         if (projectileObj != null)
         {
             projectileObj.SetActive(true);
@@ -195,7 +187,7 @@ public class AntEnemy : Monster, IAttack
     }
     private void CounterAttackPlay(Vector2 dir, float ZAngle)
     {
-        GameObject projectileObj = ObjectPoolManager.Instance.GetProjectileFromPool();
+        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool();
         if (projectileObj != null)
         {
             projectileObj.SetActive(true);
@@ -229,17 +221,19 @@ public class AntEnemy : Monster, IAttack
     }
     public override void CheckStateChange()
     {
-        if (isWait)
+        switch (state)
         {
-            fsm.ChangeState("Idle");
-        }
-        if (isPlayerBetween)
-        {
-            fsm.ChangeState("Chase");
-        }
-        if (isBattle)
-        {
-            fsm.ChangeState("Attack");
+            case EMonsterState.isBattle:
+                fsm.ChangeState("Attack");
+                break;
+            case EMonsterState.isPlayerBetween:
+                fsm.ChangeState("Chase");
+                break;
+            case EMonsterState.isWait:
+                fsm.ChangeState("Idle");
+                break;
+            default:
+                break;
         }
     }
     public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)

@@ -33,7 +33,7 @@ public class MonsterStat : ScriptableObject
     public float heavyHitReboundPower = 10f;
     public float groggyTime = 0.5f;
     [Tooltip("대기 상태까지 걸리는 시간")]
-    public float usualTime = 1.0f;
+    public float timeToWait = 1.0f;
 
 
 }

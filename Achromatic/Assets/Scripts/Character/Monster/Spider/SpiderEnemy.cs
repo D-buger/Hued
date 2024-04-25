@@ -81,14 +81,14 @@ public class SpiderEnemy : Monster, IAttack
         gizmoLeftPos = new Vector3(transform.position.x + runPosition, transform.position.y);
         gizmoRightPos = new Vector3(transform.position.x - runPosition, transform.position.y);
 
-        leftPosition.y = transform.position.y;
-        rightPosition.y = transform.position.y;
-        leftPosition.x += transform.position.x + runPosition;
-        rightPosition.x += transform.position.x - runPosition;
+        monsterRunleftPosition.y = transform.position.y;
+        monsterRunRightPosition.y = transform.position.y;
+        monsterRunleftPosition.x += transform.position.x + runPosition;
+        monsterRunRightPosition.x += transform.position.x - runPosition;
         startSpiderPosition = new Vector2(gizmoLeftPos.x - runPosition, transform.position.y);
 
         currentHP = stat.MonsterHP;
-        thisPosition = rightPosition;
+        MonsterPosition = monsterRunRightPosition;
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor, null);
@@ -120,21 +120,19 @@ public class SpiderEnemy : Monster, IAttack
 
     public override void CheckStateChange()
     {
-        if (isWait)
+        switch (state)
         {
-            fsm.ChangeState("Idle");
-            animState = EanimState.Walk;
-            SetCurrentAniamtion(animState);
-        }
-        if (isPlayerBetween)
-        {
-            fsm.ChangeState("Chase");
-            animState = EanimState.Walk;
-            SetCurrentAniamtion(animState);
-        }
-        if (isBattle)
-        {
-            fsm.ChangeState("Attack");
+            case EMonsterState.isBattle:
+                fsm.ChangeState("Attack");
+                break;
+            case EMonsterState.isPlayerBetween:
+                fsm.ChangeState("Chase");
+                break;
+            case EMonsterState.isWait:
+                fsm.ChangeState("Idle");
+                break;
+            default:
+                break;
         }
     }
 
@@ -317,7 +315,7 @@ public class SpiderEnemy : Monster, IAttack
         yield return new WaitForSeconds(spitWaitTime);
         animState = EanimState.Spit;
         SetCurrentAniamtion(animState);
-        GameObject projectileObj = ObjectPoolManager.Instance.GetProjectileFromPool();
+        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool();
         if (projectileObj != null)
         {
             projectileObj.SetActive(true);
