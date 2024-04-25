@@ -237,6 +237,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
     public void SwitchBoundLine(Collider2D collLD, Collider2D collRU, Vector2 exitDirection, eTwoDirection dir)
     {
+        bool isNewCollOnUp = false;
         Collider2D oldColl = default;
         Collider2D newColl = default;
 
@@ -264,6 +265,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 {
                     oldColl = collLD;
                     newColl = collRU;
+                    isNewCollOnUp = true;
                 }
                 break;
             default:
@@ -273,6 +275,10 @@ public class CameraManager : SingletonBehavior<CameraManager>
             () =>
             {
                 confiner.m_BoundingShape2D = newColl;
+                if (isNewCollOnUp)
+                {
+                    PlayManager.Instance.GetPlayer.RigidbodyComp.AddForce(new Vector2(1, 1) * 30, ForceMode2D.Impulse);
+                }
             }));
     }
 

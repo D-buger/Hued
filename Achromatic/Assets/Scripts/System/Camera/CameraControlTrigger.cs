@@ -33,6 +33,13 @@ public class CameraControlTrigger : MonoBehaviour
     {
         if (collision.CompareTag(PlayManager.PLAYER_TAG))
         {
+            Vector2 exitDirection = (coll.bounds.center - collision.transform.position).normalized;
+
+            if (customInspectorObjects.swapBounds && customInspectorObjects.BoundLineLD != null && customInspectorObjects.BoundLineRU != null)
+            {
+                CameraManager.Instance.SwitchBoundLine(customInspectorObjects.BoundLineLD, customInspectorObjects.BoundLineRU, exitDirection, customInspectorObjects.boundDirection);
+            }
+
             if (customInspectorObjects.panCameraOnContact)
             {
                 CameraManager.Instance.PanCameraOnContact(customInspectorObjects.panDistance, customInspectorObjects.panTime, customInspectorObjects.panDirection, false);
@@ -49,13 +56,7 @@ public class CameraControlTrigger : MonoBehaviour
     {
         if (collision.CompareTag(PlayManager.PLAYER_TAG))
         {
-            Vector2 exitDirection = (collision.transform.position - coll.bounds.center).normalized;
-
-            if (customInspectorObjects.swapBounds && customInspectorObjects.BoundLineLD != null && customInspectorObjects.BoundLineRU != null)
-            {
-                CameraManager.Instance.SwitchBoundLine(customInspectorObjects.BoundLineLD, customInspectorObjects.BoundLineRU, exitDirection, customInspectorObjects.boundDirection);
-            }
-
+            
             if (customInspectorObjects.panCameraOnContact)
             {
                 CameraManager.Instance.PanCameraOnContact(customInspectorObjects.panDistance, customInspectorObjects.panTime, customInspectorObjects.panDirection, true);

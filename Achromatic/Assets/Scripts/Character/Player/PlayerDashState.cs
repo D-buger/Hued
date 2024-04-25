@@ -48,7 +48,7 @@ public class PlayerDashState : PlayerBaseState
         }
         else
         {
-            player.ChangeState(ePlayerState.IDLE);
+            player.ChangePrevState();
         }
     }
 

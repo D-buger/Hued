@@ -144,16 +144,9 @@ public class Player : MonoBehaviour, IAttack
         Turn();
 
         RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
-        if (raycastHit.collider != null)
-        {
-            OnGround = true;
-            AnimatorComp.SetBool("onGround", true);
-        }
-        else
-        {
-            OnGround = false;
-            AnimatorComp.SetBool("onGround", false);
-        }
+        OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
+        AnimatorComp.SetBool("onGround", OnGround);
+
         if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold
             && !CameraManager.Instance.IsLerpingYDamping
             && !CameraManager.Instance.LerpedFromPlayerFalling)
@@ -175,14 +168,6 @@ public class Player : MonoBehaviour, IAttack
     {
         playerFSM.FixedUpdateState();
     }
-    public void ChangePrevState()
-    {
-        playerFSM.ChangePrevState();
-    }
-    public void ChangeState(ePlayerState state)
-    {
-        playerFSM.ChangeState(playerStates[state]);
-    } 
 
     private void Turn()
     {
@@ -196,6 +181,14 @@ public class Player : MonoBehaviour, IAttack
             transform.rotation = Quaternion.Euler(0, 0, 0);
             CameraObject.CallTurn();
         }
+    }
+    public void ChangePrevState()
+    {
+        ChangeState(playerFSM.GetPrevState() == playerStates[ePlayerState.RUN] ? ePlayerState.RUN : ePlayerState.IDLE);
+    }
+    public void ChangeState(ePlayerState state)
+    {
+        playerFSM.ChangeState(playerStates[state]);
     }
     public void ControlParticles(ePlayerState state, bool onoff, int index = 0)
     {
