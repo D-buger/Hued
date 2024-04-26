@@ -56,9 +56,9 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotDir, eActivableColor color)
+    public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotAngle, eActivableColor color)
     {
-        float spitDir = shotDir + 180;
+        float spitDir = shotAngle + 180;
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;
@@ -91,7 +91,7 @@ public class Projectile : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
-    public void ReturnStart(float delayTime)
+    public void ReturnStartRoutine(float delayTime)
     {
         StartCoroutine(TimeToReturnObject(delayTime));
     }
@@ -102,7 +102,7 @@ public class Projectile : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.gameObject.Equals(attackFrom) && !collision.CompareTag(PlayManager.ATTACK_TAG) && collision.CompareTag(PlayManager.PLAYER_TAG))
+        if (collision.CompareTag(PlayManager.PLAYER_TAG))
         {
             collision.GetComponent<IAttack>()?.Hit(damage, moveDirection, isHeavyAttack);
             ReturnToPool();

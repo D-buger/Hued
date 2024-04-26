@@ -49,9 +49,9 @@ public class AntEnemy : Monster, IAttack
         }
         if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle)
         {
-            isBattle = false;
-            isPlayerBetween = true;
-            isWait = false;
+            SetState(EMonsterState.isBattle, false);
+            SetState(EMonsterState.isPlayerBetween, true);
+            SetState(EMonsterState.isWait, false);
         }
     }
     private IEnumerator AttackSequence(Vector2 attackAngle)
@@ -101,7 +101,7 @@ public class AntEnemy : Monster, IAttack
 
     private IEnumerator SwordAttack(Vector2 dir, Vector2 check, float ZAngle)
     {
-        if (isWait)
+        if (IsStateActive(EMonsterState.isWait))
         {
             yield return null;
         }
@@ -109,7 +109,7 @@ public class AntEnemy : Monster, IAttack
         meleeAttack?.AttackAble(-dir, stat.attackDamage);
         rigid.AddForce(check * stat.swordAttackRebound, ForceMode2D.Impulse);
         yield return Yields.WaitSeconds(0.0f); // FIX 근접 공격 애니메이션 JSON 파싱
-        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool();
+        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
         if (projectileObj != null)
         {
             projectileObj.SetActive(true);
@@ -122,14 +122,14 @@ public class AntEnemy : Monster, IAttack
                 projectileObj.transform.position = transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
-                projectile.ReturnStart(stat.swordAttackRange);
+                projectile.ReturnStartRoutine(stat.swordAttackRange);
             }
         }
     }
 
     private IEnumerator StabAttack(Vector2 check)
     {
-        if (isWait)
+        if (IsStateActive(EMonsterState.isWait))
         {
             yield break;
         }
@@ -187,7 +187,7 @@ public class AntEnemy : Monster, IAttack
     }
     private void CounterAttackPlay(Vector2 dir, float ZAngle)
     {
-        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool();
+        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
         if (projectileObj != null)
         {
             projectileObj.SetActive(true);
@@ -200,7 +200,7 @@ public class AntEnemy : Monster, IAttack
                 projectileObj.transform.position = transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
-                projectile.ReturnStart(stat.counterAttackRange);
+                projectile.ReturnStartRoutine(stat.counterAttackRange);
             }
         }
     }
@@ -211,9 +211,9 @@ public class AntEnemy : Monster, IAttack
     private IEnumerator DeadSequence()
     {
         float deadDelayTime = 1.3f;
-        isBattle = false;
-        isWait = false;
-        isPlayerBetween = false;
+        SetState(EMonsterState.isBattle, false);
+        SetState(EMonsterState.isWait, false);
+        SetState(EMonsterState.isPlayerBetween, false);
         isDead = false;
         StopCoroutine(AttackSequence(PlayerPos));
         yield return new WaitForSeconds(deadDelayTime);

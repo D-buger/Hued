@@ -22937,6 +22937,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpiderMonster
       objectReference: {fileID: 0}
+    - target: {fileID: 1456532816020936024, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: poolSize
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 1456532816020936024, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: projectilePrefabs.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1456532816020936024, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: projectilePrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
     - target: {fileID: 1892546858982982662, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_Mesh
       value: 
