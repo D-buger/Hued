@@ -31,16 +31,9 @@ public class Projectile : MonoBehaviour
         renderer = GetComponent<SpriteRenderer>();
     }
 
-    /*private void Update()
+    private void Update()
     {
-        if (isShooting)
-        {
-            if(Vector2.Distance(fromVector, new Vector2(transform.position.x, transform.position.y)) > moveRange)
-            {
-                Destroy(gameObject);
-            }
-        }
-    }*/
+    }
 
     public void CheckIsHeavyAttack(eActivableColor color)
     {
@@ -71,6 +64,9 @@ public class Projectile : MonoBehaviour
         transform.rotation = Quaternion.Euler(1, 1, spitDir);
         rigid.AddForce(moveDirection * moveSpeed);
         gameObject.SetActive(true);
+
+
+        isHeavyAttack = (PlayManager.Instance.ContainsActivationColors(enemyColor)) ? false : true;
     }
 
     public void Parried(GameObject shotFrom, Vector2 dir, int dmg)

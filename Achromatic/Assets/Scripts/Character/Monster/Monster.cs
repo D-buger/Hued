@@ -35,8 +35,6 @@ public abstract class Monster : MonoBehaviour, IAttack
     public EMonsterState state = EMonsterState.isWait;
     [HideInInspector]
     public bool canAttack = true;
-    [HideInInspector]
-    public bool isChase = false;
 
     public virtual void CheckPlayer(Vector2 startMonsterPos)
     {
@@ -110,7 +108,7 @@ public abstract class Monster : MonoBehaviour, IAttack
             SetState(EMonsterState.isPlayerBetween, false);
             CheckStateChange();
         }
-        else if (distanceToStartPos > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
             transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
         }

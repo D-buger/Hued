@@ -37,6 +37,15 @@ public class SpiderEnemy : Monster, IAttack
         Detection,
         Dead
     }
+    [Flags]
+    public enum EMonsterAttackState
+    {
+        None = 0,
+        IsAttack = 1 << 0,
+        IsFirstAttack = 1 << 1,
+        IsEarthAttack = 1 << 2
+    }
+    private EMonsterAttackState currentState = EMonsterAttackState.IsFirstAttack;
     [SerializeField]
     private EanimState animState;
 
@@ -68,9 +77,6 @@ public class SpiderEnemy : Monster, IAttack
 
     private JObject jsonObject;
 
-    private bool isAttack = false;
-    private bool isFirstAttack = true;
-    private bool isEarthAttack = false;
     private bool isHeavy = false;
 
     private void Awake()
@@ -99,7 +105,6 @@ public class SpiderEnemy : Monster, IAttack
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();
-
         angleThreshold += transform.position.y;
         if (animationJson != null)
         {
@@ -215,7 +220,7 @@ public class SpiderEnemy : Monster, IAttack
             SetState(EMonsterState.isPlayerBetween, true);
             SetState(EMonsterState.isWait, false);
         }
-        else if (canAttack && !isAttack)
+        else if (canAttack && !currentState.HasFlag(EMonsterAttackState.IsAttack))
         {
             StartCoroutine(AttackSequence(PlayerPos));
         }
@@ -223,7 +228,7 @@ public class SpiderEnemy : Monster, IAttack
 
     private IEnumerator AttackSequence(Vector2 attackAngle)
     {
-        isAttack = true;
+        currentState |= EMonsterAttackState.IsAttack;
         canAttack = false;
         float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
@@ -243,12 +248,12 @@ public class SpiderEnemy : Monster, IAttack
         animState = EanimState.Detection;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
-        if (isFirstAttack)
+        if (currentState.HasFlag(EMonsterAttackState.IsFirstAttack))
         {
             StartCoroutine(Spit(value, ZAngle));
-            isFirstAttack = false;
+            currentState &= ~EMonsterAttackState.IsFirstAttack;
         }
-        else if (distanceToStartPos < stat.meleeAttackRange)
+        else if (distanceToPlayer < stat.meleeAttackRange)
         {
             int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
             if (facingPlayer && checkRandomAttackType >= stat.specialAttackPercent)
@@ -263,7 +268,6 @@ public class SpiderEnemy : Monster, IAttack
         else
         {
             int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
-            Debug.Log(checkRandomAttackType);
             if (checkRandomAttackType <= stat.rangeAttackPercent)
             {
                 StartCoroutine(Spit(value, ZAngle));
@@ -301,7 +305,7 @@ public class SpiderEnemy : Monster, IAttack
 
         }
         yield return Yields.WaitSeconds(stat.attackTime);
-        isAttack = false;
+        currentState &= ~EMonsterAttackState.IsAttack;
         yield return Yields.WaitSeconds(stat.attackCooldown);
         canAttack = true;
     }
@@ -343,7 +347,6 @@ public class SpiderEnemy : Monster, IAttack
 
                 PlayManager.Instance.UpdateColorthing();
                 projectile.ReturnStartRoutine(spitTime);
-                isFirstAttack = false;
             }
         }
     }
@@ -360,6 +363,7 @@ public class SpiderEnemy : Monster, IAttack
 
         meleeAttack?.AttackAble(-value, stat.attackDamage);
         rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
+        meleeAttack?.AttackDisable();
     }
     private IEnumerator EarthAttack()
     {
@@ -371,7 +375,7 @@ public class SpiderEnemy : Monster, IAttack
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/ground_attack"]["events"][0]["time"]);
         rigid.velocity = Vector2.up * stat.earthAttackJump;
-        isEarthAttack = true;
+        currentState |= EMonsterAttackState.IsEarthAttack;
 
         StartCoroutine(SpawnObjects());
     }
@@ -391,13 +395,13 @@ public class SpiderEnemy : Monster, IAttack
             yield break;
         }
         int objectCount = earthObjects.Length;
-        while (isEarthAttack)
+        while (currentState.HasFlag(EMonsterAttackState.IsEarthAttack))
         {
             yield return new WaitForSeconds(delayToEarthAttack);
 
             StartCoroutine(ActivateParticle(earthParticleGroup));
 
-            isEarthAttack = false;
+            currentState &= ~EMonsterAttackState.IsEarthAttack;
 
             for (int i = 0; i < objectCount; i += 2)
             {
@@ -475,6 +479,7 @@ public class SpiderEnemy : Monster, IAttack
         StopCoroutine(AttackSequence(PlayerPos));
         skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
         skeletonAnimation.state.GetCurrent(0).TimeScale = 1;
+        ///<summary> 현재 실행중인 애니메이션 강제 종료, 따로 함수가 없음. ///</summary>
         animState = EanimState.Dead;
         SetCurrentAnimation(animState);
         yield return new WaitForSeconds(deadDelayTime);
@@ -502,6 +507,7 @@ public class SpiderEnemy : Monster, IAttack
                 Gizmos.color = Color.green;
             }
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.senseCircle);
+            Gizmos.DrawWireSphere(transform.position + transform.forward, stat.meleeAttackRange);
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.rangedAttackRange);
         }
     }
