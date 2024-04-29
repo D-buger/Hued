@@ -1216,10 +1216,46 @@ MonoBehaviour:
     swapBounds: 1
     panCameraOnContact: 0
     lockXorY: 0
-    BoundLineLD: {fileID: 1402415816}
-    BoundLineRU: {fileID: 210577470}
+    boundLineLD: {fileID: 1402415816}
+    boundLineRU: {fileID: 210577470}
     boundDirection: 0
-    panDirection: 1
+    boundMoveCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 2
+        outSlope: 2
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.29403803
+        value: 1.5428793
+        inSlope: 0.31008857
+        outSlope: 0.31008857
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.43169138
+      - serializedVersion: 3
+        time: 1
+        value: 1.0032959
+        inSlope: -0.5697612
+        outSlope: -0.5697612
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.36766365
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    playerMoveEndPos:
+    - {x: 33.340546, y: 5.748717}
+    - {x: 49.263447, y: 12.156267}
+    panDirection: 0
     panDistance: 3
     panTime: 0.35
     lockPosition: 0
@@ -1277,7 +1313,7 @@ Transform:
   m_GameObject: {fileID: 266342156}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 43.1, y: 5.5, z: 0}
+  m_LocalPosition: {x: 42.92536, y: 5.748717, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2097,11 +2133,20 @@ MonoBehaviour:
   customInspectorObjects:
     swapBounds: 0
     panCameraOnContact: 0
-    lockXorY: 1
-    BoundLineLD: {fileID: 0}
-    BoundLineRU: {fileID: 0}
+    lockXorY: 0
+    boundLineLD: {fileID: 0}
+    boundLineRU: {fileID: 0}
     boundDirection: 0
-    panDirection: 1
+    boundMoveCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    playerMoveEndPos:
+    - {x: -21.87, y: -3}
+    - {x: -21.87, y: -3}
+    panDirection: 0
     panDistance: 3
     panTime: 0.35
     lockPosition: 0
@@ -3321,7 +3366,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &807013635
 Transform:
   m_ObjectHideFlags: 0
@@ -14105,14 +14150,23 @@ MonoBehaviour:
   customInspectorObjects:
     swapBounds: 0
     panCameraOnContact: 0
-    lockXorY: 1
-    BoundLineLD: {fileID: 0}
-    BoundLineRU: {fileID: 0}
+    lockXorY: 0
+    boundLineLD: {fileID: 0}
+    boundLineRU: {fileID: 0}
     boundDirection: 0
-    panDirection: 1
+    boundMoveCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    playerMoveEndPos:
+    - {x: -21.87, y: -37.3}
+    - {x: -21.87, y: -37.3}
+    panDirection: 0
     panDistance: 3
     panTime: 0.35
-    lockPosition: 1
+    lockPosition: 0
 --- !u!61 &1002837242
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -21758,6 +21812,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpyderMonsterGFX
       objectReference: {fileID: 0}
+    - target: {fileID: 8555519048558322586, guid: 52e4fb5e5b286f2448709d15fd049258, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8873543430632003499, guid: 52e4fb5e5b286f2448709d15fd049258, type: 3}
       propertyPath: m_LocalPosition.x
       value: 28.45
@@ -22779,12 +22837,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   customInspectorObjects:
     swapBounds: 0
-    panCameraOnContact: 1
+    panCameraOnContact: 0
     lockXorY: 0
-    BoundLineLD: {fileID: 0}
-    BoundLineRU: {fileID: 0}
+    boundLineLD: {fileID: 0}
+    boundLineRU: {fileID: 0}
     boundDirection: 0
-    panDirection: 1
+    boundMoveCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    playerMoveEndPos:
+    - {x: -21.87, y: -3}
+    - {x: -21.87, y: -3}
+    panDirection: 0
     panDistance: 3
     panTime: 0.35
     lockPosition: 0
@@ -29871,6 +29938,10 @@ PrefabInstance:
     - target: {fileID: 833140483378084197, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_CullingMask.m_Bits
       value: 24576
+      objectReference: {fileID: 0}
+    - target: {fileID: 862719702365529166, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+      propertyPath: playerAutoMoveTime
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1718800760225174538, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_Layer
