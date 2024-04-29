@@ -9,26 +9,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1cde9cd29bb8144da59efa12df4f9be, type: 3}
-  m_Name: SpyderMonsterStats
+  m_Script: {fileID: 11500000, guid: 13f29fb973c82d8448b1118c3211ad09, type: 3}
+  m_Name: SpiderMonsterStats
   m_EditorClassIdentifier: 
   monsterHP: 5
   enemyColor: 1
-  senseCircle: 2
-  moveSpeed: 1
+  senseCircle: 8
+  moveSpeed: 1.4
   attackDamage: 1
-  attackTime: 1
-  attackCooldown: 1
+  attackTime: 0.3
+  attackCooldown: 2
   contactDamage: 1
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  meleeAttackRange: 4
-  AttackRange: 5
   usualTime: 3
+  meleeAttackRange: 3
+  AttackRange: 3
   rangedAttackDamege: 1
   rangedAttackSpeed: 250
-  rangedAttackRange: 7
+  rangedAttackRange: 5
   specialAttackRound: 70
   specialAttackSpeed: 3
   earthAttackSpeed: 150

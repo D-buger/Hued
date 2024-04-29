@@ -2,15 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "SpyderMonsterStats", menuName = "Scriptable Object/SpyderMonsterStat")]
-public class SpyderMonsterStats : MonsterStat
+[CreateAssetMenu(fileName = "SpiderMonsterStats", menuName = "Scriptable Object/SpiderMonsterStat")]
+public class SpiderMonsterStats : MonsterStat
 {
     [Tooltip("근접 어택 사거리")]
     public float meleeAttackRange = 1.0f;
     [Tooltip("근접 어택 범위")]
     public float AttackRange = 0.8f;
-    [Tooltip("대기 상태까지 걸리는 시간")]
-    public float usualTime = 1.0f;
     [Tooltip("원거리 공격 데미지")]
     public int rangedAttackDamege = 1;
     [Tooltip("원거리 공격 속도")]
