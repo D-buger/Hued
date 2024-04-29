@@ -19,8 +19,12 @@ public class PlayerDashState : PlayerBaseState
     float originGravityScale;
     float originLiniearDrag;
     float originMass;
-    public PlayerDashState(Player player) : base(player) 
+    public PlayerDashState(Player player) : base(player)
     {
+        originGravityScale = player.RigidbodyComp.gravityScale;
+        originLiniearDrag = player.RigidbodyComp.drag;
+        originMass = player.RigidbodyComp.mass;
+
         InputManager.Instance.DashEvent.AddListener((Vector2 dir) =>
         {
             if ( player.CanChangeState && (canDash || canParryDash))
@@ -34,10 +38,6 @@ public class PlayerDashState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-        originGravityScale = player.RigidbodyComp.gravityScale;
-        originLiniearDrag = player.RigidbodyComp.drag;
-        originMass = player.RigidbodyComp.mass;
-
         if (canParryDash && isParry && !player.IsDash)
         {
             parryDashCoroutine = CoroutineHandler.StartCoroutine(ParryDashSequence(dashDirection));
