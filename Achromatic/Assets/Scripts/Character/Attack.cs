@@ -65,12 +65,11 @@ public class Attack : MonoBehaviour
         }
     }
 
-    public void SetAttack(string from, bool isHeavy, IAttack after, eActivableColor color = eActivableColor.MAX_COLOR)
+    public void SetAttack(string from, IAttack after, eActivableColor color = eActivableColor.MAX_COLOR)
     {
         attackFrom = from;
         afterAttack = after;
         attackColor = color;
-        isHeavyAttack = isHeavy;
         AttackDisable();
     }
 
