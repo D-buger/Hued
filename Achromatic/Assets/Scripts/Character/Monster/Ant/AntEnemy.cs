@@ -27,12 +27,24 @@ public class AntEnemy : Monster, IAttack
 
     private float angleThreshold = 52f;
 
-    private bool isAttack = false;
+    private enum EMonsterAttackState
+    {
+        None = 0,
+        IsAttack = 1 << 0,
+        isStabAttack = 1 << 1,
+        isCounter = 1 << 2
+    }
+    private EMonsterAttackState currentState = EMonsterAttackState.None;
+
     private bool isHeavy = false;
-    private bool isStabAttack = false;
-    private bool isCounter = false;
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
+
+    private void Start()
+    {
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, isHeavy, this, stat.enemyColor);
+    }
+
     private void CheckIsHeavy(eActivableColor color)
     {
         if (color == stat.enemyColor)
@@ -43,20 +55,20 @@ public class AntEnemy : Monster, IAttack
     }
     public override void Attack()
     {
-        if (canAttack && !isAttack)
-        {
-            StartCoroutine(AttackSequence(PlayerPos));
-        }
         if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle)
         {
             SetState(EMonsterState.isBattle, false);
             SetState(EMonsterState.isPlayerBetween, true);
             SetState(EMonsterState.isWait, false);
         }
+        else if (canAttack && !currentState.HasFlag(EMonsterAttackState.IsAttack))
+        {
+            StartCoroutine(AttackSequence(PlayerPos));
+        }
     }
     private IEnumerator AttackSequence(Vector2 attackAngle)
     {
-        isAttack = true;
+        currentState |= EMonsterAttackState.IsAttack;
         canAttack = false;
         float horizontalValue = attackAngle.x - transform.position.x;
         float verticalValue = attackAngle.y - transform.position.y;
@@ -78,14 +90,14 @@ public class AntEnemy : Monster, IAttack
 
         // TODO 공격 패턴 구현
 
-        int randomChance = UnityEngine.Random.Range(1, 100);
-        if (randomChance <= stat.swordAttackPercent)
+        int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
+        if (checkRandomAttackType <= stat.swordAttackPercent)
         {
             StartCoroutine(SwordAttack(value, check, ZAngle));
         }
-        else if (randomChance >= stat.stabAttackPercent && stat.stabAttackPercent + stat.swordAttackPercent >= randomChance)
+        else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.swordAttackPercent >= checkRandomAttackType)
         {
-            isStabAttack = true;
+            currentState |= EMonsterAttackState.isStabAttack;
             StabAttack(check);
         }    
         else
@@ -94,8 +106,9 @@ public class AntEnemy : Monster, IAttack
         }
 
         yield return Yields.WaitSeconds(stat.attackTime);
+        currentState &= ~EMonsterAttackState.IsAttack;
+        meleeAttack?.AttackDisable();
         yield return Yields.WaitSeconds(stat.attackCooldown);
-        isAttack = false;
         canAttack = true;
     }
 
@@ -136,9 +149,9 @@ public class AntEnemy : Monster, IAttack
         float delayToAttack = 0.2f;
         float delayToDestory = 0.05f;
         int objectCount = stabAttackOBJ.Length/2;
-        while (isStabAttack)
+        while (currentState.HasFlag(EMonsterAttackState.isStabAttack))
         {
-            isStabAttack = false;
+            currentState &= ~EMonsterAttackState.isStabAttack;
             int satbValue = (check.x > 0) ? satbValue = 3 : satbValue = 0;
             objectCount += satbValue;
             for (int i = satbValue; i < objectCount; i += 1)
@@ -181,9 +194,9 @@ public class AntEnemy : Monster, IAttack
     }
     private IEnumerator CounterAttackStart()
     {
-        isCounter = true;
+        currentState |= EMonsterAttackState.isCounter;
         yield return Yields.WaitSeconds(stat.counterAttackTime);
-        isCounter = false;
+        currentState &= ~EMonsterAttackState.isCounter;
     }
     private void CounterAttackPlay(Vector2 dir, float ZAngle)
     {
@@ -238,10 +251,10 @@ public class AntEnemy : Monster, IAttack
     }
     public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
     {
-        if (isCounter)
+        if (currentState.HasFlag(EMonsterAttackState.isCounter))
         {
             CounterAttackPlay(new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y), Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
-            isCounter = false;
+            currentState &= ~EMonsterAttackState.IsAttack;
         }
         else if (!isHeavyAttack)
         {

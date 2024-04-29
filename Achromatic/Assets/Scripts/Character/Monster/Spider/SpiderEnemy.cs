@@ -38,7 +38,7 @@ public class SpiderEnemy : Monster, IAttack
         Dead
     }
     [Flags]
-    public enum EMonsterAttackState
+    private enum EMonsterAttackState
     {
         None = 0,
         IsAttack = 1 << 0,
@@ -100,7 +100,7 @@ public class SpiderEnemy : Monster, IAttack
         monsterPosition = monsterRunRightPosition;
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor, null);
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG,isHeavy , this, stat.enemyColor);
         MonsterManager.Instance?.GetColorEvent.AddListener(CheckIsHeavy);
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);

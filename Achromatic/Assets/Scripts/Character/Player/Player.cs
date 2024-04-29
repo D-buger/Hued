@@ -133,7 +133,7 @@ public class Player : MonoBehaviour, IAttack
         InputManager.Instance.DashEvent.AddListener(Dash);
         InputManager.Instance.LightAttackEvent.AddListener(LightAttack);
 
-        attack.SetAttack(PlayManager.PLAYER_TAG, this);
+        attack.SetAttack(PlayManager.PLAYER_TAG, false, this);
 
         stat.currentHP = stat.playerHP;
 
