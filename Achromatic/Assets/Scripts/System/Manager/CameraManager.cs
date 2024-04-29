@@ -247,6 +247,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
         Collider2D oldColl = default;
         Collider2D newColl = default;
         Vector2 playerAutoMovePos = Vector2.zero;
+        bool moveToUp = false;
 
         switch (dir)
         {
@@ -276,6 +277,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
                     oldColl = collLD;
                     newColl = collRU;
                     playerAutoMovePos = playerEndPos[0].y > playerEndPos[1].y ? playerEndPos[0] : playerEndPos[1];
+                    moveToUp = true;
                 }
                 break;
             default:
@@ -286,25 +288,32 @@ public class CameraManager : SingletonBehavior<CameraManager>
             () =>
             {
                 confiner.m_BoundingShape2D = newColl;
-                StartCoroutine(PlayerAutoMoveSequence(autoMoveStyle, playerAutoMovePos));
+                StartCoroutine(PlayerAutoMoveSequence(playerAutoMovePos, moveToUp ? autoMoveStyle : null));
             }));
     }
-    IEnumerator PlayerAutoMoveSequence(AnimationCurve moveStyle, Vector2 movePos)
+    IEnumerator PlayerAutoMoveSequence(Vector2 movePos, AnimationCurve moveStyle = null)
     {
         InputManager.Instance.CanInput = false;
-        Vector2 endVector = Vector2.zero; 
         Vector2 playerOriPosition = PlayManager.Instance.GetPlayer.transform.position;
+        Vector2 endVector = playerOriPosition;
         float elapsedTime = 0;
         while (true)
         {
             elapsedTime += Time.deltaTime / changeFadeTime;
 
             endVector.x = Mathf.Lerp(playerOriPosition.x, movePos.x, elapsedTime);
-            endVector.y = playerOriPosition.y + ((movePos.y - playerOriPosition.y) * moveStyle.Evaluate(elapsedTime));
+            if (moveStyle != null)
+            {
+                endVector.y = playerOriPosition.y + ((movePos.y - playerOriPosition.y) * moveStyle.Evaluate(elapsedTime));
+            }
+            else
+            {
+                endVector.y = Mathf.Lerp(playerOriPosition.y, movePos.y, elapsedTime);
+            }
 
             PlayManager.Instance.GetPlayer.transform.position = endVector;
 
-            if(elapsedTime > 1)
+            if (elapsedTime > 1)
             {
                 break;
             }
