@@ -67,13 +67,13 @@ public class Player : MonoBehaviour, IAttack
     public bool ParryCondition { get; set; } = false;
     public bool IsCriticalAttack{ get; set; } = false;
     public bool OnGround { get; private set; }
+    public float footOffGroundTime { get; set; } = 0f;
     public bool PlayerFaceRight { get; set; } = true;
 
+    public Collision2D ParryDashCollision { get; set; }
     public LayerMask GroundLayer { get; private set; }
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
-
-    public Collision2D ParryDashCollision { get; set;}
     
     private void Awake()
     {
@@ -102,7 +102,6 @@ public class Player : MonoBehaviour, IAttack
         {
             effectList[i].Stop();
         }
-
     }
 
     void Start()
@@ -146,6 +145,7 @@ public class Player : MonoBehaviour, IAttack
         RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
         OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
         AnimatorComp.SetBool("onGround", OnGround);
+        footOffGroundTime = OnGround ? 0 : footOffGroundTime + Time.deltaTime;
 
         if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold
             && !CameraManager.Instance.IsLerpingYDamping

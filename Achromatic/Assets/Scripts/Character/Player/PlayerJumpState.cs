@@ -22,8 +22,10 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-        if (canJump && player.OnGround)
+        if (canJump && (player.OnGround 
+            || (player.footOffGroundTime < player.GetPlayerStat.koyoteTime && player.footOffGroundTime > 0)))
         {
+            player.footOffGroundTime = -1;
             jumpCoroutine = CoroutineHandler.StartCoroutine(JumpSequence());
         }
         player.ChangePrevState();
@@ -34,11 +36,11 @@ public class PlayerJumpState : PlayerBaseState
     }
     IEnumerator JumpSequence()
     {
+        canJump = false;
         float elapsedTime = 0;
         float airHangedTime = -1;
         float oriGravityValue = player.RigidbodyComp.gravityScale;
         bool passedAirHangTime = false;
-        canJump = false;
         player.AnimatorComp.SetTrigger("jumpTrigger");
         player.RigidbodyComp.AddForce(Vector2.up * player.GetPlayerStat.jumpPower, ForceMode2D.Impulse);
         while (true)

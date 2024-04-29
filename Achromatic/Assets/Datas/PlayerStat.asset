@@ -17,7 +17,7 @@ MonoBehaviour:
   moveSpeed: 7
   jumpPower: 20
   jumpCooldown: 1.2
-  koyoteTime: 0.5
+  koyoteTime: 0.3
   airHangTime: 0.1
   dashPower: 30
   dashingTime: 0.13
