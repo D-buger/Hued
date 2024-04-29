@@ -86,7 +86,7 @@ public class CustomInspectorCameraObjects
     [HideInInspector] public Collider2D boundLineLD;
     [HideInInspector] public Collider2D boundLineRU;
     [HideInInspector] public eTwoDirection boundDirection;
-    [HideInInspector] public AnimationCurve boundMoveCurve;
+    [HideInInspector] public AnimationCurve boundMoveCurve = new AnimationCurve();
     [HideInInspector] public Vector2[] playerMoveEndPos;
 
     [HideInInspector] public ePanDirection panDirection;
