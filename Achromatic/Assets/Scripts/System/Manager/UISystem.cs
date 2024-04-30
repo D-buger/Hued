@@ -25,11 +25,16 @@ public class UISystem : SingletonBehavior<UISystem>
         filterSliderEvent += filterUI;
         dashCooldownEvent += dashCooldownUI;
 
-        dashCooldown.gameObject.SetActive(false);
+        dashCooldown?.gameObject.SetActive(false);
     }
 
     private void hpUI(int hp)
     {
+        if (ReferenceEquals(hpSlider, null))
+        {
+            return;
+        }
+
         if (!isSetHP)
         {
             isSetHP = true;
@@ -41,7 +46,12 @@ public class UISystem : SingletonBehavior<UISystem>
 
     private void filterUI(float filter)
     {
-        if(filter >= 1 || filter < 0)
+        if (ReferenceEquals(filterGauge, null))
+        {
+            return;
+        }
+
+        if (filter >= 1 || filter < 0)
         {
             filterGauge.transform.parent.gameObject.SetActive(false);
         }
@@ -55,6 +65,11 @@ public class UISystem : SingletonBehavior<UISystem>
 
     private void dashCooldownUI(float cooldown)
     {
+        if (ReferenceEquals(dashCooldown, null))
+        {
+            return;
+        }
+
         if (cooldown >= 1 || cooldown <= 0)
         {
             dashCooldown.gameObject.SetActive(false);

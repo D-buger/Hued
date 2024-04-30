@@ -141,7 +141,7 @@ public abstract class Monster : MonoBehaviour, IAttack
         }
     }
     public abstract void Dead();
-    void IAttack.AfterAttack(Vector2 attackDir)
+    void IAttack.OnPostAttack(Vector2 attackDir)
     {
     }
 }

@@ -6,11 +6,14 @@ public class PlayerHitState : PlayerBaseState
 {
     private Coroutine hitCoroutine;
 
+    private Color originalRendererColor;
+    private Color hitChangeColor = Color.black;
     public PlayerHitState(Player player) : base(player) { }
 
     public override void OnStateEnter()
     {
         //Debug.Log("Player State : Hit");
+        originalRendererColor = player.RendererComp.color;
     }
     public override void OnStateUpdate()
     {
@@ -24,22 +27,38 @@ public class PlayerHitState : PlayerBaseState
             player.RigidbodyComp.velocity = Vector2.zero;
             attackDir.y = 0;
             player.currentHP -= damage;
-            hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime, 0.1f));
+            hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime));
         }
     }
 
-    IEnumerator HitReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
+    IEnumerator HitReboundSequence(Vector2 dir, float reboundPower, float reboundTime)
     {
         player.CanChangeState = false;
         player.IsInvincibility = true;
+
         player.AnimatorComp.SetTrigger("hitTrigger");
         player.ControlParticles(ePlayerState.HIT, true);
+        player.RendererComp.color = hitChangeColor;
+
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
-        yield return Yields.WaitSeconds(reboundTime);
+        PlayManager.Instance.cameraManager.ShakeCamera();
+        float elapsedTime = 0f;
+        while (true)
+        {
+            elapsedTime += Time.deltaTime;
+            player.RendererComp.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
+
+            yield return null;
+            if(elapsedTime > reboundTime)
+            {
+                break;
+            }
+        }
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);
         player.ControlParticles(ePlayerState.HIT, false);
+        player.RendererComp.color = originalRendererColor;
+
         player.CanChangeState = true;
         player.ChangeState(ePlayerState.IDLE);
 

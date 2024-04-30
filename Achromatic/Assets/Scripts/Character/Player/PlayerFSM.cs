@@ -30,9 +30,9 @@ public class PlayerFSM
         curState = nextState;
         curState.OnStateEnter();
     }
-    public void ChangePrevState()
+    public PlayerBaseState GetPrevState()
     {
-        ChangeState(prevState);
+        return prevState;
     }
     public void UpdateState()
     {

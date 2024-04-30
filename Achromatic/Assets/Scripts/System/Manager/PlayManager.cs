@@ -24,9 +24,6 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     public LayerMask EnemyMask => (1 << LayerMask.NameToLayer(ENEMY_TAG)) | (1 << LayerMask.NameToLayer("ColorEnemy"));
 
-    [HideInInspector]
-    public CameraManager cameraManager;
-
     [SerializeField]
     private float filterInputCooldown = 1f;
     [SerializeField]
@@ -36,6 +33,14 @@ public class PlayManager : SingletonBehavior<PlayManager>
     [SerializeField]
     private float filterCoolRecoveryPerSec = 10.0f;
 
+    [HideInInspector]
+    public CameraManager cameraManager;
+
+    [HideInInspector]
+    public UnityEvent<eActivableColor> FilterColorAttackEvent;
+    [HideInInspector]
+    public UnityEvent<eActivableColor> ActivationColorEvent;
+
     private Grayscale volumeProfile;
     private Color activateColor = Color.black;
     private eActivableColor haveColor = eActivableColor.NONE;
@@ -43,9 +48,6 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     private ColorObjectManager colorObjectManager;
     private List<eActivableColor> activationColors = new List<eActivableColor>();
-
-    public UnityEvent<eActivableColor> FilterColorAttackEvent;
-    public UnityEvent<eActivableColor> ActivationColorEvent;
 
     public bool ContainsActivationColors(eActivableColor color) => activationColors.Contains(color) || (haveColor == color && isFilterOn);
 

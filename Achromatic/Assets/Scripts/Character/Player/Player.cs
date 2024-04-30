@@ -4,21 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
-/// <summary>
-/// 
-/// isRunning
-/// isGroggy
-/// onGround
-/// 
-/// dashTrigger
-/// attackTrigger
-/// parryTrigger
-/// hitTrigger
-/// jumpTrigger
-/// 
-/// </summary>
-
-
 public enum ePlayerState : int
 {
     IDLE,
@@ -82,13 +67,13 @@ public class Player : MonoBehaviour, IAttack
     public bool ParryCondition { get; set; } = false;
     public bool IsCriticalAttack{ get; set; } = false;
     public bool OnGround { get; private set; }
+    public float footOffGroundTime { get; set; } = 0f;
     public bool PlayerFaceRight { get; set; } = true;
 
+    public Collision2D ParryDashCollision { get; set; }
     public LayerMask GroundLayer { get; private set; }
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
-
-    public Collision2D ParryDashCollision { get; set;}
     
     private void Awake()
     {
@@ -117,7 +102,6 @@ public class Player : MonoBehaviour, IAttack
         {
             effectList[i].Stop();
         }
-
     }
 
     void Start()
@@ -159,16 +143,10 @@ public class Player : MonoBehaviour, IAttack
         Turn();
 
         RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
-        if (raycastHit.collider != null)
-        {
-            OnGround = true;
-            AnimatorComp.SetBool("onGround", true);
-        }
-        else
-        {
-            OnGround = false;
-            AnimatorComp.SetBool("onGround", false);
-        }
+        OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
+        AnimatorComp.SetBool("onGround", OnGround);
+        footOffGroundTime = OnGround ? 0 : footOffGroundTime + Time.deltaTime;
+
         if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold
             && !CameraManager.Instance.IsLerpingYDamping
             && !CameraManager.Instance.LerpedFromPlayerFalling)
@@ -190,14 +168,6 @@ public class Player : MonoBehaviour, IAttack
     {
         playerFSM.FixedUpdateState();
     }
-    public void ChangePrevState()
-    {
-        playerFSM.ChangePrevState();
-    }
-    public void ChangeState(ePlayerState state)
-    {
-        playerFSM.ChangeState(playerStates[state]);
-    } 
 
     private void Turn()
     {
@@ -211,6 +181,14 @@ public class Player : MonoBehaviour, IAttack
             transform.rotation = Quaternion.Euler(0, 0, 0);
             CameraObject.CallTurn();
         }
+    }
+    public void ChangePrevState()
+    {
+        ChangeState(playerFSM.GetPrevState() == playerStates[ePlayerState.RUN] ? ePlayerState.RUN : ePlayerState.IDLE);
+    }
+    public void ChangeState(ePlayerState state)
+    {
+        playerFSM.ChangeState(playerStates[state]);
     }
     public void ControlParticles(ePlayerState state, bool onoff, int index = 0)
     {
@@ -243,21 +221,24 @@ public class Player : MonoBehaviour, IAttack
 
     private void EffectPlayOrStop(ParticleSystem particle, bool onoff)
     {
-        if (onoff && !particle.isPlaying)
+        if (particle != null)
         {
-            particle.Play();
-        }
-        else if (!onoff)
-        {
-            particle.Stop();
+            if (onoff && !particle.isPlaying)
+            {
+                particle.Play();
+            }
+            else if (!onoff)
+            {
+                particle.Stop();
+            }
         }
     }
 
-    public void AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 attackDir)
     {
         PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[ePlayerState.ATTACK_REBOUND];
         ChangeState(ePlayerState.ATTACK_REBOUND);
-        afterAttackState.AfterAttack(attackDir);
+        afterAttackState.OnPostAttack(attackDir);
     }
 
 

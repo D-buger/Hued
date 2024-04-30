@@ -15,8 +15,16 @@ public class PlayerDashState : PlayerBaseState
     private bool isParry = false;
 
     private Vector2 dashDirection;
-    public PlayerDashState(Player player) : base(player) 
+
+    float originGravityScale;
+    float originLiniearDrag;
+    float originMass;
+    public PlayerDashState(Player player) : base(player)
     {
+        originGravityScale = player.RigidbodyComp.gravityScale;
+        originLiniearDrag = player.RigidbodyComp.drag;
+        originMass = player.RigidbodyComp.mass;
+
         InputManager.Instance.DashEvent.AddListener((Vector2 dir) =>
         {
             if ( player.CanChangeState && (canDash || canParryDash))
@@ -40,7 +48,7 @@ public class PlayerDashState : PlayerBaseState
         }
         else
         {
-            player.ChangeState(ePlayerState.IDLE);
+            player.ChangePrevState();
         }
     }
 
@@ -56,12 +64,7 @@ public class PlayerDashState : PlayerBaseState
         canDash = false;
         canParryDash = false;
 
-        float originGravityScale = player.RigidbodyComp.gravityScale;
-        float originLiniearDrag = player.RigidbodyComp.drag;
-        float originMass = player.RigidbodyComp.mass;
-        player.RigidbodyComp.gravityScale = 0f;
-        player.RigidbodyComp.drag = 0;
-        player.RigidbodyComp.mass = 0;
+        TogglePhysics(false);
         player.ControlParticles(ePlayerState.DASH, true);
 
         dashPos.x = dashPos.x - player.transform.position.x;
@@ -73,10 +76,7 @@ public class PlayerDashState : PlayerBaseState
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashingTime);
-        player.RigidbodyComp.velocity = Vector2.zero;
-        player.RigidbodyComp.gravityScale = originGravityScale;
-        player.RigidbodyComp.drag = originLiniearDrag;
-        player.RigidbodyComp.mass = originMass;
+        TogglePhysics(true);
 
         player.ControlParticles(ePlayerState.DASH, false);
         player.AnimatorComp.SetTrigger("dashEndTrigger");
@@ -121,14 +121,9 @@ public class PlayerDashState : PlayerBaseState
         canDashAfterParry = false;
         player.IsCriticalAttack = true;
 
-        float originGravityScale = player.RigidbodyComp.gravityScale;
-        float originLiniearDrag = player.RigidbodyComp.drag;
-        float originMass = player.RigidbodyComp.mass;
-        player.ColliderComp.forceReceiveLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        player.ColliderComp.forceSendLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        player.RigidbodyComp.gravityScale = 0f;
-        player.RigidbodyComp.drag = 0;
-        player.RigidbodyComp.mass = 0;
+        TogglePhysics(false);
+        player.ColliderComp.forceReceiveLayers &= ~PlayManager.Instance.EnemyMask;
+        player.ColliderComp.forceSendLayers &= ~PlayManager.Instance.EnemyMask;
         player.ControlParticles(ePlayerState.DASH, true);
 
         dashPos.x = dashPos.x - player.transform.position.x;
@@ -140,10 +135,7 @@ public class PlayerDashState : PlayerBaseState
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.parryDashTime);
-        player.RigidbodyComp.velocity = Vector2.zero;
-        player.RigidbodyComp.gravityScale = originGravityScale;
-        player.RigidbodyComp.drag = originLiniearDrag;
-        player.RigidbodyComp.mass = originMass;
+        TogglePhysics(true);
 
         if (null != player.ParryDashCollision)
         {
@@ -173,6 +165,22 @@ public class PlayerDashState : PlayerBaseState
         canDashAfterParry = true;
     }
 
+    private void TogglePhysics(bool onoff)
+    {
+        if (onoff)
+        {
+            player.RigidbodyComp.velocity = Vector2.zero;
+            player.RigidbodyComp.gravityScale = originGravityScale;
+            player.RigidbodyComp.drag = originLiniearDrag;
+            player.RigidbodyComp.mass = originMass;
+        }
+        else
+        {
+            player.RigidbodyComp.gravityScale = 0f;
+            player.RigidbodyComp.drag = 0;
+            player.RigidbodyComp.mass = 0;
+        }
+    }
 
     public override void OnStateExit()
     {
