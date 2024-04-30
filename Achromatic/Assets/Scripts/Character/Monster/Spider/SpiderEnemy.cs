@@ -7,7 +7,7 @@ using TextAsset = UnityEngine.TextAsset;
 using Unity.VisualScripting;
 using System;
 
-public class SpiderEnemy : Monster, IAttack
+public class SpiderEnemy : Monster
 {
     private MonsterFSM fsm;
 
@@ -90,7 +90,7 @@ public class SpiderEnemy : Monster, IAttack
         thisPosition = rightPosition;
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor, null);
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         MonsterManager.Instance?.getColorEvent.AddListener(CheckIsHeavy);
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
@@ -299,7 +299,7 @@ public class SpiderEnemy : Monster, IAttack
         SetCurrentAniamtion(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
 
-        meleeAttack?.AttackAble(-value, stat.attackDamage);
+        meleeAttack?.AttackEnable(-value, stat.attackDamage, stat.attackDamage);
         rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
     }
     private IEnumerator GroundAtack()
@@ -370,26 +370,19 @@ public class SpiderEnemy : Monster, IAttack
         }
     }
 
-    public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck)
     {
-        if (!isHeavyAttack)
+        if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
         {
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                HPDown(criticalDamage);
-                rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-            }
-            else
-            {
-                HPDown(damage);
-                rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
-            }
+            HPDown(colorDamage);
+            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
         }
         else
         {
             HPDown(damage);
-            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+            rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
         }
+
         if (!isDead)
         {
             CheckDead();

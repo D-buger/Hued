@@ -121,7 +121,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     }
     public abstract void Attack();
     public abstract void CheckStateChange();
-    public virtual void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
 
     }

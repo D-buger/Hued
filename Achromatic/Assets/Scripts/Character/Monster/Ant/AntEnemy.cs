@@ -45,26 +45,19 @@ public class AntEnemy : Monster, IAttack
             fsm.ChangeState("Attack");
         }
     }
-    public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck)
     {
-        if (!isHeavyAttack)
+        if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
         {
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                HPDown(criticalDamage);
-                rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-            }
-            else
-            {
-                HPDown(damage);
-                rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
-            }
+            HPDown(colorDamage);
+            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
         }
         else
         {
             HPDown(damage);
-            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+            rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
         }
+
         if (!isDead)
         {
             CheckDead();
