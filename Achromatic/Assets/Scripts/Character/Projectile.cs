@@ -105,7 +105,7 @@ public class Projectile : MonoBehaviour
     {
         if (!collision.gameObject.Equals(attackFrom) && !collision.CompareTag(PlayManager.ATTACK_TAG) && collision.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.GetComponent<IAttack>()?.Hit(damage, moveDirection, isHeavyAttack);
+            collision.GetComponent<IAttack>()?.Hit(damage, damage, moveDirection);
             ReturnToPool();
         }
     }

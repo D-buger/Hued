@@ -9,17 +9,16 @@ public class ShotLaserPattern : BossPattern
     {
     }
 
-    public override void Start()
+    public override void OnStart()
     { 
     
     }
-    public override void Update() 
-    { 
-    
-    }
-
-    public override void OnDrawGizmos()
+    public override void OnUpdate() 
     {
 
+    }
+    public override bool CanParryAttack()
+    {
+        return true;
     }
 }

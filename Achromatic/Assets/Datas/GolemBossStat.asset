@@ -13,5 +13,7 @@ MonoBehaviour:
   m_Name: GolemBossStat
   m_EditorClassIdentifier: 
   patternDelayTime: 0.7
+  patterns: []
   maxHp: 100
   moveSpeed: 0.7
+  bossColor: 1

@@ -7,16 +7,16 @@ public class ThrowingPattern : BossPattern
     public ThrowingPattern(BossParent boss) : base(boss)
     {
     }
-    public override void Start()
+    public override void OnStart()
     {
 
     }
-    public override void Update()
+    public override void OnUpdate()
     {
 
     }
-    public override void OnDrawGizmos()
+    public override bool CanParryAttack()
     {
-
+        return true;
     }
 }

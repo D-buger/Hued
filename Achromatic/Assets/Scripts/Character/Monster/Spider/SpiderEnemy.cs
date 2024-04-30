@@ -414,8 +414,8 @@ public class SpiderEnemy : Monster
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage,
-                    transform.position - collision.transform.position, false, stat.contactDamage);
+            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
+                    transform.position - collision.transform.position);
         }
     }
     private void OnDrawGizmos()

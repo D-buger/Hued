@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SwingPattern : BossPattern, IParryConditionCheck
+public class SwingPattern : BossPattern
 {
     [SerializeField]
     private float swingRange = 2.5f;
@@ -22,11 +22,11 @@ public class SwingPattern : BossPattern, IParryConditionCheck
     {
 
     }
-    public override void Start()
+    public override void OnStart()
     {
 
     }
-    public override void Update()
+    public override void OnUpdate()
     {
         RaycastHit2D hit = Physics2D.BoxCast(boss.transform.position, new Vector2(swingRange, swingRange), 0, Vector2.left, swingFirstHandSpeed);
 
@@ -35,12 +35,7 @@ public class SwingPattern : BossPattern, IParryConditionCheck
 
         }
     }
-    public override void OnDrawGizmos()
-    {
-        Gizmos.DrawWireCube(boss.transform.position * Vector2.left * swingFirstHandSpeed, new Vector2(swingRange, swingRange));
-    }
-
-    public bool CanParryAttack()
+    public override bool CanParryAttack()
     {
         return true;
     }

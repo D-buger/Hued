@@ -149,7 +149,7 @@ public class TestEnemy : MonoBehaviour, IAttack
     }
 
     // 임시 테스트 코드
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck)
     {
         //if (!isHeavyAttack)
         //{
@@ -247,7 +247,7 @@ public class TestEnemy : MonoBehaviour, IAttack
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
+            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage, 
                     transform.position - collision.transform.position);
         }
     }
