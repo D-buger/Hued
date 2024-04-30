@@ -28,6 +28,8 @@ public class CameraManager : SingletonBehavior<CameraManager>
     private float changeFadeTime = 0.5f;
     [SerializeField]
     private float changeDelayTime = 0.5f;
+    [SerializeField]
+    private float playerAutoMoveTime = 1f;
 
     public bool IsLerpingYDamping { get; private set; }
     public bool LerpedFromPlayerFalling { get; set; }
@@ -235,11 +237,12 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
     #region Fade
 
-    public void SwitchBoundLine(Collider2D collLD, Collider2D collRU, Vector2 exitDirection, eTwoDirection dir)
+    public void SwitchBoundLine(Collider2D collLD, Collider2D collRU, Vector2[] playerEndPos, AnimationCurve autoMoveStyle, Vector2 exitDirection, eTwoDirection dir)
     {
-        bool isNewCollOnUp = false;
         Collider2D oldColl = default;
         Collider2D newColl = default;
+        Vector2 playerAutoMovePos = Vector2.zero;
+        bool moveToUp = false;
 
         switch (dir)
         {
@@ -248,11 +251,13 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 {
                     oldColl = collLD;
                     newColl = collRU;
+                    playerAutoMovePos = playerEndPos[0].x > playerEndPos[1].x ? playerEndPos[0] : playerEndPos[1];
                 }
                 else
                 {
                     oldColl = collRU;
                     newColl = collLD;
+                    playerAutoMovePos = playerEndPos[0].x < playerEndPos[1].x ? playerEndPos[0] : playerEndPos[1];
                 }
                 break;
             case eTwoDirection.VERTICAL:
@@ -260,26 +265,56 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 {
                     oldColl = collRU;
                     newColl = collLD;
+                    playerAutoMovePos = playerEndPos[0].y < playerEndPos[1].y ? playerEndPos[0] : playerEndPos[1];
                 }
                 else
                 {
                     oldColl = collLD;
                     newColl = collRU;
-                    isNewCollOnUp = true;
+                    playerAutoMovePos = playerEndPos[0].y > playerEndPos[1].y ? playerEndPos[0] : playerEndPos[1];
+                    moveToUp = true;
                 }
                 break;
             default:
+                Debug.Assert(false);
                 break;
         }
         fadeCameraCoroutine = StartCoroutine(FadeSequence(changeFadeTime, changeDelayTime, 
             () =>
             {
                 confiner.m_BoundingShape2D = newColl;
-                if (isNewCollOnUp)
-                {
-                    PlayManager.Instance.GetPlayer.RigidbodyComp.AddForce(new Vector2(1, 1) * 30, ForceMode2D.Impulse);
-                }
+                StartCoroutine(PlayerAutoMoveSequence(playerAutoMovePos, moveToUp ? autoMoveStyle : null));
             }));
+    }
+    IEnumerator PlayerAutoMoveSequence(Vector2 movePos, AnimationCurve moveStyle = null)
+    {
+        InputManager.Instance.CanInput = false;
+        Vector2 playerOriPosition = PlayManager.Instance.GetPlayer.transform.position;
+        Vector2 endVector = playerOriPosition;
+        float elapsedTime = 0;
+        while (true)
+        {
+            elapsedTime += Time.deltaTime / changeFadeTime;
+
+            endVector.x = Mathf.Lerp(playerOriPosition.x, movePos.x, elapsedTime);
+            if (moveStyle != null)
+            {
+                endVector.y = playerOriPosition.y + ((movePos.y - playerOriPosition.y) * moveStyle.Evaluate(elapsedTime));
+            }
+            else
+            {
+                endVector.y = Mathf.Lerp(playerOriPosition.y, movePos.y, elapsedTime);
+            }
+
+            PlayManager.Instance.GetPlayer.transform.position = endVector;
+
+            if (elapsedTime > 1)
+            {
+                break;
+            }
+            yield return null;
+        }
+        InputManager.Instance.CanInput = true;
     }
 
     public void CameraFade(float fadeTime, float fadeDelay, UnityAction action)
