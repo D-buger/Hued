@@ -153,7 +153,7 @@ public class SpiderEnemy : Monster, IAttack
     {
         if (color == stat.enemyColor)
         {
-            isHeavy = false;
+            isHeavy = true;
         }
         SpIderColorEvent?.Invoke(color);
     }
@@ -330,9 +330,9 @@ public class SpiderEnemy : Monster, IAttack
         {
             yield break;
         }
-        yield return new WaitForSeconds(spitWaitTime);
         animState = EanimState.Spit;
         SetCurrentAnimation(animState);
+        yield return new WaitForSeconds(spitWaitTime);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
         if (projectileObj != null)
         {
@@ -343,7 +343,7 @@ public class SpiderEnemy : Monster, IAttack
             {
                 projectile.Shot(gameObject, attackTransform.transform.position, value.normalized,
                     stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, zAngle, eActivableColor.RED);
-                projectileObj.transform.position = transform.position;
+                projectileObj.transform.position = attackTransform.transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
                 projectile.ReturnStartRoutine(spitTime);

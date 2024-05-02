@@ -22949,6 +22949,14 @@ PrefabInstance:
       propertyPath: projectilePrefabs.Array.data[0]
       value: 
       objectReference: {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
+    - target: {fileID: 1836096292865392865, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.41
+      objectReference: {fileID: 0}
+    - target: {fileID: 1836096292865392865, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.7
+      objectReference: {fileID: 0}
     - target: {fileID: 1892546858982982662, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -22957,9 +22965,29 @@ PrefabInstance:
       propertyPath: runPosition
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 5102139194457807798, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_Size.x
+      value: 5.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5102139194457807798, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_Size.y
+      value: 5.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5102139194457807798, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5102139194457807798, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6673812027509248250, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_GravityScale
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 28.4
+      value: 27.12
       objectReference: {fileID: 0}
     - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_LocalPosition.y

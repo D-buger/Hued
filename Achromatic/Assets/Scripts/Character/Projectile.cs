@@ -10,12 +10,12 @@ public class Projectile : MonoBehaviour
     private Rigidbody2D rigid;
     private SpriteRenderer renderer;
 
-    private Vector2 moveDirection = Vector2.zero;
+    public Vector2 moveDirection = Vector2.zero;
     private float moveSpeed = 1f;
     private float moveRange = 5f;
-    private int damage = 1;
+    public int damage = 1;
 
-    private bool isHeavyAttack = true;
+    public bool isHeavyAttack = true;
     public bool IsParryAllow => (!isHeavyAttack);
 
     private GameObject attackFrom;
@@ -49,7 +49,7 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotAngle, eActivableColor color)
+    public virtual void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotAngle, eActivableColor color)
     {
         float spitDir = shotAngle + 180;
         attackFrom = shotFrom;
@@ -96,7 +96,7 @@ public class Projectile : MonoBehaviour
         yield return new WaitForSeconds(delay);
         ReturnToPool();
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag(PlayManager.PLAYER_TAG))
         {

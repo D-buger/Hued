@@ -52,7 +52,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         currentHP = stat.MonsterHP;
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, false, this, stat.enemyColor); ;
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor); ;
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();

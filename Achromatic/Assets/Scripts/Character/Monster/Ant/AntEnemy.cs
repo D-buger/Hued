@@ -42,7 +42,7 @@ public class AntEnemy : Monster, IAttack
 
     private void Start()
     {
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, isHeavy, this, stat.enemyColor);
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
     }
 
     private void CheckIsHeavy(eActivableColor color)

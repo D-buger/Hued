@@ -24,6 +24,8 @@ public abstract class Monster : MonoBehaviour, IAttack
     public float distanceToStartPos = 0;
     [HideInInspector]
     public bool isDead = false;
+    [SerializeField]
+    private bool flyMonster = false;
 
     [System.Flags]
     public enum EMonsterState
@@ -40,16 +42,33 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
         distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
-        if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        if (flyMonster)
         {
-            SetState(EMonsterState.isPlayerBetween, true);
-            SetState(EMonsterState.isWait, false);
-            elapsedTime = 0f;
-            CheckStateChange();
+            if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
+            {
+                SetState(EMonsterState.isBattle, true);
+                SetState(EMonsterState.isWait, false);
+                elapsedTime = 0f;
+                CheckStateChange();
+            }
+            else
+            {
+                CheckWaitTime();
+            }
         }
         else
         {
-            CheckWaitTime();
+            if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
+            {
+                SetState(EMonsterState.isPlayerBetween, true);
+                SetState(EMonsterState.isWait, false);
+                elapsedTime = 0f;
+                CheckStateChange();
+            }
+            else
+            {
+                CheckWaitTime();
+            }
         }
     }
     public virtual void WaitSituation()
@@ -98,19 +117,35 @@ public abstract class Monster : MonoBehaviour, IAttack
             return;
         }
         float horizontalValue = PlayerPos.x - transform.position.x;
-
         transform.localScale = (horizontalValue >= 0) ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
-
-        if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
+        if (!flyMonster)
         {
-            SetState(EMonsterState.isBattle, true);
-            SetState(EMonsterState.isWait, false);
-            SetState(EMonsterState.isPlayerBetween, false);
-            CheckStateChange();
+            if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
+            {
+                SetState(EMonsterState.isBattle, true);
+                SetState(EMonsterState.isWait, false);
+                SetState(EMonsterState.isPlayerBetween, false);
+                CheckStateChange();
+            }
+            else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
+            }
         }
-        else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        else
         {
-            transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
+            // FIX 기획서 나오면 날아다니는 몬스터에 맞게 판정 변경
+            if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
+            {
+                SetState(EMonsterState.isBattle, true);
+                SetState(EMonsterState.isWait, false);
+                SetState(EMonsterState.isPlayerBetween, false);
+                CheckStateChange();
+            }
+            else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
+            }
         }
     }
     public abstract void Attack();
@@ -148,7 +183,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
         return (state & eState) != 0;
     }
-        void IAttack.AfterAttack(Vector2 attackDir)
+    void IAttack.AfterAttack(Vector2 attackDir)
     {
     }
 }
