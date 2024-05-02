@@ -5,10 +5,6 @@ using UnityEngine;
 
 public class ShotLaserPattern : BossPattern
 {
-    public ShotLaserPattern(BossParent boss) : base(boss)
-    {
-    }
-
     public override void OnStart()
     { 
     

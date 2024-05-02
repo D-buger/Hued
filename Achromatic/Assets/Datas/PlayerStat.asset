@@ -31,14 +31,12 @@ MonoBehaviour:
   parryProduceTimescale: 0.4
   invincibilityAfterParry: 0.2
   parryDashDistance: 1
-  attackReboundPower: 10
+  attackReboundPower: 5
   attackReboundTime: 0.05
   attackTime: 0.1
   attackCooldown: 0.3
   attackDamage: 1
-  criticalAttackDamage: 2
   colorAttackDamage: 3
-  colorCriticalAttackDamage: 4
   hitReboundPower: 10
   hitReboundTime: 0.5
   hitBehaviourLimitTime: 0.1

@@ -13,7 +13,7 @@ public abstract class BossParent : MonoBehaviour
 
     protected BossPattern previousPattern = null;
     protected BossPattern currentPattern = null;
-    protected List<BossPattern> patternPool;
+    protected List<BossPattern> patternPool = new List<BossPattern>();
 
     protected bool isPatternEnd = false;
     protected bool isPlayerInRoom = false;
@@ -25,7 +25,10 @@ public abstract class BossParent : MonoBehaviour
     {
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<Collider2D>();
-        patternPool.AddRange(GetBossStatus.patterns);
+        for(int i = 0; i < GetBossStatus.patterns.Length; i++)
+        {
+            patternPool.Add(GetBossStatus.patterns[i].SetBossPattern(this));
+        }
         OnAwake();
     }
 
@@ -47,7 +50,7 @@ public abstract class BossParent : MonoBehaviour
 
         if(!ReferenceEquals(currentPattern, null))
         {
-            currentPattern.Update();   
+            currentPattern.OnUpdate();   
         }
 
         OnUpdate();
@@ -63,7 +66,7 @@ public abstract class BossParent : MonoBehaviour
 
         currentPattern = patternPool[Random.Range(0, patternPool.Count)];
         patternPool.Remove(currentPattern);
-        currentPattern.Start();
+        currentPattern.OnStart();
     }
 
     public void CurrentPatternEnd()
@@ -78,7 +81,7 @@ public abstract class BossParent : MonoBehaviour
     {
         if(!ReferenceEquals(currentPattern, null))
         {
-            currentPattern.OnDrawGizmos();
+            currentPattern.DrawGizmos();
         }
     }
 }

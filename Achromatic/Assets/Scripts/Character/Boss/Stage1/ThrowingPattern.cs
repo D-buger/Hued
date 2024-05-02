@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class ThrowingPattern : BossPattern
 {
-    public ThrowingPattern(BossParent boss) : base(boss)
-    {
-    }
     public override void OnStart()
     {
 

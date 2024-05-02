@@ -19,6 +19,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
     public static readonly string ATTACK_TAG = "Attack";
     public static readonly string ENEMY_TAG = "Enemy";
     public static readonly string COLOR_OBJECT_PARENT_TAG = "ColorObjects";
+    public static readonly string FLOOR_TAG = "Floor";
 
     private const int FILTER_MAX_GAUGE = 100;
 
