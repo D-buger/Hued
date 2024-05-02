@@ -25,9 +25,9 @@ public abstract class BossParent : MonoBehaviour
     {
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<Collider2D>();
-        for(int i = 0; i < GetBossStatus.patterns.Length; i++)
+        for(int i = 0; i < GetBossStatus.startPhasePatterns.Length; i++)
         {
-            patternPool.Add(GetBossStatus.patterns[i].SetBossPattern(this));
+            patternPool.Add(GetBossStatus.startPhasePatterns[i].SetBossPattern(this));
         }
         OnAwake();
     }

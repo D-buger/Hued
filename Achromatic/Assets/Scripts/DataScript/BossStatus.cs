@@ -7,7 +7,8 @@ public class BossStatus : ScriptableObject
 {
     [Space(10), Header("Pattern")]
     public float patternDelayTime = 0.7f;
-    public BossPattern[] patterns;
+    public BossPattern[] startPhasePatterns;
+    public BossPattern[] endPhasePatterns;
 
     [Space(10), Header("Status")]
     public int maxHp = 100;

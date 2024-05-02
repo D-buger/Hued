@@ -36,6 +36,10 @@ public class SwingPattern : BossPattern
     private float elapsedTime = 0f;
     public override void OnStart()
     {
+        if(PlayManager.Instance.GetPlayer.transform.position.x > boss.transform.position.x)
+        {
+            swingPostPosition.x *= -1;
+        }
         curHandPosition = boss.transform.position;
         initPosition = curHandPosition;
         elapsedTime = 0f;
@@ -112,7 +116,7 @@ public class SwingPattern : BossPattern
         if (!ReferenceEquals(hit.collider, null) && hit.collider.CompareTag(PlayManager.PLAYER_TAG))
         {
             hit.collider.gameObject.GetComponent<IAttack>().Hit(damage, damage
-                ,(Vector2)boss.transform.position - curHandPosition, this);
+                ,boss.transform.position - hit.transform.position, this);
         }
     }
 
