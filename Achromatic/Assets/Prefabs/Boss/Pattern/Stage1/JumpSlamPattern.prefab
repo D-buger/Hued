@@ -73,4 +73,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  attackAfterDelay: 1
+  slamAfterMiddlePositionY: 5
+  slamAfterDelay: 1
+  patternAfterDelay: 1
+  slamSizeOffset: 0.5
+  floorCheckOffset: 1
+  returnToOriginSpeed: 40
+  bezierCurvePointNum: 100

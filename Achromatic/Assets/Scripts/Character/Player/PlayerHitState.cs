@@ -45,19 +45,22 @@ public class PlayerHitState : PlayerBaseState
         float elapsedTime = 0f;
         while (true)
         {
+            if (ReferenceEquals(player.RendererComp, null) || elapsedTime > reboundTime)
+            {
+                break;
+            }
             elapsedTime += Time.deltaTime;
             player.RendererComp.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
 
             yield return null;
-            if(elapsedTime > reboundTime)
-            {
-                break;
-            }
         }
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);
-        player.ControlParticles(ePlayerState.HIT, false);
-        player.RendererComp.color = originalRendererColor;
+        if (!ReferenceEquals(player.RendererComp, null))
+        {
+            player.ControlParticles(ePlayerState.HIT, false);
+            player.RendererComp.color = originalRendererColor;
+        }
 
         player.CanChangeState = true;
         player.ChangeState(ePlayerState.IDLE);

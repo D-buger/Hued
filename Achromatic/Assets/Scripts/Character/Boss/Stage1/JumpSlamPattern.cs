@@ -17,31 +17,49 @@ public class JumpSlamPattern : BossPattern
     [SerializeField]
     private AnimationCurve slamPostBehaviourCurve;
     [SerializeField]
-    private float attackAfterDelay = 1f;
+    private float slamAfterMiddlePositionY = 5f;
+    [SerializeField]
+    private float slamAfterDelay = 1f;
+    [SerializeField]
+    private float patternAfterDelay = 1f;
 
+    [SerializeField]
+    private float slamSizeOffset = 0.3f;
+    [SerializeField]
+    private float floorCheckOffset = 1f;
+    [SerializeField]
+    private float returnToOriginSpeed = 10;
+    [SerializeField]
+    private int bezierCurvePointNum = 20;
+
+    Vector2[] bezierResults;
     private Vector2 originBossPos;
     private Vector2 slamPosition;
-    private float slamSizeOffset = 2f;
-    private float floorCheckOffset = 1f;
     private float elapsedTime;
 
     private bool isChosenSlamPosition;
     private bool isSlamPostBehaviour;
+    private bool isSlamEnd;
     private bool isPatternEnd;
 
     public override void OnStart()
     {
+        bezierResults = null;
         originBossPos = boss.transform.position;
         elapsedTime = 0;
         isSlamPostBehaviour = true;
         isChosenSlamPosition = false;
+        isSlamEnd = false;
         isPatternEnd = false;
     }
     public override void OnUpdate()
     {
         elapsedTime += Time.deltaTime;
 
-        if(!isChosenSlamPosition && elapsedTime > prepareTime)
+        RaycastHit2D hit = Physics2D.BoxCast(boss.transform.position, new Vector2(boss.ColliderComp.bounds.size.x + slamSizeOffset, boss.ColliderComp.bounds.size.y + slamSizeOffset)
+            , 0, Vector2.down, 0, LayerMask.GetMask(PlayManager.PLAYER_TAG));
+
+        if (!isChosenSlamPosition && elapsedTime > prepareTime)
         {
             isChosenSlamPosition = true;
             elapsedTime = 0;
@@ -57,29 +75,58 @@ public class JumpSlamPattern : BossPattern
                 elapsedTime = 0;
             }
         }
-        else if(isChosenSlamPosition && !isPatternEnd && elapsedTime > slamPostWaitTime)
+        else if(isChosenSlamPosition && !isSlamEnd && elapsedTime > slamPostWaitTime)
         {
             boss.RigidbodyComp.velocity = Vector2.down * slamSpeed;
-
-            RaycastHit2D hit = Physics2D.BoxCast(boss.transform.position, new Vector2(boss.ColliderComp.bounds.size.x + slamSizeOffset, boss.ColliderComp.bounds.size.y + slamSizeOffset)
-                , 0, Vector2.down, Mathf.Infinity, LayerMask.GetMask(PlayManager.PLAYER_TAG));
-            CheckPlayer(hit);
 
             Vector2 floorCheckVector = boss.transform.position;
             floorCheckVector.y -= floorCheckOffset;
             RaycastHit2D floorHit = Physics2D.BoxCast(floorCheckVector, boss.ColliderComp.bounds.size, 0, Vector2.down, Mathf.Infinity, LayerMask.GetMask("Platform"));
+
             if (!ReferenceEquals(floorHit.collider, null) && floorHit.collider.CompareTag(PlayManager.FLOOR_TAG))
             {
+                slamPosition = boss.transform.position;
                 boss.RigidbodyComp.velocity = Vector2.zero;
+                isSlamEnd = true;
+                elapsedTime = 0;
+            }
+        }
+        else if (isChosenSlamPosition && !isPatternEnd && elapsedTime > slamAfterDelay)
+        {
+            if (ReferenceEquals(bezierResults, null)) {
+                Vector2 bezierLeftUpVector = new Vector2(slamPosition.x, slamPosition.y + slamAfterMiddlePositionY);
+                Vector2 bezierRightUpVector = new Vector2(originBossPos.x, originBossPos.y + slamAfterMiddlePositionY);
+                
+                Vector2[] bezierCurveVectors = new Vector2[]
+                {
+                slamPosition,
+                bezierLeftUpVector,
+                bezierRightUpVector,
+                originBossPos
+                };
+                bezierResults = SOO.Util.CurvePointsOfVectors(bezierCurvePointNum, bezierCurveVectors);
+            }
+
+            boss.transform.position = bezierResults[(int)((elapsedTime - slamAfterDelay)* returnToOriginSpeed)];
+
+            if ((int)((elapsedTime - slamAfterDelay) * returnToOriginSpeed) >= bezierCurvePointNum)
+            {
                 isPatternEnd = true;
                 elapsedTime = 0;
             }
         }
-        else if (isChosenSlamPosition && elapsedTime > attackAfterDelay)
+        else if (isChosenSlamPosition && isPatternEnd && elapsedTime > patternAfterDelay)
         {
             PatternEnd();
         }
 
+        if(!isSlamPostBehaviour && !isSlamEnd && CheckPlayer(hit))
+        {
+            slamPosition = boss.transform.position;
+            boss.RigidbodyComp.velocity = Vector2.zero;
+            isSlamEnd = true;
+            elapsedTime = 0;
+        }
     }
     private bool CheckPlayer(RaycastHit2D hit)
     {
