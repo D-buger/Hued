@@ -17,6 +17,10 @@ public class PlayerStatus : ScriptableObject
     public float jumpPower = 30;
     [SerializeField]
     public float jumpCooldown = 0.8f;
+    [SerializeField]
+    public float koyoteTime = 0.5f;
+    [SerializeField]
+    public float airHangTime = 0.5f;
 
     [Space(10), Header("Dash")]
     public float dashPower = 20;

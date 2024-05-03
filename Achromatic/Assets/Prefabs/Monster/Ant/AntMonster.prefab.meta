@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Achromatic/Assets/Prefabs/Monster/Ant/AntMonster.prefab.meta
 guid: 214aa073035419644bef68168e6fa07f
+========
+guid: 6bf674612717f0a4590bf940e5347ebb
+>>>>>>>> 9d2fbe9d091f8639665819c29cc8340a19b72b40:Achromatic/Assets/Prefabs/AttackPoint.prefab.meta
 PrefabImporter:
   externalObjects: {}
   userData: 

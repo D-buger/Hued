@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Achromatic/Assets/Scripts/Character/Monster/Ant/StabAttack.cs.meta
 guid: 073485a6ab779514a972a78fe365557b
+========
+guid: 4cf5f83ffc6bab34abb7263545684641
+>>>>>>>> 9d2fbe9d091f8639665819c29cc8340a19b72b40:Achromatic/Assets/Scripts/Character/Monster/MonsterFSM/AttackState.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
