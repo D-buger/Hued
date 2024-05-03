@@ -10,12 +10,12 @@ public class Projectile : MonoBehaviour
     private Rigidbody2D rigid;
     private SpriteRenderer renderer;
 
-    public Vector2 moveDirection = Vector2.zero;
+    private Vector2 moveDirection = Vector2.zero;
     private float moveSpeed = 1f;
     private float moveRange = 5f;
-    public int damage = 1;
+    private int damage = 1;
 
-    public bool isHeavyAttack = true;
+    private bool isHeavyAttack = true;
     public bool IsParryAllow => (!isHeavyAttack);
 
     private GameObject attackFrom;

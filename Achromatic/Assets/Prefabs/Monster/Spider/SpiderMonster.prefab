@@ -142,15 +142,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStat: {fileID: 11400000, guid: ac5f573b955fd424087ad2b6c6ed4901, type: 2}
   currentHP: 0
-  leftPosition: {x: 0, y: 0}
-  rightPosition: {x: 0, y: 0}
-  thisPosition: {x: 0, y: 0}
-  runPosition: 8
+  monsterRunleftPosition: {x: 0, y: 0}
+  monsterRunRightPosition: {x: 0, y: 0}
+  monsterPosition: {x: 0, y: 0}
   distanceToPlayer: 0
+  runPosition: 8
+  distanceToStartPos: 0
   isDead: 0
-  isWait: 1
-  isBattle: 0
-  isPlayerBetween: 0
+  flyMonster: 0
+  state: 1
   canAttack: 1
   stat: {fileID: 11400000, guid: ac5f573b955fd424087ad2b6c6ed4901, type: 2}
   rangedAttack: {fileID: 8016990372567485329, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
@@ -172,7 +172,7 @@ MonoBehaviour:
   - {fileID: 3938546676955202864}
   - {fileID: 2899067025148991207}
   - {fileID: 1533802886514942212}
-  spyderColorEvent:
+  SpIderColorEvent:
     m_PersistentCalls:
       m_Calls: []
   earthObjects:
@@ -184,7 +184,6 @@ MonoBehaviour:
   - {fileID: 7745427353880145620}
   attackTransform: {fileID: 8967579399920410377}
   gizmoLeftPos: {x: 0, y: 0, z: 0}
-  gizmoRightPos: {x: 0, y: 0, z: 0}
   startSpiderPosition: {x: 0, y: 0}
 --- !u!50 &6673812027509248250
 Rigidbody2D:
@@ -282,7 +281,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b6eb746ee8495248a38042807706bd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
+  projectilePrefabs:
+  - {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
   poolSize: 10
 --- !u!1001 &3258161174444856539
 PrefabInstance:
@@ -335,6 +335,14 @@ PrefabInstance:
     - target: {fileID: 1665724733666414146, guid: 6bf674612717f0a4590bf940e5347ebb, type: 3}
       propertyPath: m_Name
       value: AttackPoint
+      objectReference: {fileID: 0}
+    - target: {fileID: 3768474446393119802, guid: 6bf674612717f0a4590bf940e5347ebb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 3768474446393119802, guid: 6bf674612717f0a4590bf940e5347ebb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.86
       objectReference: {fileID: 0}
     - target: {fileID: 5855925953420364754, guid: 6bf674612717f0a4590bf940e5347ebb, type: 3}
       propertyPath: m_Layer

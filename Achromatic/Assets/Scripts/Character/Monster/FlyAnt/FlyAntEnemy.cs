@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class FlyAntEnemy : Monster
 {
@@ -17,6 +18,10 @@ public class FlyAntEnemy : Monster
     private Vector2 attackDir;
     private Vector2 startPos;
     private float deadDelayTime = 1.3f;
+
+    public UnityEvent<eActivableColor> flyAntColorEvent;
+
+    private bool isHeavy = false;
     private enum EMonsterAttackState
     {
         None = 0,
@@ -27,6 +32,15 @@ public class FlyAntEnemy : Monster
     }
     private EMonsterAttackState currentState = EMonsterAttackState.None;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
+
+    private void CheckIsHeavy(eActivableColor color)
+    {
+        if (color == stat.enemyColor)
+        {
+            isHeavy = false;
+        }
+        flyAntColorEvent?.Invoke(color);
+    }
 
     private void Start()
     {
@@ -86,7 +100,7 @@ public class FlyAntEnemy : Monster
             }
             else
             {
-                StartCoroutine(StabThrowAttack());
+                StabThrowAttack();
             }
         }
 
@@ -118,22 +132,38 @@ public class FlyAntEnemy : Monster
     private void Rush(Vector2 direction)
     {
         transform.Translate(direction * stat.badyAttackSpeed * Time.deltaTime);
-        if (distanceToPlayer > 1.0f) // FIX Attack구조물 거리로 변경
+        if (distanceToPlayer > stat.returnPosValue)
         {
             currentState &= ~EMonsterAttackState.isBadyAttack;
             currentState |= EMonsterAttackState.isReturnEnemy;
         }
     }
-    private IEnumerator StabThrowAttack()
+    private void StabThrowAttack()
     {
-        yield return null;
-    }
+        Vector2 dir = new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y);
+        float ZAngle = (Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
+        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(2);
+        if (projectileObj != null)
+        {
+            projectileObj.SetActive(true);
 
+            SpearAttack projectile = projectileObj.GetComponent<SpearAttack>();
+            if (projectile != null)
+            {
+                projectile.Shot(gameObject, attackTransform.transform.position, new Vector2(dir.x, dir.y).normalized,
+                    stat.stabThrowAttackRange, stat.stabThrowSpeed, stat.stabThrowDamage, isHeavy, ZAngle, eActivableColor.RED);
+                projectileObj.transform.position = transform.position;
+
+                PlayManager.Instance.UpdateColorthing();
+                projectile.ReturnStartRoutine(stat.stabThrowAttackRange);
+            }
+        }
+    }
     private void ReturnMonster()
     {
         Vector2 returnDir = (startPos - (Vector2)transform.position).normalized;
         transform.Translate(returnDir * stat.badyAttackSpeed * Time.deltaTime);
-        if (Vector2.Distance(transform.position, startPos) >= 0.3) // FIX Attack구조물 거리로 변경
+        if (Vector2.Distance(transform.position, startPos) >= stat.returnPosValue)
         {
             currentState &= ~EMonsterAttackState.isReturnEnemy;
             canAttack = true;

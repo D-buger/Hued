@@ -122,7 +122,7 @@ public class AntEnemy : Monster, IAttack
         meleeAttack?.AttackAble(-dir, stat.attackDamage);
         rigid.AddForce(check * stat.swordAttackRebound, ForceMode2D.Impulse);
         yield return Yields.WaitSeconds(0.0f); // FIX 근접 공격 애니메이션 JSON 파싱
-        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
+        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(1);
         if (projectileObj != null)
         {
             projectileObj.SetActive(true);
