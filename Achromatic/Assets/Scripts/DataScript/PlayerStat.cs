@@ -7,7 +7,7 @@ public class PlayerStatus : ScriptableObject
 {
     [HideInInspector]
     public int currentHP;
-    [SerializeField]
+
     public int playerHP = 5;
 
     [Space(10), Header("Move")]
@@ -15,11 +15,8 @@ public class PlayerStatus : ScriptableObject
 
     [Space(10), Header("Jump")]
     public float jumpPower = 30;
-    [SerializeField]
     public float jumpCooldown = 0.8f;
-    [SerializeField]
     public float koyoteTime = 0.5f;
-    [SerializeField]
     public float airHangTime = 0.5f;
 
     [Space(10), Header("Dash")]
