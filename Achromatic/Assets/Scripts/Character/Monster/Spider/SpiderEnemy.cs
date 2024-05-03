@@ -8,7 +8,7 @@ using Unity.VisualScripting;
 using System;
 using System.Runtime.CompilerServices;
 
-public class SpiderEnemy : Monster, IAttack
+public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
 {
     private MonsterFSM fsm;
 
@@ -361,7 +361,7 @@ public class SpiderEnemy : Monster, IAttack
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
 
-        meleeAttack?.AttackAble(-value, stat.attackDamage);
+        meleeAttack?.AttackEnable(-value, stat.attackDamage, stat.attackDamage);
         rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
         meleeAttack?.AttackDisable();
     }
@@ -439,13 +439,13 @@ public class SpiderEnemy : Monster, IAttack
         }
     }
 
-    public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
-        if (!isHeavyAttack)
+        if (!isDead)
         {
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                HPDown(criticalDamage);
+                HPDown(colorDamage);
                 rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
             }
             else
@@ -453,14 +453,6 @@ public class SpiderEnemy : Monster, IAttack
                 HPDown(damage);
                 rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
             }
-        }
-        else
-        {
-            HPDown(damage);
-            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-        }
-        if (!isDead)
-        {
             CheckDead();
         }
     }
@@ -490,8 +482,8 @@ public class SpiderEnemy : Monster, IAttack
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage,
-                    transform.position - collision.transform.position, false, stat.contactDamage);
+            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
+                    transform.position - collision.transform.position, this);
         }
     }
     private void OnDrawGizmos()
@@ -510,5 +502,10 @@ public class SpiderEnemy : Monster, IAttack
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.meleeAttackRange);
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.rangedAttackRange);
         }
+    }
+
+    public bool CanParryAttack()
+    {
+        return PlayManager.Instance.ContainsActivationColors(stat.enemyColor);
     }
 }

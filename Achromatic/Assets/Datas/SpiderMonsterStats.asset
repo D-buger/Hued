@@ -37,5 +37,5 @@ MonoBehaviour:
   earthAttackJump: 10
   earthAttackDalay: 0.3
   specialAttackPercent: 60
-  rangeAttackPercent: 33
+  rangeAttackPercent: 50
   compositeAttackRound: 140

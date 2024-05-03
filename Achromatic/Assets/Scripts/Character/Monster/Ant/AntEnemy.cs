@@ -9,7 +9,7 @@ using static SpiderEnemy;
 using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 using static UnityEngine.Rendering.DebugUI;
 
-public class AntEnemy : Monster, IAttack
+public class AntEnemy : Monster, IAttack, IParryConditionCheck
 {
     private MonsterFSM fsm;
 
@@ -22,7 +22,7 @@ public class AntEnemy : Monster, IAttack
     private AntMonsterStat stat;
     [SerializeField]
     private GameObject[] stabAttackOBJ;
-  
+
     public UnityEvent<eActivableColor> antColorEvent;
 
     private float angleThreshold = 52f;
@@ -99,7 +99,7 @@ public class AntEnemy : Monster, IAttack
         {
             currentState |= EMonsterAttackState.isStabAttack;
             StabAttack(check);
-        }    
+        }
         else
         {
             StartCoroutine(CounterAttackStart());
@@ -119,7 +119,7 @@ public class AntEnemy : Monster, IAttack
             yield return null;
         }
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, ZAngle);
-        meleeAttack?.AttackAble(-dir, stat.attackDamage);
+        meleeAttack?.AttackEnable(-dir, stat.attackDamage, stat.attackDamage);
         rigid.AddForce(check * stat.swordAttackRebound, ForceMode2D.Impulse);
         yield return Yields.WaitSeconds(0.0f); // FIX 근접 공격 애니메이션 JSON 파싱
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(1);
@@ -148,7 +148,7 @@ public class AntEnemy : Monster, IAttack
         }
         float delayToAttack = 0.2f;
         float delayToDestory = 0.05f;
-        int objectCount = stabAttackOBJ.Length/2;
+        int objectCount = stabAttackOBJ.Length / 2;
         while (currentState.HasFlag(EMonsterAttackState.isStabAttack))
         {
             currentState &= ~EMonsterAttackState.isStabAttack;
@@ -249,30 +249,23 @@ public class AntEnemy : Monster, IAttack
                 break;
         }
     }
-    public override void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
         if (currentState.HasFlag(EMonsterAttackState.isCounter))
         {
             CounterAttackPlay(new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y), Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
             currentState &= ~EMonsterAttackState.IsAttack;
         }
-        else if (!isHeavyAttack)
+
+        if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
         {
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                HPDown(criticalDamage);
-                rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-            }
-            else
-            {
-                HPDown(damage);
-                rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
-            }
+            HPDown(colorDamage);
+            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
         }
         else
         {
             HPDown(damage);
-            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+            rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
         }
         if (!isDead)
         {
@@ -283,8 +276,12 @@ public class AntEnemy : Monster, IAttack
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage,
-                    transform.position - collision.transform.position, false, stat.contactDamage);
+            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
+                    transform.position - collision.transform.position, this);
         }
+    }
+    public bool CanParryAttack()
+    {
+        return PlayManager.Instance.ContainsActivationColors(stat.enemyColor);
     }
 }

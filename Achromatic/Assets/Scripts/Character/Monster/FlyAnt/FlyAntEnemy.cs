@@ -113,7 +113,7 @@ public class FlyAntEnemy : Monster
     {
         int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
         yield return Yields.WaitSeconds(stat.flyAntAttackDelay);
-        meleeAttack.AttackAble(direction, stat.badyAttackDamage, stat.badyAttackDamage);
+        meleeAttack.AttackEnable(direction, stat.badyAttackDamage, stat.badyAttackDamage);
         if (checkRandomAttackType > stat.doubleBadyAttackPer)
         {
             currentState |= EMonsterAttackState.isBadyAttack;

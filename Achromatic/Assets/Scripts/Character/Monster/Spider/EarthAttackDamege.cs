@@ -12,13 +12,13 @@ public class EarthAttackDamege : MonoBehaviour
         {
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                collision.gameObject.GetComponent<Player>().Hit(stat.earthAttackDamege,
-                transform.position - collision.transform.position, false, stat.earthAttackDamege);
+                collision.gameObject.GetComponent<Player>().Hit(stat.earthAttackDamege, stat.earthAttackDamege,
+                transform.position - collision.transform.position);
             }
             else
             {
-                collision.gameObject.GetComponent<Player>().Hit(stat.earthAttackDamege,
-                transform.position - collision.transform.position, true, stat.earthAttackDamege);
+                collision.gameObject.GetComponent<Player>().Hit(stat.earthAttackDamege, stat.earthAttackDamege,
+                transform.position - collision.transform.position, null);
             }
         }
     }

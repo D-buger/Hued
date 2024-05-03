@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.TerrainUtils;
 
-public class Projectile : MonoBehaviour
+public class Projectile : MonoBehaviour, IParryConditionCheck
 {
     private Rigidbody2D rigid;
     private SpriteRenderer renderer;
@@ -100,8 +100,12 @@ public class Projectile : MonoBehaviour
     {
         if (collision.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.GetComponent<IAttack>()?.Hit(damage, moveDirection, isHeavyAttack);
+            collision.GetComponent<IAttack>()?.Hit(damage, damage, moveDirection, this);
             ReturnToPool();
         }
+    }
+    public bool CanParryAttack()
+    {
+        return PlayManager.Instance.ContainsActivationColors(enemyColor);
     }
 }

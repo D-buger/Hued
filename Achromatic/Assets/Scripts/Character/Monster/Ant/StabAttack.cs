@@ -15,20 +15,20 @@ public class StabAttack : MonoBehaviour
         {
             if (!lastAttack)
             {
-                collision.gameObject.GetComponent<Player>().Hit(stat.stabAttackDamage,
-                transform.position - collision.transform.position, true, stat.stabAttackDamage);
+                collision.gameObject.GetComponent<Player>().Hit(stat.stabAttackDamage, stat.stabAttackDamage,
+                transform.position - collision.transform.position, null);
             }
             else
             {
                 if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
                 {
                     collision.gameObject.GetComponent<Player>().Hit(stat.lastStabAttackDamage,
-                    transform.position - collision.transform.position, false, stat.lastStabAttackDamage);
+                    stat.lastStabAttackDamage, transform.position - collision.transform.position, null);
                 }
                 else
                 {
                     collision.gameObject.GetComponent<Player>().Hit(stat.lastStabAttackDamage,
-                    transform.position - collision.transform.position, true, stat.lastStabAttackDamage);
+                    stat.lastStabAttackDamage, transform.position - collision.transform.position, null);
                 }
             }
         }
