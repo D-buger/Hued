@@ -183,7 +183,8 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
         return (state & eState) != 0;
     }
-    void IAttack.AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 vec)
     {
+
     }
 }

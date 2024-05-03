@@ -77,7 +77,7 @@ public class SpiderEnemy : Monster, IAttack
 
     private JObject jsonObject;
 
-    private bool isHeavy = false;
+    private bool isHeavy = true;
 
     private void Awake()
     {
@@ -342,7 +342,7 @@ public class SpiderEnemy : Monster, IAttack
             if (projectile != null)
             {
                 projectile.Shot(gameObject, attackTransform.transform.position, value.normalized,
-                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, isHeavy, zAngle, eActivableColor.RED);
+                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, false, zAngle, eActivableColor.RED);
                 projectileObj.transform.position = attackTransform.transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
