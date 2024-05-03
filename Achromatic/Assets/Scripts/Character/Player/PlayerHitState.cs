@@ -49,10 +49,13 @@ public class PlayerHitState : PlayerBaseState
             {
                 break;
             }
-            elapsedTime += Time.deltaTime;
-            player.RendererComp.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
+            else
+            {
+                elapsedTime += Time.deltaTime;
+                player.RendererComp.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
 
-            yield return null;
+                yield return null;
+            }
         }
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);

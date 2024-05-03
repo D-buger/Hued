@@ -28,7 +28,6 @@ public abstract class BossParent : MonoBehaviour
         for(int i = 0; i < GetBossStatus.startPhasePatterns.Length; i++)
         {
             patternPool.Add(GetBossStatus.startPhasePatterns[i].SetBossPattern(this));
-            Debug.Log(patternPool[i]);
         }
         OnAwake();
     }
@@ -56,11 +55,14 @@ public abstract class BossParent : MonoBehaviour
 
         OnUpdate();
     }
+
     protected abstract void OnUpdate();
 
     private void ChoosePattern()
     {
-        currentPattern = patternPool[Random.Range(0, patternPool.Count)];
+        currentPattern = patternPool.Count <= 0 ? previousPattern : patternPool[Random.Range(0, patternPool.Count)];
+
+
         if (!ReferenceEquals(previousPattern, null))
         {
             patternPool.Add(previousPattern);

@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class SwingPattern : BossPattern
 {
@@ -21,7 +17,7 @@ public class SwingPattern : BossPattern
     [SerializeField]
     private float swingDelay = 0.5f;
     [SerializeField]
-    private float attackAfterDelay = 1f;
+    private float patternAfterDelay = 1f;
 
     [SerializeField]
     private int damage = 5;
@@ -34,12 +30,14 @@ public class SwingPattern : BossPattern
     private bool isPatternEnd;
 
     private float elapsedTime = 0f;
+
     public override void OnStart()
     {
         if(PlayManager.Instance.GetPlayer.transform.position.x > boss.transform.position.x)
         {
             swingPostPosition.x *= -1;
         }
+
         curHandPosition = boss.transform.position;
         initPosition = curHandPosition;
         elapsedTime = 0f;
@@ -47,6 +45,7 @@ public class SwingPattern : BossPattern
         isSwingPostBehaviour = true;
         isPatternEnd = false;
     }
+
     public override void OnUpdate()
     {
         elapsedTime += Time.deltaTime;
@@ -92,7 +91,7 @@ public class SwingPattern : BossPattern
                 }
             }
         }
-        else if(isPatternEnd && elapsedTime > attackAfterDelay)
+        else if(isPatternEnd && elapsedTime > patternAfterDelay)
         {
             PatternEnd();
         }

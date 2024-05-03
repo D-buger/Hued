@@ -1537,7 +1537,7 @@ Transform:
   m_GameObject: {fileID: 323986137}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.9598, y: -6.68, z: 0}
+  m_LocalPosition: {x: -0.6698, y: -6.68, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1589,7 +1589,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 2
-  m_Size: {x: 25.709782, y: 2.4562418}
+  m_Size: {x: 30.339355, y: 2.4562418}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1627,18 +1627,18 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 1
   m_UsedByComposite: 0
-  m_Offset: {x: -1.1663437, y: -0.045316935}
+  m_Offset: {x: -2.03895, y: -0.045316935}
   m_SpriteTilingProperty:
     border: {x: 0.22, y: 0.19, z: 0.16, w: 0.37}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 1.9, y: 1.52}
-    newSize: {x: 25.709782, y: 2.4562418}
+    newSize: {x: 30.339355, y: 2.4562418}
     adaptiveTilingThreshold: 0.5
     drawMode: 2
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 22.825191, y: 2.2060218}
+  m_Size: {x: 26.822292, y: 2.2060218}
   m_EdgeRadius: 0
 --- !u!251 &323986141
 PlatformEffector2D:
@@ -21942,6 +21942,10 @@ PrefabInstance:
       propertyPath: m_Mass
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7055592677814107816, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: bb675f37baf3872428d3cf513ef83427, type: 2}
     - target: {fileID: 7428618551749627410, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -21973,6 +21977,30 @@ PrefabInstance:
     - target: {fileID: 8534193826459263596, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8534193826459263596, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
+      propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[0].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8534193826459263596, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
+      propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[1].inSlope
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8534193826459263596, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
+      propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[0].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8534193826459263596, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
+      propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[1].outSlope
+      value: -2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8534193826459263596, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
+      propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[0].tangentMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8534193826459263596, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
+      propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[1].tangentMode
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8847402884373470786, guid: 953516a9e7cd32041a98aea3f9762719, type: 3}
       propertyPath: m_LocalScale.x
