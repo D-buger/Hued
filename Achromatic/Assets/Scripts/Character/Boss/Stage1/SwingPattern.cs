@@ -35,7 +35,11 @@ public class SwingPattern : BossPattern
     {
         if(PlayManager.Instance.GetPlayer.transform.position.x > boss.transform.position.x)
         {
-            swingPostPosition.x *= -1;
+            swingPostPosition.x *= swingPostPosition.x < 0 ? -1 : 1;
+        }
+        else
+        {
+            swingPostPosition.x *= swingPostPosition.x > 0 ? -1 : 1;
         }
 
         curHandPosition = boss.transform.position;
@@ -101,7 +105,7 @@ public class SwingPattern : BossPattern
 
     private void SwingPostBehaviour()
     {
-        curHandPosition = Vector2.Lerp(initPosition, swingPostPosition, elapsedTime * postSwingSpeed);
+        curHandPosition = Vector2.Lerp(initPosition, initPosition + swingPostPosition, elapsedTime * postSwingSpeed);
 
         if (elapsedTime * postSwingSpeed > 1)
         {

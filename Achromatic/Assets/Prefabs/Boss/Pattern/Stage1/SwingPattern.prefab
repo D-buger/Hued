@@ -48,6 +48,7 @@ MonoBehaviour:
   postSwingSpeed: 0.5
   swingFirstHandSpeed: 1.2
   swingSecondHandSpeed: 0.7
-  swingPostPosition: {x: -3, y: 5}
+  swingPostPosition: {x: -6, y: 5}
   swingDelay: 0.5
+  patternAfterDelay: 1
   damage: 5
