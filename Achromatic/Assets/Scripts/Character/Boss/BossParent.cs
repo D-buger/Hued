@@ -62,7 +62,6 @@ public abstract class BossParent : MonoBehaviour
     {
         currentPattern = patternPool.Count <= 0 ? previousPattern : patternPool[Random.Range(0, patternPool.Count)];
 
-
         if (!ReferenceEquals(previousPattern, null))
         {
             patternPool.Add(previousPattern);

@@ -1,6 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PatternCrystal : MonoBehaviour, IParryConditionCheck
 {
@@ -17,21 +17,29 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
 
     private Vector2 moveDirection;
 
-    private bool isShot = false;
-    private bool isTouchFloor = false;
-    private bool isExplosion = false;
+    private bool isEnable;
+    private bool isShot;
+    private bool isTouchFloor;
+    private bool isExplosion;
+
+    public UnityEvent afterExplosionEvent;
 
     private void Update()
     {
+        if (!isEnable)
+        {
+            return;
+        }
+
         if (isShot && !isTouchFloor)
         {
-            transform.Translate(moveDirection * moveSpeed);
+            transform.position += (Vector3)(moveDirection * moveSpeed);
         }
-        else if(!isExplosion)
+        else if (!isExplosion)
         {
             elapsedTime += Time.deltaTime;
 
-            if(elapsedTime > postExplosionDelay)
+            if (elapsedTime > postExplosionDelay)
             {
                 isExplosion = true;
                 elapsedTime = 0;
@@ -39,6 +47,8 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
         }
         else
         {
+            elapsedTime += Time.deltaTime;
+
             RaycastHit2D hit = Physics2D.CircleCast(transform.position, explosionRadius, Vector2.zero, 0, LayerMask.GetMask(PlayManager.PLAYER_TAG));
             CheckPlayer(hit);
 
@@ -47,6 +57,13 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
                 DisableCrystal();
             }
         }
+        
+    }
+    private void OnEnable()
+    {
+        isShot = false;
+        isTouchFloor = false;
+        isExplosion = false;
     }
     private void CheckPlayer(RaycastHit2D hit)
     {
@@ -54,11 +71,10 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
         {
             hit.collider.gameObject.GetComponent<IAttack>().Hit(explosionDamage, explosionDamage
                 , transform.position - hit.transform.position, this);
-
         }
     }
 
-    public PatternCrystal SettingFirst(int cryDmg, int expDmg, float speed, float radius, float delay, float time)
+    public PatternCrystal SettingFirst(eActivableColor color, int cryDmg, int expDmg, float speed, float radius, float delay, float time)
     {
         crystalDamage = cryDmg;
         explosionDamage = expDmg;
@@ -66,6 +82,7 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
         explosionRadius = radius;
         postExplosionDelay = delay;
         explosionTime = time;
+        patternColor = color;
         return this;
     }
 
@@ -73,13 +90,15 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
     {
         moveDirection = dir;
         isShot = true;
-        isTouchFloor = false;
-        isExplosion = false;
+        isEnable = true;
         elapsedTime = 0f;
     }
 
     private void DisableCrystal()
     {
+        isEnable = false;
+        afterExplosionEvent?.Invoke();
+        afterExplosionEvent.RemoveAllListeners();
         gameObject.SetActive(false);
     }
     public bool CanParryAttack()
@@ -89,6 +108,12 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
 
     private void OnTriggerStay2D(Collider2D collision)
     {
+        if (collision.CompareTag(PlayManager.PLAYER_TAG))
+        {
+            collision.gameObject.GetComponent<IAttack>().Hit(crystalDamage, crystalDamage
+                , transform.position - collision.transform.position, this);
+        }
+
         if (collision.CompareTag(PlayManager.FLOOR_TAG))
         {
             isShot = false;

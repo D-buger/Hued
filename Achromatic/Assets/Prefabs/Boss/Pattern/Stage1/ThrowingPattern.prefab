@@ -51,12 +51,12 @@ MonoBehaviour:
     y: 5
     width: 20
     height: 5
-  crystalSpeed: 1
+  crystalSpeed: 0.1
   initialCrystalNum: 3
   shotPostDelay: 0.5
   postExplosionDelay: 3
   explosionRadius: 1.5
-  explosionTime: 1
+  explosionTime: 0.2
   crystalDamage: 5
   explosionDamage: 5
   directionMinAngle: 135

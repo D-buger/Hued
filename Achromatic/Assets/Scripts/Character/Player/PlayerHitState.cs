@@ -8,12 +8,14 @@ public class PlayerHitState : PlayerBaseState
 
     private Color originalRendererColor;
     private Color hitChangeColor = Color.black;
-    public PlayerHitState(Player player) : base(player) { }
+    public PlayerHitState(Player player) : base(player)
+    {
+        originalRendererColor = player.RendererComp.color;
+    }
 
     public override void OnStateEnter()
     {
         //Debug.Log("Player State : Hit");
-        originalRendererColor = player.RendererComp.color;
     }
     public override void OnStateUpdate()
     {

@@ -1,7 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Rendering;
 
 public class ThrowingPattern : BossPattern
 {
@@ -34,31 +32,40 @@ public class ThrowingPattern : BossPattern
     private Vector2[] postCrystalPositions;
     private Vector2[] crystalDirections;
     private PatternCrystal[] crystalObjects;
+    private float[] crystalAngles;
 
     private float elapsedTime;
+    private int disabledCrystalNum;
 
     private bool isShotPostBehaviour;
     private bool alreadyShot;
     public override void OnStart()
     {
-        if(boss.transform.childCount > 0)
-        {
-            crystalObjects = boss.transform.GetComponentsInChildren<PatternCrystal>();
-        }
-        else 
-        {
-            crystalObjects = new PatternCrystal[initialCrystalNum];
-            for(int i = 0; i < postCrystalPositions.Length; i++)
-            {
-                crystalObjects[i] = Instantiate(crystalPrefab, boss.transform).GetComponent<PatternCrystal>().SettingFirst(
-                    crystalDamage, explosionDamage, crystalSpeed, explosionRadius, postExplosionDelay, explosionTime);
-                crystalObjects[i].gameObject.SetActive(false);
-            }
-        }
-
         originBossPosition = boss.transform.position;
         postCrystalPositions = new Vector2[initialCrystalNum];
         crystalDirections = new Vector2[initialCrystalNum];
+        crystalAngles = new float[initialCrystalNum];
+        crystalObjects = new PatternCrystal[initialCrystalNum];
+
+        if (boss.transform.childCount > 0)
+        {
+            for (int i = 0; i < initialCrystalNum; i++)
+            {
+                crystalObjects[i] = boss.transform.GetChild(i).GetComponent<PatternCrystal>();
+                crystalObjects[i].transform.position = originBossPosition;
+                crystalObjects[i].transform.rotation = Quaternion.Euler(0, 0, 0);
+                crystalObjects[i].gameObject.SetActive(false);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < initialCrystalNum; i++)
+            {
+                crystalObjects[i] = Instantiate(crystalPrefab, boss.transform).GetComponent<PatternCrystal>().SettingFirst(
+                    boss.GetBossStatus.bossColor, crystalDamage, explosionDamage, crystalSpeed, explosionRadius, postExplosionDelay, explosionTime);
+                crystalObjects[i].gameObject.SetActive(false);
+            }
+        }
 
         for (int i = 0; i < initialCrystalNum; i++)
         {
@@ -66,15 +73,17 @@ public class ThrowingPattern : BossPattern
                 Random.Range(initializeCrystalArea.xMin, initializeCrystalArea.xMax),
                 Random.Range(initializeCrystalArea.yMin, initializeCrystalArea.yMax));
 
-            float randomPickedDirection = Random.Range(directionMinAngle, directionMaxAngle);
-            float directionX = Mathf.Sin(randomPickedDirection * Mathf.Deg2Rad);
-            float directionY = Mathf.Cos(randomPickedDirection * Mathf.Deg2Rad);
+            crystalAngles[i] = Random.Range(directionMinAngle, directionMaxAngle);
+            float directionX = Mathf.Sin(crystalAngles[i] * Mathf.Deg2Rad);
+            float directionY = Mathf.Cos(crystalAngles[i] * Mathf.Deg2Rad);
             crystalDirections[i] = new Vector2(directionX, directionY).normalized;
 
             crystalObjects[i].transform.position = postCrystalPositions[i];
+            crystalObjects[i].afterExplosionEvent.AddListener(() => disabledCrystalNum++);
         }
 
         elapsedTime = 0;
+        disabledCrystalNum = 0;
         isShotPostBehaviour = true;
         alreadyShot = false;
     }
@@ -97,6 +106,13 @@ public class ThrowingPattern : BossPattern
                 elapsedTime = 0;
             }
         }
+        else if (!alreadyShot && elapsedTime <= shotPostDelay)
+        {
+            for (int i = 0; i < crystalObjects.Length; i++)
+            {
+                crystalObjects[i].transform.rotation = Quaternion.Lerp(crystalObjects[i].transform.rotation, Quaternion.Euler(0, 0, -crystalAngles[i] - 90), elapsedTime / shotPostDelay);
+            }
+        }
         else if (!alreadyShot && elapsedTime > shotPostDelay)
         {
             alreadyShot = true;
@@ -104,17 +120,21 @@ public class ThrowingPattern : BossPattern
             {
                 crystalObjects[i].Shot(crystalDirections[i]);
             }
+            CoroutineHandler.StartCoroutine(CrystalAfterShotRoutine());
         }
     } 
 
     private IEnumerator CrystalAfterShotRoutine()
     {
-
-        for(int i = 0; i < crystalObjects.Length; i++)
+        while (true)
         {
-
+            if(disabledCrystalNum >= initialCrystalNum)
+            {
+                break;
+            }
+            yield return null;
         }
-        yield return null;
+        PatternEnd();
     } 
 
     public override bool CanParryAttack()
