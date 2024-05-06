@@ -14157,7 +14157,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26f836c539d0d524fa706f62c1a698f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bossStatus: {fileID: 11400000, guid: a38cdbf7c684212468c68b1879ca6335, type: 2}
+  bossStatus: {fileID: 11400000, guid: 6d298196a2cfd294bb34c31c508923b1, type: 2}
 --- !u!212 &1024120168
 SpriteRenderer:
   m_ObjectHideFlags: 0
