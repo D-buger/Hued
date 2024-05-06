@@ -21,9 +21,9 @@ public abstract class BossParent : MonoBehaviour, IAttack
         set
         {
             currentHp = value;
-            if(currentHp <= bossStatus.maxHp * 0.5f)
+            if(currentHp <= bossStatus.maxHp * 0.5f && !isEndPhase)
             {
-                intendedPattern = isEndPhase? intendedPattern : bossStatus.phaseChangePattern;
+                intendedPattern = bossStatus.phaseChangePattern;
             }
         }
     }

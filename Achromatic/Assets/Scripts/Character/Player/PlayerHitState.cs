@@ -43,7 +43,7 @@ public class PlayerHitState : PlayerBaseState
         player.RendererComp.color = hitChangeColor;
 
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera();
+        PlayManager.Instance.cameraManager.ShakeCamera(reboundTime);
         float elapsedTime = 0f;
         while (true)
         {

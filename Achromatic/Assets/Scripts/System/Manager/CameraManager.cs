@@ -102,16 +102,19 @@ public class CameraManager : SingletonBehavior<CameraManager>
     }
 
     #region Shake Camera
-    public void ShakeCamera()
+    public void ShakeCamera(float shakeTime, bool isShakeByCustom = false)
     {
         if (!isShake)
         {
-            StartCoroutine(ShakeSequence());
+            StartCoroutine(ShakeSequence(shakeTime, isShakeByCustom));
         }
     }
-    IEnumerator ShakeSequence()
+    IEnumerator ShakeSequence(float shakeTime, bool isShakeByCustom)
     {
         isShake = true;
+        cinemachineNoise.m_ImpulseDefinition.m_ImpulseType = 
+            !isShakeByCustom ? CinemachineImpulseDefinition.ImpulseTypes.Uniform : CinemachineImpulseDefinition.ImpulseTypes.Legacy;
+        cinemachineNoise.m_ImpulseDefinition.m_TimeEnvelope.m_SustainTime = shakeTime;
         cinemachineNoise.m_ImpulseDefinition.m_AmplitudeGain = shakeAmplitude;
         cinemachineNoise.m_ImpulseDefinition.m_FrequencyGain = shakeFrequency;
         cinemachineNoise.GenerateImpulse();

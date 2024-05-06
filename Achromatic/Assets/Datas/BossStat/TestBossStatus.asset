@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: TestBossStatus
   m_EditorClassIdentifier: 
   patternDelayTime: 0.7
-  startPhasePatterns: []
+  startPhasePatterns:
+  - {fileID: 3848373723980874017, guid: 4b217374af56283438b9641e58b69ac0, type: 3}
   phaseChangePattern: {fileID: 0}
   endPhasePatterns: []
   maxHp: 100
   moveSpeed: 0.7
-  bossColor: 0
+  bossColor: 1
