@@ -51,6 +51,7 @@ public class ShoutingPattern : BossPattern
         }
         else if(isPatternEnd && elapsedTime > afterHitDownDelay)
         {
+            boss.OnChangePhaseBehaviour();
             PatternEnd();
         }
 

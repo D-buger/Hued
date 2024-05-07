@@ -14158,6 +14158,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bossStatus: {fileID: 11400000, guid: 6d298196a2cfd294bb34c31c508923b1, type: 2}
+  crystals:
+  - {fileID: 1531980247}
 --- !u!212 &1024120168
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -21819,6 +21821,7 @@ GameObject:
   - component: {fileID: 1531980248}
   - component: {fileID: 1531980247}
   - component: {fileID: 1531980249}
+  - component: {fileID: 1531980250}
   m_Layer: 0
   m_Name: MovingCrystal
   m_TagString: Untagged
@@ -21838,11 +21841,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58b9ea050efd66b4387adb835672550f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  crystalSprite: {fileID: 0}
   moveSpeed: 0.7
+  changedSpeedByBossHp: 1
   moveDirection: 0
   eachCrystalDistance: 5
   maxMoveDistance: 5
+  chargingTime: 0.2
+  laserRemainTime: 0.5
+  laserShotDuration: 8
+  crystalDamage: 5
+  laserDamage: 10
 --- !u!4 &1531980248
 Transform:
   m_ObjectHideFlags: 0
@@ -21852,7 +21860,7 @@ Transform:
   m_GameObject: {fileID: 1531980246}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -11.28, y: -3.96, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21896,10 +21904,10 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -964514469
+  m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 7482667652216324306, guid: 75f5f34dc1b5347e0b8351032682f224, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -21907,9 +21915,54 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!61 &1531980250
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1531980246}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0.21133333}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.28866667}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1}
+  m_EdgeRadius: 0
 --- !u!1001 &1629240161
 PrefabInstance:
   m_ObjectHideFlags: 0

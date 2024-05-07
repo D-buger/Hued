@@ -11,8 +11,8 @@ public abstract class BossParent : MonoBehaviour, IAttack
     private BossStatus bossStatus;
     public BossStatus GetBossStatus => bossStatus;
 
-    private int currentHp;
-    public int CurrentHp
+    protected int currentHp;
+    public virtual int CurrentHp
     {
         get
         {
@@ -79,7 +79,7 @@ public abstract class BossParent : MonoBehaviour, IAttack
         {
             if (!ReferenceEquals(intendedPattern, null))
             {
-                currentPattern = intendedPattern;
+                currentPattern = intendedPattern.SetBossPattern(this);
                 intendedPattern = null;
                 currentPattern.OnStart();
                 isEndPhase = true;
@@ -115,6 +115,12 @@ public abstract class BossParent : MonoBehaviour, IAttack
         currentPattern = null;
         isPatternEnd = true;
     }
+
+    public virtual void OnChangePhaseBehaviour()
+    {
+
+    }
+
     #endregion
     public void OnPostAttack(Vector2 attackDir)
     {
