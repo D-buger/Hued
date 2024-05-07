@@ -56,7 +56,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     private float delayToAttack = 0.05f;
     private float delayToDestory = 0.05f;
     private float delayToEarthAttack = 0.6f;
-    private float deadDelayTime = 1.3f;
+    private float deadDelayTime = 1.0f;
 
 
     public ParticleSystem[] earthParticleGroup;
@@ -465,12 +465,10 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     private IEnumerator DeadSequence()
     {
         SetState(EMonsterState.isBattle, false);
-        SetState(EMonsterState.isWait, false);
-        SetState(EMonsterState.isPlayerBetween, false);
-        isDead = false;
         StopCoroutine(AttackSequence(PlayerPos));
         skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
         skeletonAnimation.state.GetCurrent(0).TimeScale = 1;
+        skeletonAnimation.loop = false;
         ///<summary> 현재 실행중인 애니메이션 강제 종료, 따로 함수가 없음. ///</summary>
         animState = EanimState.Dead;
         SetCurrentAnimation(animState);

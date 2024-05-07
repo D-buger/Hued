@@ -160,7 +160,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     }
     public virtual void CheckDead()
     {
-        if (currentHP <= 0)
+        if (currentHP <= 0 && !isDead)
         {
             isDead = true;
             Dead();
