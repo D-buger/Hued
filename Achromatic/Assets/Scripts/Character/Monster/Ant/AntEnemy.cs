@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using Spine.Unity;
 using System;
 using System.Collections;
@@ -23,8 +24,37 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     [SerializeField]
     private GameObject[] stabAttackOBJ;
 
+    private LayerMask originLayer;
+    private LayerMask colorVisibleLayer;
+    [SerializeField]
+    private JObject jsonObject;
+
+    [Header("Animation")]
+    [SerializeField]
+    private SkeletonAnimation skeletonAnimation;
+    [SerializeField]
+    private AnimationReferenceAsset[] aniClip;
+    [SerializeField]
+    private TextAsset animationJson;
+    public enum EanimState
+    {
+        Idle,
+        Walk,
+        Stab,
+        Sword,
+        Counter,
+        Detection,
+        Dead
+    }
+    private EanimState animState;
+
+    public Vector2 startSpiderPosition;
+
+    public Vector3 gizmoLeftPos;
+
     public UnityEvent<eActivableColor> antColorEvent;
 
+    private string currentAnimation;
     private float angleThreshold = 52f;
 
     private enum EMonsterAttackState
@@ -40,11 +70,75 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
+    private void Awake()
+    {
+        fsm = GetComponent<MonsterFSM>();
+        rigid = GetComponent<Rigidbody2D>();
+        attackPoint = transform.GetChild(0).gameObject;
+        meleeAttack = attackPoint.GetComponentInChildren<Attack>();
+    }
     private void Start()
     {
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
+        monsterRunleftPosition.y = transform.position.y;
+        monsterRunRightPosition.y = transform.position.y;
+        monsterRunleftPosition.x += transform.position.x + runPosition;
+        monsterRunRightPosition.x += transform.position.x - runPosition;
+        currentHP = stat.MonsterHP;
+        monsterPosition = monsterRunRightPosition;
+        startSpiderPosition = new Vector2(gizmoLeftPos.x - runPosition, transform.position.y);
+
+        originLayer = gameObject.layer;
+        colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
+
+        MonsterManager.Instance?.GetColorEvent.AddListener(CheckIsHeavy);
+        PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
+        PlayManager.Instance.UpdateColorthing();
+
+        if (animationJson != null)
+        {
+            jsonObject = JObject.Parse(animationJson.text);
+        }
+        CheckStateChange();
     }
 
+    private void Update()
+    {
+        CheckPlayer(startSpiderPosition);
+        if (canAttack && IsStateActive(EMonsterState.isBattle))
+        {
+            Attack();
+        }
+        SetCurrentAnimation(animState);
+    }
+    private void SetCurrentAnimation(EanimState _state)
+    {
+        float timeScale = 1;
+        switch (_state)
+        {
+            case EanimState.Idle:
+                AsyncAnimation(aniClip[(int)EanimState.Idle], true, timeScale);
+                break;
+            case EanimState.Walk:
+                AsyncAnimation(aniClip[(int)EanimState.Walk], true, timeScale);
+                break;
+            case EanimState.Stab:
+                AsyncAnimation(aniClip[(int)EanimState.Stab], false, timeScale);
+                break;
+            case EanimState.Sword:
+                AsyncAnimation(aniClip[(int)EanimState.Sword], false, timeScale);
+                break;
+            case EanimState.Counter:
+                AsyncAnimation(aniClip[(int)EanimState.Counter], false, timeScale);
+                break;
+            case EanimState.Detection:
+                AsyncAnimation(aniClip[(int)EanimState.Detection], false, timeScale);
+                break;
+            case EanimState.Dead:
+                AsyncAnimation(aniClip[(int)EanimState.Dead], false, timeScale);
+                break;
+        }
+    }
     private void CheckIsHeavy(eActivableColor color)
     {
         if (color == stat.enemyColor)
@@ -52,6 +146,30 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             isHeavy = false;
         }
         antColorEvent?.Invoke(color);
+    }
+    private void IsActiveColor(eActivableColor color)
+    {
+        if (color != stat.enemyColor)
+        {
+            gameObject.layer = originLayer;
+        }
+        else
+        {
+            gameObject.layer = colorVisibleLayer;
+        }
+        gameObject.layer = (color != stat.enemyColor) ? originLayer : colorVisibleLayer;
+    }
+    private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
+    {
+        if (animClip.name.Equals(currentAnimation))
+        {
+            return;
+        }
+
+        skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
+        skeletonAnimation.loop = loop;
+        skeletonAnimation.timeScale = timeScale;
+        currentAnimation = animClip.name;
     }
     public override void Attack()
     {
@@ -73,7 +191,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         float horizontalValue = attackAngle.x - transform.position.x;
         float verticalValue = attackAngle.y - transform.position.y;
         float ZAngle = (Mathf.Atan2(verticalValue, horizontalValue) * Mathf.Rad2Deg);
-        Vector2 value = new Vector2(horizontalValue, verticalValue);
+        Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         Vector2 check;
         if (value.x <= 0)
         {
@@ -91,18 +209,21 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         // TODO 공격 패턴 구현
 
         int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
+        Debug.Log(checkRandomAttackType);
         if (checkRandomAttackType <= stat.swordAttackPercent)
         {
             StartCoroutine(SwordAttack(value, check, ZAngle));
+            Debug.Log("스워드 공격");
         }
         else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.swordAttackPercent >= checkRandomAttackType)
         {
-            currentState |= EMonsterAttackState.isStabAttack;
-            StabAttack(check);
+            StartCoroutine(StabAttack(check));
+            Debug.Log("창 공격");
         }
         else
         {
             StartCoroutine(CounterAttackStart());
+            Debug.Log("카운터 어택");
         }
 
         yield return Yields.WaitSeconds(stat.attackTime);
@@ -118,6 +239,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield return null;
         }
+        animState = EanimState.Sword;
+        SetCurrentAnimation(animState);
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, ZAngle);
         meleeAttack?.AttackEnable(-dir, stat.attackDamage, stat.attackDamage);
         rigid.AddForce(check * stat.swordAttackRebound, ForceMode2D.Impulse);
@@ -130,7 +253,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
-                projectile.Shot(gameObject, attackTransform.transform.position, new Vector2(dir.x, dir.y).normalized,
+                projectile.Shot(gameObject, attackTransform.transform.position, dir.normalized,
                     stat.swordAttackRange, stat.swordAttackSpeed, stat.swordAttackDamage, isHeavy, ZAngle, eActivableColor.RED);
                 projectileObj.transform.position = transform.position;
 
@@ -138,6 +261,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 projectile.ReturnStartRoutine(stat.swordAttackRange);
             }
         }
+        Debug.Log(dir);
     }
 
     private IEnumerator StabAttack(Vector2 check)
@@ -146,28 +270,31 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield break;
         }
+        currentState |= EMonsterAttackState.isStabAttack;
         float delayToAttack = 0.2f;
         float delayToDestory = 0.05f;
         int objectCount = stabAttackOBJ.Length / 2;
+
         while (currentState.HasFlag(EMonsterAttackState.isStabAttack))
         {
             currentState &= ~EMonsterAttackState.isStabAttack;
             int satbValue = (check.x > 0) ? satbValue = 3 : satbValue = 0;
+            Debug.Log(satbValue);
             objectCount += satbValue;
             for (int i = satbValue; i < objectCount; i += 1)
             {
                 if (i % 3 == 0)
                 {
-                    ActivateObjects(stabAttackOBJ, i, i + 1, true, true);
+                    StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, true));
                     yield return new WaitForSeconds(delayToAttack);
-                    ActivateObjects(stabAttackOBJ, i, i + 1, false, true);
+                    StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, false, true));
                     yield return new WaitForSeconds(delayToDestory);
                 }
                 else
                 {
-                    ActivateObjects(stabAttackOBJ, i, i + 1, true, false);
+                    StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, false));
                     yield return new WaitForSeconds(delayToAttack);
-                    ActivateObjects(stabAttackOBJ, i, i + 1, false, false);
+                    StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, false, false));
                     yield return new WaitForSeconds(delayToDestory);
                 }
             }
@@ -177,16 +304,18 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     {
         for (int i = startIndex; i < endIndex; i++)
         {
-            if (objects[i] = null)
+            if (objects[i] != null)
             {
                 if (!lastAttack)
                 {
-                    yield return Yields.WaitSeconds(stat.stabAttackDelay);
+                    Debug.Log("1,2타 제대로 들어옴");
+                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle__stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full_2"]["events"][0]["time"]);
                     objects[i].SetActive(isSet);
                 }
                 else
                 {
-                    yield return Yields.WaitSeconds(stat.middleStabAttackDelay);
+                    Debug.Log("막타도 제대로 들어옴");
+                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle__stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full_2"]["events"][4]["time"] - (float)jsonObject["animations"]["ground_ant/ground_ant_battle__stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full_2"]["events"][0]["time"]);
                     objects[i].SetActive(isSet);
                 }
             }
@@ -241,9 +370,13 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 break;
             case EMonsterState.isPlayerBetween:
                 fsm.ChangeState("Chase");
+                animState = EanimState.Walk;
+                SetCurrentAnimation(animState);
                 break;
             case EMonsterState.isWait:
                 fsm.ChangeState("Idle");
+                animState = EanimState.Walk;
+                SetCurrentAnimation(animState);
                 break;
             default:
                 break;

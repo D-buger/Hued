@@ -17,24 +17,28 @@ MonoBehaviour:
   senseCircle: 5
   moveSpeed: 1
   attackDamage: 1
-  attackTime: 0.3
-  attackCooldown: 1
+  attackTime: 2
+  attackCooldown: 2
   contactDamage: 1
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  usualTime: 1
+  timeToWait: 1
   cuttingAttackDamage: 1
   cuttingAttackRebound: 100
   swordAttackDamage: 1
   swordAttackSpeed: 2
   swordAttackRange: 2
   swordAttackRebound: 2
+  stabAttackDamage: 1
+  lastStabAttackDamage: 2
   stabAttackSpeed: 2
-  stabAttackRange: 2
   lastStabSpeed: 4
   stabAttackDelay: 1
   middleStabAttackDelay: 2
-  counterAttackTime: 2
+  counterAttackTime: 3
+  counterAttackRange: 1
+  counterAttackDamage: 2
+  counterAttackSpeed: 6
   stabAttackPercent: 33
   swordAttackPercent: 33

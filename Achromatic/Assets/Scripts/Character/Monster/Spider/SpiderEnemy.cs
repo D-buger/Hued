@@ -88,6 +88,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         gizmoLeftPos = new Vector3(transform.position.x + runPosition, transform.position.y);
 
         monsterRunleftPosition.y = transform.position.y;
@@ -95,12 +96,11 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         monsterRunleftPosition.x += transform.position.x + runPosition;
         monsterRunRightPosition.x += transform.position.x - runPosition;
         startSpiderPosition = new Vector2(gizmoLeftPos.x - runPosition, transform.position.y);
-
         currentHP = stat.MonsterHP;
         monsterPosition = monsterRunRightPosition;
+
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         MonsterManager.Instance?.GetColorEvent.AddListener(CheckIsHeavy);
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
@@ -439,7 +439,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
     }
 
-    public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
         if (!isDead)
         {
