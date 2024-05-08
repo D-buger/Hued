@@ -47,6 +47,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c80917186bd22fd44b1f247720daea30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  afterExplosionEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!212 &5826736445039144163
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -98,7 +101,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!61 &5735622512289000204
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -135,7 +138,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 10.24, y: 10.24}
+    oldSize: {x: 2.048, y: 2.048}
     newSize: {x: 1, y: 0.5}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

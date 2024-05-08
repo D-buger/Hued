@@ -1,19 +1,23 @@
-using Unity.VisualScripting;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class PatternCrystal : MonoBehaviour, IParryConditionCheck
 {
+    private Coroutine shakeCoroutine = null;
+
     private eActivableColor patternColor;
 
     private int crystalDamage;
     private int explosionDamage;
     private float moveSpeed;
     private float elapsedTime;
-
     private float explosionRadius;
     private float postExplosionDelay;
     private float explosionTime;
+    private float shakeTime;
+    private float shakeAngle = 20;
+    private float shakeOneSideDuration = 0.1f;
 
     private Vector2 moveDirection;
 
@@ -24,6 +28,12 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
 
     public UnityEvent afterExplosionEvent;
 
+    private void OnEnable()
+    {
+        isShot = false;
+        isTouchFloor = false;
+        isExplosion = false;
+    }
     private void Update()
     {
         if (!isEnable)
@@ -44,6 +54,10 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
                 isExplosion = true;
                 elapsedTime = 0;
             }
+            else if(ReferenceEquals(shakeCoroutine, null) && elapsedTime > postExplosionDelay - shakeTime)
+            {
+                shakeCoroutine = StartCoroutine(ShakeCrystalRoutine(shakeTime));
+            }
         }
         else
         {
@@ -59,11 +73,33 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
         }
         
     }
-    private void OnEnable()
+    private IEnumerator ShakeCrystalRoutine(float time)
     {
-        isShot = false;
-        isTouchFloor = false;
-        isExplosion = false;
+        float shakeTotalTime = 0;
+        float shakeOneSideTime = 0;
+        int shakeDirection = 1;
+
+        Quaternion originRotation = transform.rotation;
+        Vector3 originEulerAngle = transform.rotation.eulerAngles;
+        Quaternion leftAngle = Quaternion.Euler(originEulerAngle.x, originEulerAngle.y, originEulerAngle.z - shakeAngle);
+        Quaternion rightAngle = Quaternion.Euler(originEulerAngle.x, originEulerAngle.y, originEulerAngle.z + shakeAngle);
+        while (true)
+        {
+            shakeTotalTime += Time.deltaTime;
+            shakeOneSideTime += Time.deltaTime / shakeOneSideDuration * shakeDirection;
+            transform.rotation = Quaternion.Lerp(leftAngle, rightAngle, shakeOneSideTime);
+            if (shakeTotalTime > time)
+            {
+                transform.rotation = originRotation;
+                break;
+            }
+            else if (shakeOneSideTime > 1 || shakeOneSideTime < 0)
+            {
+                shakeDirection *= -1;
+            }
+            yield return null;
+        }
+        shakeCoroutine = null;
     }
     private void CheckPlayer(RaycastHit2D hit)
     {
@@ -74,7 +110,7 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
         }
     }
 
-    public PatternCrystal SettingFirst(eActivableColor color, int cryDmg, int expDmg, float speed, float radius, float delay, float time)
+    public PatternCrystal SettingFirst(eActivableColor color, int cryDmg, int expDmg, float speed, float radius, float delay, float time, float shakeDuration)
     {
         crystalDamage = cryDmg;
         explosionDamage = expDmg;
@@ -83,6 +119,7 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
         postExplosionDelay = delay;
         explosionTime = time;
         patternColor = color;
+        shakeTime = shakeDuration;
         return this;
     }
 

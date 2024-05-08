@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 
 public class ThrowingPattern : BossPattern
@@ -13,6 +14,8 @@ public class ThrowingPattern : BossPattern
     private int initialCrystalNum = 3;
     [SerializeField]
     private float shotPostDelay = 0.5f;
+    [SerializeField]
+    private float crystalShakeDuration = 1f;
     [SerializeField]
     private float postExplosionDelay = 3;
     [SerializeField]
@@ -62,7 +65,7 @@ public class ThrowingPattern : BossPattern
             for (int i = 0; i < initialCrystalNum; i++)
             {
                 crystalObjects[i] = Instantiate(crystalPrefab, boss.transform).GetComponent<PatternCrystal>().SettingFirst(
-                    boss.GetBossStatus.bossColor, crystalDamage, explosionDamage, crystalSpeed, explosionRadius, postExplosionDelay, explosionTime);
+                    boss.GetBossStatus.bossColor, crystalDamage, explosionDamage, crystalSpeed, explosionRadius, postExplosionDelay, explosionTime, crystalShakeDuration);
                 crystalObjects[i].gameObject.SetActive(false);
             }
         }
@@ -92,13 +95,14 @@ public class ThrowingPattern : BossPattern
     {
         elapsedTime += Time.deltaTime;
 
+        ShotBehaviour(boss.transform.position);
+    } 
+
+    protected void ShotBehaviour(Vector3 initialPos)
+    {
         if (isShotPostBehaviour)
         {
-            for (int i = 0; i < crystalObjects.Length; i++)
-            {
-                crystalObjects[i].gameObject.SetActive(true);
-                crystalObjects[i].transform.position = Vector2.Lerp(boss.transform.position, postCrystalPositions[i], elapsedTime);
-            }
+            PostShotBehaviour(initialPos);
 
             if (elapsedTime > 1)
             {
@@ -116,13 +120,22 @@ public class ThrowingPattern : BossPattern
         else if (!alreadyShot && elapsedTime > shotPostDelay)
         {
             alreadyShot = true;
-            for(int i = 0; i < crystalObjects.Length; i++)
+            for (int i = 0; i < crystalObjects.Length; i++)
             {
                 crystalObjects[i].Shot(crystalDirections[i]);
             }
             CoroutineHandler.StartCoroutine(CrystalAfterShotRoutine());
         }
-    } 
+    }
+
+    protected virtual void PostShotBehaviour(Vector3 initialPos)
+    {
+        for (int i = 0; i < crystalObjects.Length; i++)
+        {
+            crystalObjects[i].gameObject.SetActive(true);
+            crystalObjects[i].transform.position = Vector2.Lerp(initialPos, postCrystalPositions[i], elapsedTime);
+        }
+    }
 
     private IEnumerator CrystalAfterShotRoutine()
     {
@@ -134,8 +147,12 @@ public class ThrowingPattern : BossPattern
             }
             yield return null;
         }
-        PatternEnd();
+        AfterShotBehaviour();
     } 
+    protected virtual void AfterShotBehaviour()
+    {
+        PatternEnd();
+    }
 
     public override bool CanParryAttack()
     {
