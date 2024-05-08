@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 5343168290942022328}
   - component: {fileID: 3140445288258194617}
   - component: {fileID: 3210702747081030968}
-  - component: {fileID: 350498249688207563}
+  - component: {fileID: 8596171140171147234}
   m_Layer: 0
-  m_Name: SpiderAttack  1
+  m_Name: AntRangeAttack 1
   m_TagString: Attack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -181,7 +181,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &350498249688207563
+--- !u!114 &8596171140171147234
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -190,11 +190,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2195216575799600643}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9e3bdbecdccca74b821e4f5236f7b27, type: 3}
+  m_Script: {fileID: 11500000, guid: a5754f05c8272b54c835e5eba8e1526c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveDirection: {x: 0, y: 0}
-  damage: 1
-  isHeavyAttack: 1
-  stat: {fileID: 11400000, guid: 5c73b307a2101324e9bc3da0a6f9267e, type: 2}
-  flyAntMonster: {fileID: 6030824525999747806, guid: 214aa073035419644bef68168e6fa07f, type: 3}
+  isAnt: 1

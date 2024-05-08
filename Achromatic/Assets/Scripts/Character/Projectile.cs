@@ -64,9 +64,6 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
         transform.rotation = Quaternion.Euler(1, 1, spitDir);
         rigid.AddForce(moveDirection * moveSpeed);
         gameObject.SetActive(true);
-
-
-        isHeavyAttack = (PlayManager.Instance.ContainsActivationColors(enemyColor)) ? false : true;
     }
 
     public void Parried(GameObject shotFrom, Vector2 dir, int dmg)

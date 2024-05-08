@@ -6,14 +6,14 @@ public class AntMonsterStat : MonsterStat
     public int cuttingAttackDamage = 1;
     [Tooltip("베기 공격 이후 이동거리")]
     public float cuttingAttackRebound = 100.0f;
+    [Tooltip("베기 공격 판정 지속 시간")]
+    public float cuttingAttackTime = 0.1f;
     [Tooltip("검기 공격 데미지")]
     public int swordAttackDamage = 1;
     [Tooltip("검기 속도")]
     public float swordAttackSpeed = 2.0f;
     [Tooltip("검기 거리")]
     public float swordAttackRange = 2.0f;
-    [Tooltip("검기 반동")]
-    public float swordAttackRebound = 2.0f;
     [Tooltip("찌르기 공격 데미지(상하단)")]
     public int stabAttackDamage = 1;
     [Tooltip("마지막 찌르기 공격 데미지")]

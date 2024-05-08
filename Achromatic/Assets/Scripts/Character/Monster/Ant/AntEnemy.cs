@@ -23,6 +23,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private AntMonsterStat stat;
     [SerializeField]
     private GameObject[] stabAttackOBJ;
+    [SerializeField]
+    private GameObject swordAttackObject;
 
     private LayerMask originLayer;
     private LayerMask colorVisibleLayer;
@@ -38,17 +40,18 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private TextAsset animationJson;
     public enum EanimState
     {
+        detection,
         Idle,
         Walk,
         Stab,
         Sword,
         Counter,
-        Detection,
+        CounterAttack,
         Dead
     }
     private EanimState animState;
 
-    public Vector2 startSpiderPosition;
+    public Vector2 startAntPosition;
 
     public Vector3 gizmoLeftPos;
 
@@ -86,7 +89,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         monsterRunRightPosition.x += transform.position.x - runPosition;
         currentHP = stat.MonsterHP;
         monsterPosition = monsterRunRightPosition;
-        startSpiderPosition = new Vector2(gizmoLeftPos.x - runPosition, transform.position.y);
+        startAntPosition = new Vector2(transform.position.x, transform.position.y);
 
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
@@ -104,7 +107,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private void Update()
     {
-        CheckPlayer(startSpiderPosition);
+        CheckPlayer(startAntPosition);
         if (canAttack && IsStateActive(EMonsterState.isBattle))
         {
             Attack();
@@ -116,6 +119,9 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         float timeScale = 1;
         switch (_state)
         {
+            case EanimState.detection:
+                AsyncAnimation(aniClip[(int)EanimState.detection], true, timeScale);
+                break;
             case EanimState.Idle:
                 AsyncAnimation(aniClip[(int)EanimState.Idle], true, timeScale);
                 break;
@@ -131,8 +137,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             case EanimState.Counter:
                 AsyncAnimation(aniClip[(int)EanimState.Counter], false, timeScale);
                 break;
-            case EanimState.Detection:
-                AsyncAnimation(aniClip[(int)EanimState.Detection], false, timeScale);
+            case EanimState.CounterAttack:
+                AsyncAnimation(aniClip[(int)EanimState.CounterAttack], false, timeScale);
                 break;
             case EanimState.Dead:
                 AsyncAnimation(aniClip[(int)EanimState.Dead], false, timeScale);
@@ -188,9 +194,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     {
         currentState |= EMonsterAttackState.IsAttack;
         canAttack = false;
-        float horizontalValue = attackAngle.x - transform.position.x;
-        float verticalValue = attackAngle.y - transform.position.y;
-        float ZAngle = (Mathf.Atan2(verticalValue, horizontalValue) * Mathf.Rad2Deg);
+        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
         Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         Vector2 check;
         if (value.x <= 0)
@@ -203,13 +207,11 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             transform.localScale = new Vector2(-1, 1);
             check = new Vector2(1f, 0);
         }
-        // TODO 공격 전조 애니메이션
-        yield return Yields.WaitSeconds(0.0f); // TODO 공격 실행 이전 대기 시간
+        animState = EanimState.detection;
+        SetCurrentAnimation(animState);
+        yield return Yields.WaitSeconds(1.3333f); 
 
-        // TODO 공격 패턴 구현
-
-        int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
-        Debug.Log(checkRandomAttackType);
+        int checkRandomAttackType = 25;//UnityEngine.Random.Range(1, 100);
         if (checkRandomAttackType <= stat.swordAttackPercent)
         {
             StartCoroutine(SwordAttack(value, check, ZAngle));
@@ -217,8 +219,9 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         }
         else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.swordAttackPercent >= checkRandomAttackType)
         {
-            StartCoroutine(StabAttack(check));
-            Debug.Log("창 공격");
+            animState = EanimState.Stab;
+            SetCurrentAnimation(animState);
+            StartCoroutine(StabAttack(value.x));
         }
         else
         {
@@ -228,9 +231,9 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
         yield return Yields.WaitSeconds(stat.attackTime);
         currentState &= ~EMonsterAttackState.IsAttack;
-        meleeAttack?.AttackDisable();
         yield return Yields.WaitSeconds(stat.attackCooldown);
         canAttack = true;
+        Debug.Log("공격 한 번 끝");
     }
 
     private IEnumerator SwordAttack(Vector2 dir, Vector2 check, float ZAngle)
@@ -241,10 +244,13 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         }
         animState = EanimState.Sword;
         SetCurrentAnimation(animState);
-        attackPoint.transform.rotation = Quaternion.Euler(0, 0, ZAngle);
-        meleeAttack?.AttackEnable(-dir, stat.attackDamage, stat.attackDamage);
-        rigid.AddForce(check * stat.swordAttackRebound, ForceMode2D.Impulse);
-        yield return Yields.WaitSeconds(0.0f); // FIX 근접 공격 애니메이션 JSON 파싱
+        yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_slash/ground_ant_battle_slash"]["events"][0]["time"]);
+        rigid.AddForce(check * stat.cuttingAttackRebound, ForceMode2D.Impulse);
+        yield return Yields.WaitSeconds(stat.cuttingAttackTime);
+        swordAttackObject.SetActive(true);
+        yield return Yields.WaitSeconds(stat.cuttingAttackTime);
+        swordAttackObject.SetActive(false);
+
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(1);
         if (projectileObj != null)
         {
@@ -253,18 +259,17 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
-                projectile.Shot(gameObject, attackTransform.transform.position, dir.normalized,
-                    stat.swordAttackRange, stat.swordAttackSpeed, stat.swordAttackDamage, isHeavy, ZAngle, eActivableColor.RED);
-                projectileObj.transform.position = transform.position;
+                projectile.Shot(attackTransform, attackTransform.transform.position, PlayerPos.normalized,
+                    stat.swordAttackRange, stat.swordAttackSpeed, stat.swordAttackDamage, isHeavy, ZAngle+30, eActivableColor.RED);
+                projectileObj.transform.position = attackTransform.transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
                 projectile.ReturnStartRoutine(stat.swordAttackRange);
             }
         }
-        Debug.Log(dir);
     }
 
-    private IEnumerator StabAttack(Vector2 check)
+    private IEnumerator StabAttack(float check)
     {
         if (IsStateActive(EMonsterState.isWait))
         {
@@ -275,15 +280,14 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         float delayToDestory = 0.05f;
         int objectCount = stabAttackOBJ.Length / 2;
 
+        int satbValue = 3;
+        objectCount += satbValue;
         while (currentState.HasFlag(EMonsterAttackState.isStabAttack))
         {
             currentState &= ~EMonsterAttackState.isStabAttack;
-            int satbValue = (check.x > 0) ? satbValue = 3 : satbValue = 0;
-            Debug.Log(satbValue);
-            objectCount += satbValue;
             for (int i = satbValue; i < objectCount; i += 1)
             {
-                if (i % 3 == 0)
+                if (i == 2 || i == 5)
                 {
                     StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, true));
                     yield return new WaitForSeconds(delayToAttack);
@@ -308,14 +312,12 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 if (!lastAttack)
                 {
-                    Debug.Log("1,2타 제대로 들어옴");
-                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle__stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full_2"]["events"][0]["time"]);
+                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][0]["time"]);
                     objects[i].SetActive(isSet);
                 }
                 else
                 {
-                    Debug.Log("막타도 제대로 들어옴");
-                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle__stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full_2"]["events"][4]["time"] - (float)jsonObject["animations"]["ground_ant/ground_ant_battle__stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full_2"]["events"][0]["time"]);
+                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][4]["time"] - (float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][1]["time"]);
                     objects[i].SetActive(isSet);
                 }
             }
@@ -323,6 +325,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private IEnumerator CounterAttackStart()
     {
+        animState = EanimState.Counter;
+        SetCurrentAnimation(animState);
         currentState |= EMonsterAttackState.isCounter;
         yield return Yields.WaitSeconds(stat.counterAttackTime);
         currentState &= ~EMonsterAttackState.isCounter;
@@ -356,8 +360,15 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetState(EMonsterState.isBattle, false);
         SetState(EMonsterState.isWait, false);
         SetState(EMonsterState.isPlayerBetween, false);
-        isDead = false;
+
+        skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
+        skeletonAnimation.state.GetCurrent(0).TimeScale = 1;
+        skeletonAnimation.loop = false;
         StopCoroutine(AttackSequence(PlayerPos));
+        ///<summary> 현재 실행중인 애니메이션 강제 종료, 따로 함수가 없음. ///</summary>
+        animState = EanimState.Dead;
+        SetCurrentAnimation(animState);
+
         yield return new WaitForSeconds(deadDelayTime);
         gameObject.SetActive(false);
     }
@@ -375,7 +386,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 break;
             case EMonsterState.isWait:
                 fsm.ChangeState("Idle");
-                animState = EanimState.Walk;
+                animState = EanimState.Idle;
                 SetCurrentAnimation(animState);
                 break;
             default:
@@ -386,6 +397,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     {
         if (currentState.HasFlag(EMonsterAttackState.isCounter))
         {
+            animState = EanimState.CounterAttack;
+            SetCurrentAnimation(animState);
             CounterAttackPlay(new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y), Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
             currentState &= ~EMonsterAttackState.IsAttack;
         }
@@ -410,11 +423,26 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
             collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
-                    transform.position - collision.transform.position, this);
+                    transform.position - collision.transform.position, null);
         }
     }
     public bool CanParryAttack()
     {
         return PlayManager.Instance.ContainsActivationColors(stat.enemyColor);
+    }
+    private void OnDrawGizmos()
+    {
+        if (null != stat)
+        {
+            if (stat.senseCircle >= distanceToStartPos)
+            {
+                Gizmos.color = Color.red;
+            }
+            else
+            {
+                Gizmos.color = Color.green;
+            }
+            Gizmos.DrawWireSphere(transform.position + transform.forward, stat.senseCircle);
+        }
     }
 }

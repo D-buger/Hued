@@ -68,8 +68,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     [SerializeField]
     private GameObject attackTransform;
 
-    public Vector3 gizmoLeftPos;
-
     public Vector2 startSpiderPosition;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
     private LayerMask originLayer;
@@ -89,20 +87,19 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     private void Start()
     {
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
-        gizmoLeftPos = new Vector3(transform.position.x + runPosition, transform.position.y);
 
         monsterRunleftPosition.y = transform.position.y;
         monsterRunRightPosition.y = transform.position.y;
         monsterRunleftPosition.x += transform.position.x + runPosition;
         monsterRunRightPosition.x += transform.position.x - runPosition;
-        startSpiderPosition = new Vector2(gizmoLeftPos.x - runPosition, transform.position.y);
+        startSpiderPosition = new Vector2(transform.position.x, transform.position.y);
         currentHP = stat.MonsterHP;
         monsterPosition = monsterRunRightPosition;
 
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
-        MonsterManager.Instance?.GetColorEvent.AddListener(CheckIsHeavy);
 
+        MonsterManager.Instance?.GetColorEvent.AddListener(CheckIsHeavy);
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();
         angleThreshold += transform.position.y;
@@ -484,6 +481,11 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
                     transform.position - collision.transform.position, this);
         }
     }
+
+    public bool CanParryAttack()
+    {
+        return PlayManager.Instance.ContainsActivationColors(stat.enemyColor);
+    }
     private void OnDrawGizmos()
     {
         if (null != stat)
@@ -500,10 +502,5 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.meleeAttackRange);
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.rangedAttackRange);
         }
-    }
-
-    public bool CanParryAttack()
-    {
-        return PlayManager.Instance.ContainsActivationColors(stat.enemyColor);
     }
 }

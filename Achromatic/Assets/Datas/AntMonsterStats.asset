@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: AntMonsterStats
   m_EditorClassIdentifier: 
   monsterHP: 5
-  enemyColor: 0
+  enemyColor: 1
   senseCircle: 5
   moveSpeed: 1
+  runSpeed: 2
   attackDamage: 1
   attackTime: 2
   attackCooldown: 2
@@ -25,11 +26,11 @@ MonoBehaviour:
   groggyTime: 0.5
   timeToWait: 1
   cuttingAttackDamage: 1
-  cuttingAttackRebound: 100
+  cuttingAttackRebound: 15
+  cuttingAttackTime: 0.2
   swordAttackDamage: 1
-  swordAttackSpeed: 2
+  swordAttackSpeed: 200
   swordAttackRange: 2
-  swordAttackRebound: 2
   stabAttackDamage: 1
   lastStabAttackDamage: 2
   stabAttackSpeed: 2

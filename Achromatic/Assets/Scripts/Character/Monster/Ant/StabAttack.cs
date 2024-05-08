@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StabAttack : MonoBehaviour
+public class StabAttack : MonoBehaviour, IParryConditionCheck
 {
     private Collider2D col;
     [SerializeField]
@@ -14,7 +14,7 @@ public class StabAttack : MonoBehaviour
     {
         col = GetComponent<Collider2D>();
     }
-    private void OnCollisionStay2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
@@ -28,7 +28,7 @@ public class StabAttack : MonoBehaviour
                 if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
                 {
                     collision.gameObject.GetComponent<Player>().Hit(stat.lastStabAttackDamage,
-                    stat.lastStabAttackDamage, transform.position - collision.transform.position, null);
+                    stat.lastStabAttackDamage, transform.position - collision.transform.position, this);
                 }
                 else
                 {
@@ -36,7 +36,12 @@ public class StabAttack : MonoBehaviour
                     stat.lastStabAttackDamage, transform.position - collision.transform.position, null);
                 }
             }
+            gameObject.SetActive(false);
         }
+    }
 
+    public bool CanParryAttack()
+    {
+        return PlayManager.Instance.ContainsActivationColors(stat.enemyColor);
     }
 }

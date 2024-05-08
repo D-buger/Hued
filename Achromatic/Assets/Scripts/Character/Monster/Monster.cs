@@ -129,7 +129,7 @@ public abstract class Monster : MonoBehaviour, IAttack
             }
             else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
             {
-                transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
+                transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.runSpeed * Time.deltaTime);
             }
         }
         else

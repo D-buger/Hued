@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1219698025646360852}
   - component: {fileID: 8535450533483320954}
-  - component: {fileID: 8016990372567485329}
   - component: {fileID: 5343168290942022328}
   - component: {fileID: 3140445288258194617}
   - component: {fileID: 3210702747081030968}
+  - component: {fileID: 350498249688207563}
   m_Layer: 0
-  m_Name: 'SpiderAttack '
+  m_Name: FlyAntRangeAttack
   m_TagString: Attack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -88,18 +88,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8016990372567485329
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2195216575799600643}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a5754f05c8272b54c835e5eba8e1526c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!95 &5343168290942022328
 Animator:
   serializedVersion: 5
@@ -153,7 +141,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.0071388185, y: -0.09189069}
+  m_Offset: {x: -0.07868236, y: -0.09189069}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -164,7 +152,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.2687247, y: 0.9778683}
+  m_Size: {x: 1.8572136, y: 0.9778683}
   m_EdgeRadius: 0
 --- !u!50 &3210702747081030968
 Rigidbody2D:
@@ -193,3 +181,17 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &350498249688207563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2195216575799600643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9e3bdbecdccca74b821e4f5236f7b27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stat: {fileID: 11400000, guid: 5c73b307a2101324e9bc3da0a6f9267e, type: 2}
+  flyAntMonster: {fileID: 6030824525999747806, guid: 214aa073035419644bef68168e6fa07f, type: 3}

@@ -1908,6 +1908,7 @@ Transform:
   - {fileID: 2122081326}
   - {fileID: 227189977}
   - {fileID: 1467344551}
+  - {fileID: 1746937858}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &391804069
@@ -21940,6 +21941,11 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!4 &1746937858 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+  m_PrefabInstance: {fileID: 2143661571}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1747473043
 GameObject:
   m_ObjectHideFlags: 0
@@ -22714,6 +22720,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6012641958603062874, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: projectilePrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 2195216575799600643, guid: 6f378acdddf047043ac74fdd7c6952ea, type: 3}
+    - target: {fileID: 6012641958603062874, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: projectilePrefabs.Array.data[1]
+      value: 
+      objectReference: {fileID: 2195216575799600643, guid: 6f378acdddf047043ac74fdd7c6952ea, type: 3}
+    - target: {fileID: 6102530087147002526, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.88
+      objectReference: {fileID: 0}
+    - target: {fileID: 6102530087147002526, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.52
+      objectReference: {fileID: 0}
     - target: {fileID: 7110524173633863084, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_Name
       value: AntMonster 1
@@ -22722,7 +22744,8 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5467159008721956725, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -28634,6 +28657,71 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1001 &2143661571
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 391804068}
+    m_Modifications:
+    - target: {fileID: 373732617570613022, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_Name
+      value: SpiderMonster
+      objectReference: {fileID: 0}
+    - target: {fileID: 373732617570613022, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1892546858982982662, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 3.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
 --- !u!1 &2144976582
 GameObject:
   m_ObjectHideFlags: 0

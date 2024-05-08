@@ -23,6 +23,7 @@ public class MonsterStat : ScriptableObject
     public float senseCircle = 5f;
 
     public float moveSpeed = 1f;
+    public float runSpeed = 2f;
 
     public int attackDamage = 1;
     public float attackTime = 0.3f;
