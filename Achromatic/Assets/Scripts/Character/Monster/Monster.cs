@@ -17,7 +17,8 @@ public abstract class Monster : MonoBehaviour, IAttack
 
     public float runPosition;
 
-    private float elapsedTime = 0;
+    [HideInInspector]
+    public float elapsedTime = 0;
     private float arrivalThreshold = 1f;
     [HideInInspector]
     public float distanceToStartPos = 0;

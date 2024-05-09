@@ -49,7 +49,13 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         Sword,
         Counter,
         CounterAttack,
-        Dead
+        Dead,
+        Break,
+        Filp,
+        Over,
+        Off,
+        Trigger,
+        EnemyDisco
     }
     private EanimState animState;
 
@@ -67,7 +73,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         None = 0,
         IsAttack = 1 << 0,
         isStabAttack = 1 << 1,
-        isCounter = 1 << 2
+        isCounter = 1 << 2,
+        isCounterAttack = 1 << 3
     }
     private EMonsterAttackState currentState = EMonsterAttackState.None;
 
@@ -145,6 +152,24 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             case EanimState.Dead:
                 AsyncAnimation(aniClip[(int)EanimState.Dead], false, timeScale);
                 break;
+            case EanimState.Break:
+                AsyncAnimation(aniClip[(int)EanimState.Break], false, timeScale);
+                break;
+            case EanimState.Filp:
+                AsyncAnimation(aniClip[(int)EanimState.Filp], false, timeScale);
+                break;
+            case EanimState.Over:
+                AsyncAnimation(aniClip[(int)EanimState.Over], false, timeScale);
+                break;
+            case EanimState.Off:
+                AsyncAnimation(aniClip[(int)EanimState.Off], false, timeScale);
+                break;
+            case EanimState.Trigger:
+                AsyncAnimation(aniClip[(int)EanimState.Trigger], false, timeScale);
+                break;
+            case EanimState.EnemyDisco:
+                AsyncAnimation(aniClip[(int)EanimState.EnemyDisco], false, timeScale);
+                break;
         }
     }
     private void CheckIsHeavy(eActivableColor color)
@@ -179,6 +204,38 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         skeletonAnimation.timeScale = timeScale;
         currentAnimation = animClip.name;
     }
+
+    public override void CheckPlayer(Vector2 startMonsterPos)
+    {
+        distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
+        distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
+        if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        {
+            SetState(EMonsterState.isPlayerBetween, true);
+            SetState(EMonsterState.isWait, false);
+            //Time조정
+            elapsedTime = 0f;
+            CheckStateChange();
+        }
+        else
+        {
+            CheckWaitTime();
+        }
+    }
+    public override void CheckWaitTime()
+    {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= baseStat.timeToWait && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        {
+            elapsedTime = 0f;
+            SetState(EMonsterState.isWait, true);
+            SetState(EMonsterState.isPlayerBetween, false);
+            SetState(EMonsterState.isBattle, false);
+            animState = EanimState.Over;
+            SetCurrentAnimation(animState);
+            CheckStateChange();
+        }
+    }
     public override void Attack()
     {
         if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle)
@@ -203,15 +260,19 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             transform.localScale = new Vector2(1, 1);
             check = new Vector2(-1f, 0);
+            animState = EanimState.Filp;
+            SetCurrentAnimation(animState);
         }
         else
         {
             transform.localScale = new Vector2(-1, 1);
             check = new Vector2(1f, 0);
+            animState = EanimState.Filp;
+            SetCurrentAnimation(animState);
         }
         animState = EanimState.detection;
         SetCurrentAnimation(animState);
-        yield return Yields.WaitSeconds(1.3333f); 
+        yield return Yields.WaitSeconds(1.3333f);
 
         int checkRandomAttackType = 77;//UnityEngine.Random.Range(1, 100);
         if (checkRandomAttackType <= stat.swordAttackPercent)
@@ -261,7 +322,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             if (projectile != null)
             {
                 projectile.Shot(attackTransform, attackTransform.transform.position, PlayerPos.normalized,
-                    stat.swordAttackRange, stat.swordAttackSpeed, stat.swordAttackDamage, isHeavy, ZAngle+30, eActivableColor.RED);
+                    stat.swordAttackRange, stat.swordAttackSpeed, stat.swordAttackDamage, isHeavy, ZAngle + 30, eActivableColor.RED);
                 projectileObj.transform.position = attackTransform.transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
@@ -330,15 +391,24 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
         currentState |= EMonsterAttackState.isCounter;
         yield return Yields.WaitSeconds(stat.counterAttackTime);
-        currentState &= ~EMonsterAttackState.isCounter;
-        Debug.Log("카운터 어택 엔드");
+        if (currentState.HasFlag(EMonsterAttackState.isCounterAttack))
+        {
+            animState = EanimState.Off;
+            SetCurrentAnimation(animState);
+            currentState &= ~EMonsterAttackState.isCounter;
+        }
     }
     private IEnumerator CounterAttackPlay(Vector2 dir, float ZAngle)
     {
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_parrying/ground_ant_battle_parrying"]["events"][0]["time"]);
+        animState = EanimState.CounterAttack;
+        SetCurrentAnimation(animState);
+        currentState |= EMonsterAttackState.isCounterAttack;
         CounterAttackObject.SetActive(true);
         yield return Yields.WaitSeconds(0.1f);
         CounterAttackObject.SetActive(false);
+        currentState &= ~EMonsterAttackState.isCounterAttack;
+        currentState &= ~EMonsterAttackState.isCounter;
     }
     public override void Dead()
     {
@@ -387,7 +457,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     {
         if (currentState.HasFlag(EMonsterAttackState.isCounter))
         {
-            animState = EanimState.CounterAttack;
+            animState = EanimState.Trigger;
             SetCurrentAnimation(animState);
             CounterAttackPlay(new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y), Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
             currentState &= ~EMonsterAttackState.IsAttack;
