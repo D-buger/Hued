@@ -2,8 +2,7 @@ using UnityEngine;
 
 public abstract class Monster : MonoBehaviour, IAttack
 {
-    [SerializeField]
-    private MonsterStat baseStat;
+    public MonsterStat baseStat;
     public int currentHP;
 
     [HideInInspector]

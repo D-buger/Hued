@@ -25,6 +25,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private GameObject[] stabAttackOBJ;
     [SerializeField]
     private GameObject swordAttackObject;
+    [SerializeField]
+    private GameObject CounterAttackObject;
 
     private LayerMask originLayer;
     private LayerMask colorVisibleLayer;
@@ -211,11 +213,10 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(1.3333f); 
 
-        int checkRandomAttackType = 25;//UnityEngine.Random.Range(1, 100);
+        int checkRandomAttackType = 77;//UnityEngine.Random.Range(1, 100);
         if (checkRandomAttackType <= stat.swordAttackPercent)
         {
             StartCoroutine(SwordAttack(value, check, ZAngle));
-            Debug.Log("스워드 공격");
         }
         else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.swordAttackPercent >= checkRandomAttackType)
         {
@@ -330,25 +331,14 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         currentState |= EMonsterAttackState.isCounter;
         yield return Yields.WaitSeconds(stat.counterAttackTime);
         currentState &= ~EMonsterAttackState.isCounter;
+        Debug.Log("카운터 어택 엔드");
     }
-    private void CounterAttackPlay(Vector2 dir, float ZAngle)
+    private IEnumerator CounterAttackPlay(Vector2 dir, float ZAngle)
     {
-        GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
-        if (projectileObj != null)
-        {
-            projectileObj.SetActive(true);
-
-            Projectile projectile = projectileObj.GetComponent<Projectile>();
-            if (projectile != null)
-            {
-                projectile.Shot(gameObject, attackTransform.transform.position, new Vector2(dir.x, dir.y).normalized,
-                    stat.counterAttackRange, stat.counterAttackSpeed, stat.counterAttackDamage, isHeavy, ZAngle, eActivableColor.RED);
-                projectileObj.transform.position = transform.position;
-
-                PlayManager.Instance.UpdateColorthing();
-                projectile.ReturnStartRoutine(stat.counterAttackRange);
-            }
-        }
+        yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_parrying/ground_ant_battle_parrying"]["events"][0]["time"]);
+        CounterAttackObject.SetActive(true);
+        yield return Yields.WaitSeconds(0.1f);
+        CounterAttackObject.SetActive(false);
     }
     public override void Dead()
     {

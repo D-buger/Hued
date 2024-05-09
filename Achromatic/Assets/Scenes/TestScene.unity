@@ -22740,6 +22740,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: AntMonster 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7110524173633863084, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7554739694838036562, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_Mesh
       value: 
