@@ -5,43 +5,45 @@ using UnityEngine;
 public class ThrowingPattern : BossPattern
 {
     [SerializeField]
-    private GameObject crystalPrefab;
+    protected GameObject crystalPrefab;
     [SerializeField]
-    private Rect initializeCrystalArea;
+    protected Rect initializeCrystalArea;
     [SerializeField]
-    private float crystalSpeed = 10f;
+    protected float crystalSpeed = 10f;
     [SerializeField]
-    private int initialCrystalNum = 3;
+    protected int initialCrystalNum = 3;
     [SerializeField]
-    private float shotPostDelay = 0.5f;
+    protected float shotPostDelay = 0.5f;
     [SerializeField]
-    private float crystalShakeDuration = 1f;
+    protected float crystalShakeDuration = 1f;
     [SerializeField]
-    private float postExplosionDelay = 3;
+    protected float postExplosionDelay = 3;
     [SerializeField]
-    private float explosionRadius = 0.5f;
+    protected float explosionRadius = 0.5f;
     [SerializeField]
-    private float explosionTime = 1f;
+    protected float explosionTime = 1f;
     [SerializeField]
-    private int crystalDamage = 5;
+    protected int crystalDamage = 5;
     [SerializeField]
-    private int explosionDamage = 5;
+    protected int explosionDamage = 5;
     [SerializeField]
-    private float directionMinAngle = 0;
+    protected float directionMinAngle = 0;
     [SerializeField]
-    private float directionMaxAngle = 90;
+    protected float directionMaxAngle = 90;
 
-    private Vector2 originBossPosition;
+    protected Coroutine patternEndCheckCoroutine;
+
+    protected Vector2 originBossPosition;
     private Vector2[] postCrystalPositions;
     private Vector2[] crystalDirections;
-    private PatternCrystal[] crystalObjects;
+    protected PatternCrystal[] crystalObjects;
     private float[] crystalAngles;
 
-    private float elapsedTime;
-    private int disabledCrystalNum;
+    protected int disabledCrystalNum;
+    protected float elapsedTime;
 
-    private bool isShotPostBehaviour;
-    private bool alreadyShot;
+    protected bool isShotPostBehaviour;
+    protected bool alreadyShot;
     public override void OnStart()
     {
         originBossPosition = boss.transform.position;
@@ -50,7 +52,7 @@ public class ThrowingPattern : BossPattern
         crystalAngles = new float[initialCrystalNum];
         crystalObjects = new PatternCrystal[initialCrystalNum];
 
-        if (boss.transform.childCount > 0)
+        if (boss.transform.childCount >= initialCrystalNum)
         {
             for (int i = 0; i < initialCrystalNum; i++)
             {
@@ -95,14 +97,21 @@ public class ThrowingPattern : BossPattern
     {
         elapsedTime += Time.deltaTime;
 
-        ShotBehaviour(boss.transform.position);
+        ShotSequence(crystalObjects, crystalObjects.Length);
     } 
 
-    protected void ShotBehaviour(Vector3 initialPos)
+    protected void ShotSequence(PatternCrystal[] crystals, int totalCrystalNum, Vector2[] initialPos = null)
     {
         if (isShotPostBehaviour)
         {
-            PostShotBehaviour(initialPos);
+            if(ReferenceEquals(initialPos, null))
+            {
+                PostShotBehaviour(boss.transform.position, crystals);
+            }
+            else
+            {
+                PostShotBehaviour(initialPos, crystals);
+            }
 
             if (elapsedTime > 1)
             {
@@ -112,41 +121,58 @@ public class ThrowingPattern : BossPattern
         }
         else if (!alreadyShot && elapsedTime <= shotPostDelay)
         {
-            for (int i = 0; i < crystalObjects.Length; i++)
+            for (int i = 0; i < crystals.Length; i++)
             {
-                crystalObjects[i].transform.rotation = Quaternion.Lerp(crystalObjects[i].transform.rotation, Quaternion.Euler(0, 0, -crystalAngles[i] - 90), elapsedTime / shotPostDelay);
+                crystals[i].transform.rotation = Quaternion.Lerp(crystalObjects[i].transform.rotation, Quaternion.Euler(0, 0, -crystalAngles[i] - 90), elapsedTime / shotPostDelay);
             }
         }
         else if (!alreadyShot && elapsedTime > shotPostDelay)
         {
             alreadyShot = true;
-            for (int i = 0; i < crystalObjects.Length; i++)
+            ShotBehaviour(crystals);
+            if (ReferenceEquals(patternEndCheckCoroutine, null))
             {
-                crystalObjects[i].Shot(crystalDirections[i]);
+                patternEndCheckCoroutine = CoroutineHandler.StartCoroutine(CrystalAfterShotRoutine(totalCrystalNum));
             }
-            CoroutineHandler.StartCoroutine(CrystalAfterShotRoutine());
         }
     }
 
-    protected virtual void PostShotBehaviour(Vector3 initialPos)
+    protected virtual void PostShotBehaviour(Vector2 initialPos, PatternCrystal[] crystals)
     {
-        for (int i = 0; i < crystalObjects.Length; i++)
+        for (int i = 0; i < crystals.Length; i++)
         {
-            crystalObjects[i].gameObject.SetActive(true);
-            crystalObjects[i].transform.position = Vector2.Lerp(initialPos, postCrystalPositions[i], elapsedTime);
+            crystals[i].gameObject.SetActive(true);
+            crystals[i].transform.position = Vector2.Lerp(initialPos, postCrystalPositions[i], elapsedTime);
+        }
+    }
+    protected virtual void PostShotBehaviour(Vector2[] initialPos, PatternCrystal[] crystals)
+    {
+        for (int i = 0; i < crystals.Length; i++)
+        {
+            crystals[i].gameObject.SetActive(true);
+            crystals[i].transform.position = Vector2.Lerp(initialPos[i], postCrystalPositions[i], elapsedTime);
         }
     }
 
-    private IEnumerator CrystalAfterShotRoutine()
+    protected virtual void ShotBehaviour(PatternCrystal[] crystals)
+    {
+        for (int i = 0; i < crystals.Length; i++)
+        {
+            crystals[i].Shot(crystalDirections[i]);
+        }
+    }
+
+    private IEnumerator CrystalAfterShotRoutine(int totalNum)
     {
         while (true)
         {
-            if(disabledCrystalNum >= initialCrystalNum)
+            if(disabledCrystalNum >= totalNum)
             {
                 break;
             }
             yield return null;
         }
+        patternEndCheckCoroutine = null;
         AfterShotBehaviour();
     } 
     protected virtual void AfterShotBehaviour()

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternDelayTime: 0.7
   startPhasePatterns:
-  - {fileID: 1096068775637737459, guid: e18299408e596784b8d91ddf4b0fcb8f, type: 3}
+  - {fileID: 2175761709189810739, guid: 2733e735c4854b04b97477c66b888dce, type: 3}
   phaseChangePattern: {fileID: 0}
   endPhasePatterns: []
   maxHp: 10
