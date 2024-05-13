@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Spine.Unity;
 using System;
@@ -285,7 +286,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             SetState(EMonsterState.isPlayerBetween, true);
             SetState(EMonsterState.isWait, false);
         }
-        else if (canAttack && !currentState.HasFlag(EMonsterAttackState.IsAttack))
+        else if (canAttack && !currentState.HasFlag(EMonsterAttackState.IsAttack)&&!isDead)
         {
             StartCoroutine(AttackSequence(PlayerPos));
         }
@@ -316,27 +317,33 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         animState = EanimState.detection;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(1.3333f);
-
-        int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
-        if (checkRandomAttackType <= stat.swordAttackPercent)
+        if (isDead)
         {
-            StartCoroutine(SwordAttack(value, check, ZAngle));
-        }
-        else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.swordAttackPercent >= checkRandomAttackType)
-        {
-            animState = EanimState.Stab;
-            SetCurrentAnimation(animState);
-            StartCoroutine(StabAttack(value.x));
+            yield return null;
         }
         else
         {
-            StartCoroutine(CounterAttackStart());
-        }
+            int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
+            if (checkRandomAttackType <= stat.swordAttackPercent)
+            {
+                StartCoroutine(SwordAttack(value, check, ZAngle));
+            }
+            else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.swordAttackPercent >= checkRandomAttackType)
+            {
+                animState = EanimState.Stab;
+                SetCurrentAnimation(animState);
+                StartCoroutine(StabAttack(value.x));
+            }
+            else
+            {
+                StartCoroutine(CounterAttackStart());
+            }
 
-        yield return Yields.WaitSeconds(stat.attackTime);
-        currentState &= ~EMonsterAttackState.IsAttack;
-        yield return Yields.WaitSeconds(stat.attackCooldown);
-        canAttack = true;
+            yield return Yields.WaitSeconds(stat.attackTime);
+            currentState &= ~EMonsterAttackState.IsAttack;
+            yield return Yields.WaitSeconds(stat.attackCooldown);
+            canAttack = true;
+        }
     }
 
     private IEnumerator SwordAttack(Vector2 dir, Vector2 check, float ZAngle)
@@ -522,10 +529,13 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
+        if (!isDead)
         {
-            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
-                    transform.position - collision.transform.position, null);
+            if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
+            {
+                collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
+                        transform.position - collision.transform.position, null);
+            }
         }
     }
     public bool CanParryAttack()
