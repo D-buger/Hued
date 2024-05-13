@@ -25,6 +25,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     public LayerMask EnemyMask => LayerMask.GetMask(ENEMY_TAG) | LayerMask.GetMask("ColorEnemy");
     public LayerMask PlayerMask => LayerMask.GetMask(PLAYER_TAG);
+    public LayerMask PlatformMask => LayerMask.GetMask("Platform") | LayerMask.GetMask("Object") | LayerMask.GetMask("ColorObject");
 
     [SerializeField]
     private float filterInputCooldown = 1f;
