@@ -45,9 +45,8 @@ public class PlayerStatus : ScriptableObject
     public float attackCooldown = 0.3f;
     [Space(5)]
     public int attackDamage = 1;
-    public int criticalAttackDamage = 2;
-    public int colorAttackDamage = 3;
-    public int colorCriticalAttackDamage = 4;
+    public int colorAttackDamage = 2;
+    public int criticalAttackDamageMultiple = 2;
 
     [Space(10), Header("Hit")]
     public float hitReboundPower = 30;

@@ -8,12 +8,14 @@ public class PlayerHitState : PlayerBaseState
 
     private Color originalRendererColor;
     private Color hitChangeColor = Color.black;
-    public PlayerHitState(Player player) : base(player) { }
+    public PlayerHitState(Player player) : base(player)
+    {
+        originalRendererColor = player.RendererComp.color;
+    }
 
     public override void OnStateEnter()
     {
         //Debug.Log("Player State : Hit");
-        originalRendererColor = player.RendererComp.color;
     }
     public override void OnStateUpdate()
     {
@@ -41,23 +43,29 @@ public class PlayerHitState : PlayerBaseState
         player.RendererComp.color = hitChangeColor;
 
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera();
+        PlayManager.Instance.cameraManager.ShakeCamera(reboundTime);
         float elapsedTime = 0f;
         while (true)
         {
-            elapsedTime += Time.deltaTime;
-            player.RendererComp.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
-
-            yield return null;
-            if(elapsedTime > reboundTime)
+            if (ReferenceEquals(player.RendererComp, null) || elapsedTime > reboundTime)
             {
                 break;
+            }
+            else
+            {
+                elapsedTime += Time.deltaTime;
+                player.RendererComp.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
+
+                yield return null;
             }
         }
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);
-        player.ControlParticles(ePlayerState.HIT, false);
-        player.RendererComp.color = originalRendererColor;
+        if (!ReferenceEquals(player.RendererComp, null))
+        {
+            player.ControlParticles(ePlayerState.HIT, false);
+            player.RendererComp.color = originalRendererColor;
+        }
 
         player.CanChangeState = true;
         player.ChangeState(ePlayerState.IDLE);

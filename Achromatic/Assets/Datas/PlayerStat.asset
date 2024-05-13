@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 5
   currentHP: 5
-  playerHP: 5
+  playerHP: 10
   moveSpeed: 7
   jumpPower: 20
   jumpCooldown: 1.2
@@ -32,14 +32,12 @@ MonoBehaviour:
   parryProduceTimescale: 0.4
   invincibilityAfterParry: 0.2
   parryDashDistance: 1
-  attackReboundPower: 10
+  attackReboundPower: 5
   attackReboundTime: 0.05
   attackTime: 0.1
   attackCooldown: 0.3
   attackDamage: 1
-  criticalAttackDamage: 2
   colorAttackDamage: 3
-  colorCriticalAttackDamage: 4
   hitReboundPower: 10
   hitReboundTime: 0.5
   hitBehaviourLimitTime: 0.1

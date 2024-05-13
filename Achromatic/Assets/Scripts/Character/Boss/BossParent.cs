@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class BossParent : MonoBehaviour
+public abstract class BossParent : MonoBehaviour, IAttack
 {
     public Rigidbody2D RigidbodyComp { get; private set; }
     public Collider2D ColliderComp { get; private set; }
@@ -11,13 +11,33 @@ public abstract class BossParent : MonoBehaviour
     private BossStatus bossStatus;
     public BossStatus GetBossStatus => bossStatus;
 
+    protected int currentHp;
+    public virtual int CurrentHp
+    {
+        get
+        {
+            return currentHp;
+        }
+        set
+        {
+            currentHp = value;
+            if(currentHp <= bossStatus.maxHp * 0.5f && !isEndPhase)
+            {
+                intendedPattern = bossStatus.phaseChangePattern;
+            }
+        }
+    }
+
     protected BossPattern previousPattern = null;
     protected BossPattern currentPattern = null;
-    protected List<BossPattern> patternPool;
+    protected BossPattern intendedPattern = null;
+    protected List<BossPattern> startPhasePatternPool = new List<BossPattern>();
+    protected List<BossPattern> endPhasePatternPool = new List<BossPattern>();
 
     protected bool isPatternEnd = false;
     protected bool isPlayerInRoom = false;
     protected bool isChangePhase = false;
+    protected bool isEndPhase = false;
     protected bool isDead = false;
 
     private float patternDelayTimer = 0;
@@ -25,12 +45,29 @@ public abstract class BossParent : MonoBehaviour
     {
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<Collider2D>();
-        patternPool.AddRange(GetBossStatus.patterns);
+        for(int i = 0; i < GetBossStatus.startPhasePatterns.Length; i++)
+        {
+            startPhasePatternPool.Add(GetBossStatus.startPhasePatterns[i].SetBossPattern(this));
+        }
+        for (int i = 0; i < GetBossStatus.endPhasePatterns.Length; i++)
+        {
+            endPhasePatternPool.Add(GetBossStatus.endPhasePatterns[i].SetBossPattern(this));
+        }
+        currentHp = bossStatus.maxHp;
         OnAwake();
     }
 
     protected abstract void OnAwake();
     private void Update()
+    {
+        PatternActions();
+
+        OnUpdate();
+    }
+
+    protected abstract void OnUpdate();
+    #region pattern action
+    private void PatternActions()
     {
         patternDelayTimer += Time.deltaTime;
         if (isPatternEnd)
@@ -38,47 +75,69 @@ public abstract class BossParent : MonoBehaviour
             isPatternEnd = false;
             patternDelayTimer = 0;
         }
-
-        if (patternDelayTimer > GetBossStatus.patternDelayTime &&
-            ReferenceEquals(currentPattern, null))
+        if (ReferenceEquals(currentPattern, null))
         {
-            ChoosePattern();
+            if (!ReferenceEquals(intendedPattern, null))
+            {
+                currentPattern = intendedPattern.SetBossPattern(this);
+                intendedPattern = null;
+                currentPattern.OnStart();
+                isEndPhase = true;
+            }
+            else if (patternDelayTimer > GetBossStatus.patternDelayTime)
+            {
+                //ChoosePattern(isEndPhase ? startPhasePatternPool : endPhasePatternPool);
+                ChoosePattern(startPhasePatternPool);
+            }
         }
 
         if(!ReferenceEquals(currentPattern, null))
         {
-            currentPattern.Update();   
+            currentPattern.OnUpdate();   
         }
-
-        OnUpdate();
     }
-    protected abstract void OnUpdate();
 
-    private void ChoosePattern()
+    private void ChoosePattern(List<BossPattern> patternPool)
     {
-        if(!ReferenceEquals(currentPattern, null))
-        {
-            return;
-        }
+        currentPattern = patternPool.Count <= 0 ? previousPattern : patternPool[Random.Range(0, patternPool.Count)];
 
-        currentPattern = patternPool[Random.Range(0, patternPool.Count)];
+        if (!ReferenceEquals(previousPattern, null))
+        {
+            patternPool.Add(previousPattern);
+        }
         patternPool.Remove(currentPattern);
-        currentPattern.Start();
+        currentPattern.OnStart();
     }
 
     public void CurrentPatternEnd()
     {
         previousPattern = currentPattern;
         currentPattern = null;
-        patternPool.Add(previousPattern);
         isPatternEnd = true;
+    }
+
+    public virtual void OnChangePhaseBehaviour()
+    {
+
+    }
+
+    #endregion
+    public void OnPostAttack(Vector2 attackDir)
+    {
+
+    }
+
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    {
+        CurrentHp -= PlayManager.Instance.ContainsActivationColors(bossStatus.bossColor) ? colorDamage : damage;
     }
 
     private void OnDrawGizmos()
     {
         if(!ReferenceEquals(currentPattern, null))
         {
-            currentPattern.OnDrawGizmos();
+            currentPattern.DrawGizmos();
         }
     }
+
 }
