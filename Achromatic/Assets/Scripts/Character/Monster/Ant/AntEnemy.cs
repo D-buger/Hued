@@ -81,7 +81,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private bool isHeavy = false;
     private bool isFirstAnimCheckIdle = false;
-    private bool isFirstAnimCheckAttack = true;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     private void Awake()
@@ -296,7 +295,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     {
         currentState |= EMonsterAttackState.IsAttack;
         canAttack = false;
-        isFirstAnimCheckAttack = false;
         float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
         Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         Vector2 check;

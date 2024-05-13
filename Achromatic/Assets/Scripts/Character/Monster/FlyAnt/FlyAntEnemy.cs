@@ -42,13 +42,12 @@ public class FlyAntEnemy : Monster
         flyAntColorEvent?.Invoke(color);
     }
 
-    private void Start()
+    private void OnEnable()
     {
         attackDir = (PlayerPos - (Vector2)transform.position).normalized;
         startPos = new Vector2(transform.position.x, transform.position.y);
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
     }
-
     private void Update()
     {
         if (currentState.HasFlag(EMonsterAttackState.isBadyAttack))

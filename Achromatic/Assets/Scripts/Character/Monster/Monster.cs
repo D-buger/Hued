@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public abstract class Monster : MonoBehaviour, IAttack
+public abstract class Monster : MonoBehaviour, IAttack, ICheckMonster
 {
     public MonsterStat baseStat;
     public int currentHP;
@@ -38,6 +38,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     public EMonsterState state = EMonsterState.isWait;
     [HideInInspector]
     public bool canAttack = true;
+    public bool isRespawnMonster = true;
 
     public virtual IEnumerator CheckPlayer(Vector2 startMonsterPos)
     {
@@ -190,4 +191,6 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
 
     }
+
+    public abstract void Respawn(GameObject monsterPos, bool isRespawnMonster);
 }

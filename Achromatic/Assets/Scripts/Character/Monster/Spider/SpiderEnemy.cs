@@ -84,7 +84,8 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         attackPoint = transform.GetChild(0).gameObject;
         meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
-    private void Start()
+
+    private void OnEnable()
     {
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
