@@ -53,9 +53,9 @@ MonoBehaviour:
     height: 5
   crystalSpeed: 0.2
   initialCrystalNum: 8
-  shotPostDelay: 0.5
+  shotPostDelay: 1
   crystalShakeDuration: 1
-  postExplosionDelay: 3
+  postExplosionDelay: 2
   explosionRadius: 1.5
   explosionTime: 0.2
   crystalDamage: 5

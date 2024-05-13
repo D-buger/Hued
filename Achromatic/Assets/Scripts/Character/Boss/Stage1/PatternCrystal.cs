@@ -4,6 +4,7 @@ using UnityEngine.Events;
 
 public class PatternCrystal : MonoBehaviour, IParryConditionCheck
 {
+    private Collider2D collComponent;
     private Coroutine shakeCoroutine = null;
 
     private eActivableColor patternColor;
@@ -27,12 +28,17 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
     private bool isExplosion;
 
     public UnityEvent afterExplosionEvent;
+    private void Awake()
+    {
+        collComponent = GetComponent<Collider2D>();
+    }
 
     private void OnEnable()
     {
         isShot = false;
         isTouchFloor = false;
         isExplosion = false;
+        collComponent.enabled = false;
     }
     private void Update()
     {
@@ -129,6 +135,7 @@ public class PatternCrystal : MonoBehaviour, IParryConditionCheck
         isShot = true;
         isEnable = true;
         elapsedTime = 0f;
+        collComponent.enabled = true;
     }
 
     private void DisableCrystal()
