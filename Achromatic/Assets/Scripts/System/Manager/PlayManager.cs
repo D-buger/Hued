@@ -22,7 +22,8 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     private const int FILTER_MAX_GAUGE = 100;
 
-    public LayerMask EnemyMask => (1 << LayerMask.NameToLayer(ENEMY_TAG)) | (1 << LayerMask.NameToLayer("ColorEnemy"));
+    public LayerMask EnemyMask => LayerMask.GetMask(ENEMY_TAG) | LayerMask.GetMask("ColorEnemy");
+    public LayerMask PlayerMask => LayerMask.GetMask(PLAYER_TAG);
 
     [SerializeField]
     private float filterInputCooldown = 1f;

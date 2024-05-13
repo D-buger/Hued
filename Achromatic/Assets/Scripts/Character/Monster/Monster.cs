@@ -1,119 +1,152 @@
+using System.Collections;
 using UnityEngine;
 
-public abstract class Monster : MonoBehaviour, IAttack
+public abstract class Monster : MonoBehaviour, IAttack, ICheckMonster
 {
-    [SerializeField]
-    private MonsterStat baseStat;
+    public MonsterStat baseStat;
     public int currentHP;
 
     [HideInInspector]
-    public Vector2 leftPosition;
+    public Vector2 monsterRunleftPosition;
     [HideInInspector]
-    public Vector2 rightPosition;
+    public Vector2 monsterRunRightPosition;
     [HideInInspector]
-    public Vector2 thisPosition;
-    [Tooltip("몬스터 기준 이동 범위")]
-    public float runPosition;
+    public Vector2 monsterPosition;
+    [HideInInspector]
+    public float distanceToPlayer;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
-    private float elapsedTime = 0;
+    public float runPosition;
+
+    [HideInInspector]
+    public float elapsedTime = 0;
     private float arrivalThreshold = 1f;
     [HideInInspector]
-    public float distanceToPlayer = 0;
+    public float distanceToStartPos = 0;
     [HideInInspector]
     public bool isDead = false;
-    [HideInInspector]
-    public bool isWait = true;
-    [HideInInspector]
-    public bool isBattle = false;
-    [HideInInspector]
-    public bool isPlayerBetween = false;
+    [SerializeField]
+    private bool flyMonster = false;
+
+    [System.Flags]
+    public enum EMonsterState
+    {
+        isWait = 1 << 0,
+        isPlayerBetween = 1 << 1,
+        isBattle = 1 << 2
+    }
+    public EMonsterState state = EMonsterState.isWait;
     [HideInInspector]
     public bool canAttack = true;
+    public bool isRespawnMonster = true;
 
-    public void CheckPlayer(Vector2 startSpriderPos)
+    public virtual IEnumerator CheckPlayer(Vector2 startMonsterPos)
     {
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
-        float distanceToMonster = Vector2.Distance(startSpriderPos, PlayerPos);
-        if (distanceToMonster <= runPosition && !isBattle && canAttack)
+        distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
+        if (flyMonster)
         {
-            isPlayerBetween = true;
-            isWait = false;
-            elapsedTime = 0f;
-            CheckStateChange();
+            if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
+            {
+                SetState(EMonsterState.isBattle, true);
+                SetState(EMonsterState.isWait, false);
+                elapsedTime = 0f;
+                CheckStateChange();
+            }
+            else
+            {
+                StartCoroutine(CheckWaitTime());
+            }
         }
         else
         {
-            CheckWaitTime();
+            if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
+            {
+                SetState(EMonsterState.isPlayerBetween, true);
+                SetState(EMonsterState.isWait, false);
+                elapsedTime = 0f;
+                CheckStateChange();
+            }
+            else
+            {
+                CheckWaitTime();
+            }
         }
+        yield break;
     }
-    public void WaitSituation()
+    public virtual void WaitSituation()
     {
         currentHP = baseStat.MonsterHP;
-        isBattle = false;
-        transform.position = Vector2.MoveTowards(transform.position, thisPosition, baseStat.moveSpeed * Time.deltaTime);
-        if (thisPosition == leftPosition)
+        SetState(EMonsterState.isBattle, false);
+        transform.position = Vector2.MoveTowards(transform.position, monsterPosition, baseStat.moveSpeed * Time.deltaTime);
+        if (monsterPosition == monsterRunleftPosition)
         {
             transform.localScale = new Vector3(-1, 1, 1);
         }
-        else if (thisPosition == rightPosition)
+        else if (monsterPosition == monsterRunRightPosition)
         {
             transform.localScale = new Vector3(1, 1, 1);
         }
-        if (HasArrived((Vector2)transform.position, rightPosition))
+        if (HasArrived((Vector2)transform.position, monsterRunRightPosition))
         {
-            thisPosition = leftPosition;
+            monsterPosition = monsterRunleftPosition;
         }
-        if (HasArrived((Vector2)transform.position, leftPosition))
+        else if (HasArrived((Vector2)transform.position, monsterRunleftPosition))
         {
-            thisPosition = rightPosition;
+            monsterPosition = monsterRunRightPosition;
         }
     }
-    private bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
+    public bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
     {
         return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
     }
 
-    public void CheckWaitTime()
+    public virtual IEnumerator CheckWaitTime()
     {
         elapsedTime += Time.deltaTime;
-        if (elapsedTime >= baseStat.usualTime && !isWait && !isBattle && canAttack)
+        if (elapsedTime >= baseStat.timeToWait && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
             elapsedTime = 0f;
-            isWait = true;
-            isPlayerBetween = false;
-            isBattle = false;
+            SetState(EMonsterState.isWait, true);
+            SetState(EMonsterState.isPlayerBetween, false);
+            SetState(EMonsterState.isBattle, false);
             CheckStateChange();
         }
+        yield break;
     }
-    public void MoveToPlayer()
+    public virtual void MoveToPlayer()
     {
-        float horizontalValue = PlayerPos.x - transform.position.x;
-
         if (PlayerPos == null)
         {
             return;
         }
-
-        if (horizontalValue >= 0)
+        float horizontalValue = PlayerPos.x - transform.position.x;
+        transform.localScale = (horizontalValue >= 0) ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
+        if (!flyMonster)
         {
-            transform.localScale = new Vector3(-1, 1, 1);
+            if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
+            {
+                SetState(EMonsterState.isBattle, true);
+                SetState(EMonsterState.isWait, false);
+                SetState(EMonsterState.isPlayerBetween, false);
+                CheckStateChange();
+            }
+            else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.runSpeed * Time.deltaTime);
+            }
         }
         else
         {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-
-        if (distanceToPlayer <= baseStat.senseCircle && !isBattle)
-        {
-            isBattle = true;
-            isWait = false;
-            isPlayerBetween = false;
-            CheckStateChange();
-        }
-        else if (distanceToPlayer > baseStat.senseCircle)
-        {
-            if (isPlayerBetween && canAttack)
+            // FIX 기획서 나오면 날아다니는 몬스터에 맞게 판정 변경
+            if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
+            {
+                SetState(EMonsterState.isBattle, true);
+                SetState(EMonsterState.isWait, false);
+                SetState(EMonsterState.isPlayerBetween, false);
+                CheckStateChange();
+            }
+            else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
             {
                 transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
             }
@@ -121,27 +154,43 @@ public abstract class Monster : MonoBehaviour, IAttack
     }
     public abstract void Attack();
     public abstract void CheckStateChange();
-    public virtual void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
 
     }
-    public void HPDown(int HitDamage)
+    public virtual void HPDown(int hitDamage)
     {
-        currentHP -= HitDamage;
+        currentHP -= hitDamage;
     }
-    public void CheckDead()
+    public virtual void CheckDead()
     {
-        if (currentHP <= 0)
+        if (currentHP <= 0 && !isDead)
         {
             isDead = true;
-        }
-        if (isDead)
-        {
             Dead();
         }
     }
     public abstract void Dead();
-    void IAttack.OnPostAttack(Vector2 attackDir)
+    public void SetState(EMonsterState eState, bool value)
     {
+        if (value)
+        {
+            state |= eState;
+        }
+        else
+        {
+            state &= ~eState;
+        }
     }
+
+    public bool IsStateActive(EMonsterState eState)
+    {
+        return (state & eState) != 0;
+    }
+    public void OnPostAttack(Vector2 vec)
+    {
+
+    }
+
+    public abstract void Respawn(GameObject monsterPos, bool isRespawnMonster);
 }

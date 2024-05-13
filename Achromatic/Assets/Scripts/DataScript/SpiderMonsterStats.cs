@@ -8,13 +8,13 @@ public class SpiderMonsterStats : MonsterStat
     [Tooltip("근접 어택 사거리")]
     public float meleeAttackRange = 1.0f;
     [Tooltip("근접 어택 범위")]
-    public float AttackRange = 0.8f;
+    public float attackRange = 0.8f;
     [Tooltip("원거리 공격 데미지")]
     public int rangedAttackDamege = 1;
     [Tooltip("원거리 공격 속도")]
     public float rangedAttackSpeed = 1.0f;
     [Tooltip("원거리 공격 사정거리")]
-    public float rangedAttackRange = 1.0f;
+    public float rangedAttackRange = 2.0f;
     [Tooltip("고개치기 공격 반동 파워")]
     public float specialAttackRound = 1.0f;
     [Tooltip("고개치기 공격 속도")]
@@ -31,4 +31,8 @@ public class SpiderMonsterStats : MonsterStat
     public float earthAttackDalay = 0.3f;
     [Tooltip("고개치기 공격 확률")]
     public float specialAttackPercent = 60.0f;
+    [Tooltip("원거리 공격 확률")]
+    public int rangeAttackPercent = 50;
+    [Tooltip("돌진 땅찍기 사거리")]
+    public float compositeAttackRound = 1.0f;
 }

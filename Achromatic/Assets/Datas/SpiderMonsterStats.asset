@@ -23,9 +23,9 @@ MonoBehaviour:
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  usualTime: 3
+  timeToWait: 1
   meleeAttackRange: 3
-  AttackRange: 3
+  attackRange: 0.8
   rangedAttackDamege: 1
   rangedAttackSpeed: 250
   rangedAttackRange: 5
@@ -37,3 +37,5 @@ MonoBehaviour:
   earthAttackJump: 10
   earthAttackDalay: 0.3
   specialAttackPercent: 60
+  rangeAttackPercent: 50
+  compositeAttackRound: 140

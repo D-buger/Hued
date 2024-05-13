@@ -263,10 +263,14 @@ public class Player : MonoBehaviour, IAttack
     }
 
 
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
         if(IsDash || IsParryDash)
         {
+            if (!ReferenceEquals(parryCheck, null))
+            {
+                ParryCondition = parryCheck.CanParryAttack() ? true : ParryCondition;
+            }
             return;
         }
         GetPlayerStat.playerHP -= 1;
@@ -288,8 +292,8 @@ public class Player : MonoBehaviour, IAttack
             if (IsDash || IsParryDash)
             {
                 int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<Monster>()?.Hit(damage, 
-                    collision.transform.position - transform.position, false, damage);
+                collision.gameObject.GetComponent<Monster>()?.Hit(damage, damage,
+                    collision.transform.position - transform.position);
             }
         }
     }
@@ -315,18 +319,11 @@ public class Player : MonoBehaviour, IAttack
     {
         if (IsDash && collision.CompareTag(PlayManager.ATTACK_TAG))
         {
-            Attack attack = collision.GetComponent<Attack>();
-            Projectile projectile = collision.GetComponent<Projectile>();
-            if (attack != null && attack.isCanParryAttack(PlayManager.PLAYER_TAG))
+            IParryConditionCheck checkParry = collision.GetComponent<IParryConditionCheck>();
+            if (checkParry != null && checkParry.CanParryAttack())
             {
                 ParryCondition = true;
             }
-            else if(projectile != null && projectile.IsParryAllow)
-            {
-                ParryCondition = true;
-            }
-
         }
-
     }
 }

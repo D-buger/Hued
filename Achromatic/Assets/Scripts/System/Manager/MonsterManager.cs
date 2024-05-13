@@ -2,9 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+
+public interface ICheckMonster
+{
+    void Respawn(GameObject monsterPos, bool isRespawn);
+}
 public class MonsterManager : SingletonBehavior<MonsterManager>
 {
-    public UnityEvent<eActivableColor> getColorEvent;
+    public UnityEvent<eActivableColor> GetColorEvent;
     protected override void OnAwake()
     {
         PlayManager.Instance.FilterColorAttackEvent.AddListener(CheckGetColorEvent);
@@ -12,6 +17,6 @@ public class MonsterManager : SingletonBehavior<MonsterManager>
     }
     public void CheckGetColorEvent(eActivableColor color)
     {
-        getColorEvent?.Invoke(color);
+        GetColorEvent?.Invoke(color);
     }
 }

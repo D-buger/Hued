@@ -23,6 +23,7 @@ public class MonsterStat : ScriptableObject
     public float senseCircle = 5f;
 
     public float moveSpeed = 1f;
+    public float runSpeed = 2f;
 
     public int attackDamage = 1;
     public float attackTime = 0.3f;
@@ -33,7 +34,5 @@ public class MonsterStat : ScriptableObject
     public float heavyHitReboundPower = 10f;
     public float groggyTime = 0.5f;
     [Tooltip("대기 상태까지 걸리는 시간")]
-    public float usualTime = 1.0f;
-
-
+    public float timeToWait = 1.0f;
 }
