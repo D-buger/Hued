@@ -10,14 +10,14 @@ public class PlayerJumpState : PlayerBaseState
     private bool canJump = true;
     public PlayerJumpState(Player player) : base(player) 
     {
-        InputManager.Instance.JumpEvent += () =>
+        InputManager.Instance.JumpEvent.AddListener(() =>
         {
             if (player.CanChangeState)
             {
                 player.ChangeState(ePlayerState.JUMP);
             }
             
-        };
+        });
     }
 
     public override void OnStateEnter()

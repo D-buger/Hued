@@ -66,13 +66,19 @@ public class HealthBar : MonoBehaviour
             emptyHeart.height * (HP <= ratio ? 0 : HP - ratio) / ratio;
 
         if (texture == null)
+        {
             texture = new Texture2D(textureWidth, textureHeight);
+        }
         else
+        {
             texture.Reinitialize(textureWidth, textureHeight);
+        }
 
         Color[] color = texture.GetPixels();
         for (int i = 0; i < color.Length; i++)
+        {
             color[i] = new Color(0, 0, 0, 0);
+        }
         texture.SetPixels(color);
 
         Vector2 pivot = new Vector2(

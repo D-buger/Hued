@@ -22,7 +22,7 @@ public class PlayerAttackState : PlayerBaseState
 
         meleeAttack.SetAttack(PlayManager.PLAYER_TAG, player);
 
-        InputManager.Instance.LightAttackEvent += (Vector2 dir) =>
+        InputManager.Instance.LightAttackEvent.AddListener((Vector2 dir) =>
         {
             attackAngle = dir;
 
@@ -30,7 +30,7 @@ public class PlayerAttackState : PlayerBaseState
             {
                 player.ChangeState(ePlayerState.ATTACK);
             }
-        };
+        });
     }
 
     public override void OnStateEnter()

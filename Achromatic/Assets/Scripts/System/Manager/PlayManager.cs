@@ -102,7 +102,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
     }
     private void Start()
     {
-        InputManager.Instance.FilterEvent += ActiveFilter;
+        InputManager.Instance.FilterEvent.AddListener(ActiveFilter);
 
         filterGauge = FILTER_MAX_GAUGE;
     }

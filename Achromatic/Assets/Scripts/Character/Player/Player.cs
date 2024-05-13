@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
@@ -69,8 +70,10 @@ public class Player : MonoBehaviour, IAttack
             }
         }
     }
-    public event Action<int, int> PlayerCurrentHPEvent;
-    public event Action<int, int> PlayerMaxHPEvent;
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerCurrentHPEvent;
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerMaxHPEvent;
 
     private Dictionary<ePlayerState, PlayerBaseState> playerStates;
     private PlayerFSM playerFSM;

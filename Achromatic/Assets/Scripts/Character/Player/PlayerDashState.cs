@@ -25,7 +25,7 @@ public class PlayerDashState : PlayerBaseState
         originLiniearDrag = player.RigidbodyComp.drag;
         originMass = player.RigidbodyComp.mass;
 
-        InputManager.Instance.DashEvent += (Vector2 dir) =>
+        InputManager.Instance.DashEvent.AddListener((Vector2 dir) =>
         {
             if ( player.CanChangeState && (canDash || canParryDash))
             {
@@ -33,7 +33,7 @@ public class PlayerDashState : PlayerBaseState
 
                 player.ChangeState(ePlayerState.DASH);
             }
-        };
+        });
     }
 
     public override void OnStateEnter()
