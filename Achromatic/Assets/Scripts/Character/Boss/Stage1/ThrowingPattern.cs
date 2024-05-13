@@ -91,6 +91,12 @@ public class ThrowingPattern : BossPattern
         disabledCrystalNum = 0;
         isShotPostBehaviour = true;
         alreadyShot = false;
+
+        if(!ReferenceEquals(patternEndCheckCoroutine, null))
+        {
+            CoroutineHandler.StopCoroutine(patternEndCheckCoroutine);
+            patternEndCheckCoroutine = null;
+        }
     }
 
     public override void OnUpdate()
