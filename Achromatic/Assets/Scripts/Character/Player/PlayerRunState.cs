@@ -10,7 +10,7 @@ public class PlayerRunState : PlayerBaseState
     private float moveDir;
     public PlayerRunState(Player player) : base(player)
     {
-        InputManager.Instance.MoveEvent.AddListener((int moveDir) =>
+        InputManager.Instance.MoveEvent += (int moveDir) =>
         {
             this.moveDir = moveDir;
 
@@ -22,7 +22,7 @@ public class PlayerRunState : PlayerBaseState
             {
                 player.ChangeState(ePlayerState.IDLE);
             }
-        });
+        };
     }
 
     public override void OnStateEnter()

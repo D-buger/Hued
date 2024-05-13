@@ -15,18 +15,12 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
 
-    [HideInInspector]
-    public UnityEvent JumpEvent;
-    [HideInInspector]
-    public UnityEvent<int> MoveEvent;
-    [HideInInspector]
-    public UnityEvent<int> LookEvent;
-    [HideInInspector]
-    public UnityEvent<Vector2> DashEvent;
-    [HideInInspector]
-    public UnityEvent<Vector2> LightAttackEvent;
-    [HideInInspector]
-    public UnityEvent FilterEvent;
+    public event Action JumpEvent;
+    public event Action<int> MoveEvent;
+    public event Action<int> LookEvent;
+    public event Action<Vector2> DashEvent;
+    public event Action<Vector2> LightAttackEvent;
+    public event Action FilterEvent;
 
     [SerializeField]
     private float jumpBufferTime = 0.1f;
