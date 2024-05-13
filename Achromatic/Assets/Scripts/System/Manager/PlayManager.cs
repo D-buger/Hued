@@ -13,7 +13,6 @@ public enum eActivableColor
     MAX_COLOR
 }
 
-// 게임 플레이 담당 매니저
 public class PlayManager : SingletonBehavior<PlayManager>
 {
     public static readonly string PLAYER_TAG = "Player";
@@ -25,9 +24,6 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     public LayerMask EnemyMask => (1 << LayerMask.NameToLayer(ENEMY_TAG)) | (1 << LayerMask.NameToLayer("ColorEnemy"));
 
-    [HideInInspector]
-    public CameraManager cameraManager;
-
     [SerializeField]
     private float filterInputCooldown = 1f;
     [SerializeField]
@@ -37,15 +33,21 @@ public class PlayManager : SingletonBehavior<PlayManager>
     [SerializeField]
     private float filterCoolRecoveryPerSec = 10.0f;
 
+    [HideInInspector]
+    public CameraManager cameraManager;
+
+    [HideInInspector]
+    public UnityEvent<eActivableColor> FilterColorAttackEvent;
+    [HideInInspector]
+    public UnityEvent<eActivableColor> ActivationColorEvent;
+
     private Grayscale volumeProfile;
     private Color activateColor = Color.black;
     private eActivableColor haveColor = eActivableColor.NONE;
+    private Vector4 playerFilterPosition = Vector4.zero;
 
     private ColorObjectManager colorObjectManager;
     private List<eActivableColor> activationColors = new List<eActivableColor>();
-
-    public UnityEvent<eActivableColor> FilterColorAttackEvent;
-    public UnityEvent<eActivableColor> ActivationColorEvent;
 
     public bool ContainsActivationColors(eActivableColor color) => activationColors.Contains(color) || (haveColor == color && isFilterOn);
 
@@ -67,12 +69,14 @@ public class PlayManager : SingletonBehavior<PlayManager>
             if (!activationColors.Contains(value) && haveColor != value)
             {
                 haveColor = value;
+                volumeProfile.FilterColor.Override(ActivableColor2Color(haveColor));
             }
             else if (!activationColors.Contains(value) && haveColor == value)
             {
                 haveColor = eActivableColor.NONE;
+                volumeProfile.FilterColor.Override(ActivableColor2Color(haveColor));
                 activationColors.Add(value);
-                SetColor(value);
+                SetActivateColor(value);
                 ActivationColorEvent?.Invoke(value);
             }
         }
@@ -88,6 +92,8 @@ public class PlayManager : SingletonBehavior<PlayManager>
         player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
 
         volumeProfile.activationColor.Override(activateColor);
+        volumeProfile.FilterColor.Override(activateColor);
+        volumeProfile.playerPosition.Override(playerFilterPosition);
     }
 
     public void UpdateColorthing()
@@ -121,10 +127,12 @@ public class PlayManager : SingletonBehavior<PlayManager>
             }
         }
 
-        if(haveColor != eActivableColor.NONE)
+        if (haveColor != eActivableColor.NONE)
         {
-            if (isFilterOn)
-            {
+            if (isFilterOn){
+            Vector2 playerPositionInClipSpace = Camera.main.WorldToScreenPoint(player.transform.position);
+            playerFilterPosition = new Vector4(playerPositionInClipSpace.x, playerPositionInClipSpace.y, 0, 1);
+
                 colorObjectManager.EnableColors(haveColor);
                 FilterColorAttackEvent?.Invoke(haveColor);
                 filterGauge -= filterPercentPerSec * Time.deltaTime;
@@ -133,6 +141,9 @@ public class PlayManager : SingletonBehavior<PlayManager>
             {
                 colorObjectManager.DisableColors(haveColor);
                 FilterColorAttackEvent?.Invoke(eActivableColor.NONE);
+            playerFilterPosition = Vector4.zero;
+
+            colorObjectManager.DisableColors(haveColor);
                 if (canFilterOn)
                 {
                     filterGauge += filterRecoveryPersec * Time.deltaTime;
@@ -142,13 +153,13 @@ public class PlayManager : SingletonBehavior<PlayManager>
                     filterGauge += filterCoolRecoveryPerSec * Time.deltaTime;
                 }
             }
-            UISystem.Instance.filterSliderEvent.Invoke(filterGauge / FILTER_MAX_GAUGE);
+            UISystem.Instance?.filterSliderEvent.Invoke(filterGauge / FILTER_MAX_GAUGE);
         }
         else
         {
-            UISystem.Instance.filterSliderEvent.Invoke(-1);
+            UISystem.Instance?.filterSliderEvent.Invoke(-1);
         }
-
+        volumeProfile.playerPosition.Override(playerFilterPosition);
         FilterCheck();
     }
     private void FilterCheck()
@@ -183,24 +194,29 @@ public class PlayManager : SingletonBehavior<PlayManager>
             }
         }
     }
-
-    private void SetColor(eActivableColor color)
+    Color ActivableColor2Color(eActivableColor color)
     {
-        switch(color)
+        Color result = new Color(0, 0, 0, 0);
+        switch (color)
         {
             case eActivableColor.RED:
-                activateColor.r = 1;
+                result.r = 1;
                 break;
             case eActivableColor.BLUE:
-                activateColor.g = 1;
+                result.b = 1;
                 break;
             case eActivableColor.GREEN:
-                activateColor.b = 1;
+                result.g = 1;
                 break;
             default:
-                return;
+                return result;
         }
-        volumeProfile.activationColor.Override(activateColor);
+        return result;
+    }
 
+    private void SetActivateColor(eActivableColor color)
+    {
+        activateColor += ActivableColor2Color(color);
+        volumeProfile.activationColor.Override(activateColor);
     }
 }

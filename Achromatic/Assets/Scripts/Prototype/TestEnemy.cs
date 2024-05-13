@@ -109,7 +109,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         anim.SetTrigger("attackTrigger");
         if (!isMeleeMonster)
         {
-            Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
+            /*Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
                 attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized, 
@@ -119,7 +119,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
             {
                 attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                    projectileRange, projectileSpeed, stat.attackDamage, true, eActivableColor.RED);
-            }
+            }*/
         }
         else
         {
@@ -143,7 +143,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         canAttack = true;
     }
 
-    public void AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 attackDir)
     {
 
     }

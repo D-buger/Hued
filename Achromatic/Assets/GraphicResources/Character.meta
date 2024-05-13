@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Achromatic/Assets/GraphicResources/Character.meta
 guid: a4432da6c32aa984ba175f3e177c50a7
+========
+guid: 4c1fbe30e4e1e214cb88926cd2a87ad9
+>>>>>>>> 23-UI-Development:Achromatic/Assets/GraphicResources/Prototype/material.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

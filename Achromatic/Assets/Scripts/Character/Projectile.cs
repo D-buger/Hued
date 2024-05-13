@@ -1,3 +1,4 @@
+using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,6 +13,7 @@ public class Projectile : MonoBehaviour
     private Vector2 moveDirection = Vector2.zero;
     private float moveSpeed = 1f;
     private float moveRange = 5f;
+    private float delayTime = 2f;
     private int damage = 1;
 
     private bool isHeavyAttack = true;
@@ -29,7 +31,6 @@ public class Projectile : MonoBehaviour
         rigid = GetComponent<Rigidbody2D>();
         renderer = GetComponent<SpriteRenderer>();
     }
-
 
     /*private void Update()
     {
@@ -56,8 +57,9 @@ public class Projectile : MonoBehaviour
         }
     }
 
-    public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, eActivableColor color)
+    public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotDir, eActivableColor color)
     {
+        float spitDir = shotDir + 180;
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;
@@ -67,7 +69,9 @@ public class Projectile : MonoBehaviour
         moveRange = range;
         fromVector = shotFrom.transform.position;
         enemyColor = color;
+        transform.rotation = Quaternion.Euler(1, 1, spitDir);
         rigid.AddForce(moveDirection * moveSpeed);
+        gameObject.SetActive(true);
     }
 
     public void Parried(GameObject shotFrom, Vector2 dir, int dmg)
@@ -84,13 +88,25 @@ public class Projectile : MonoBehaviour
             rigid.AddForce(moveDirection * moveSpeed);
         }
     }
-
+    public void ReturnToPool()
+    {
+        gameObject.SetActive(false);
+    }
+    public void ReturnStart()
+    {
+        StartCoroutine(TimeToReturnObject(delayTime));
+    }
+    public IEnumerator TimeToReturnObject(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ReturnToPool();
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.gameObject.Equals(attackFrom) && !collision.CompareTag(PlayManager.ATTACK_TAG) && collision.CompareTag(PlayManager.PLAYER_TAG))
         {
             collision.GetComponent<IAttack>()?.Hit(damage, moveDirection, isHeavyAttack);
-            Destroy(gameObject);
+            ReturnToPool();
         }
     }
 }

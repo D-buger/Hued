@@ -15,18 +15,32 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
 
+    [HideInInspector]
     public UnityEvent JumpEvent;
-    public UnityEvent<float> MoveEvent;
+    [HideInInspector]
+    public UnityEvent<int> MoveEvent;
+    [HideInInspector]
     public UnityEvent<int> LookEvent;
+    [HideInInspector]
     public UnityEvent<Vector2> DashEvent;
+    [HideInInspector]
     public UnityEvent<Vector2> LightAttackEvent;
+    [HideInInspector]
     public UnityEvent FilterEvent;
+    [HideInInspector]
     public UnityEvent DownJumpEvent;
 
-    private Camera mainCamera;
+    [SerializeField]
+    private float jumpBufferTime = 0.1f;
+
     public Vector2 MouseVec { get; private set; }
+    public int ArrowVec { get; private set; }
 
     public bool CanInput { get; set; } = true;
+
+    private Camera mainCamera;
+    private float prevGetJumpTime = 0f;
+
     protected override void OnAwake()
     {
         mainCamera = Camera.main;
@@ -35,6 +49,7 @@ public class InputManager : SingletonBehavior<InputManager>
     void Update()
     {
         MouseVec = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        prevGetJumpTime += Time.deltaTime;
 
         if (!CanInput)
         {
@@ -44,14 +59,17 @@ public class InputManager : SingletonBehavior<InputManager>
         if (Input.GetKey(LEFT))
         {
             MoveEvent?.Invoke(-1);
+            ArrowVec = -1;
         }
         else if (Input.GetKey(RIGHT))
         {
             MoveEvent?.Invoke(1);
+            ArrowVec = 1;
         }
         else
         {
             MoveEvent?.Invoke(0);
+            ArrowVec = 0;
         }
 
         if (Input.GetKey(LIGHT_ATTACK))
@@ -64,6 +82,11 @@ public class InputManager : SingletonBehavior<InputManager>
             DownJumpEvent?.Invoke();
         }
         else if (Input.GetKey(JUMP))
+        {
+            prevGetJumpTime = 0;
+            JumpEvent?.Invoke();
+        }
+        else if(prevGetJumpTime < jumpBufferTime)
         {
             JumpEvent?.Invoke();
         }
