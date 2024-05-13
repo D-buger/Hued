@@ -46,15 +46,7 @@ public class HUDPresenter : SingletonBehavior<HUDPresenter>
     }
     private void SetUIColor(eActivableColor color)
     {
-        canvas.Render
-        if(color != eActivableColor.NONE || color != eActivableColor.MAX_COLOR)
-        {
-
-        }
-        else
-        {
-
-        }
+        canvas.worldCamera = color != eActivableColor.NONE && color != eActivableColor.MAX_COLOR ? colorCamera : mainCamera;
     }
 
     private void MakeVisiblePrism(eActivableColor color)
