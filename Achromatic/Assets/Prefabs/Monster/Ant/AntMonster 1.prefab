@@ -29,8 +29,8 @@ Transform:
   m_GameObject: {fileID: 3568358085757717773}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.07, y: 3, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalPosition: {x: -2.9042, y: 2.7118, z: 0}
+  m_LocalScale: {x: 3.6684, y: 2.5764, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1068515943601474151}
@@ -191,7 +191,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &445262673976461986
 Transform:
   m_ObjectHideFlags: 0
@@ -492,7 +492,7 @@ MonoBehaviour:
   monsterRunRightPosition: {x: 0, y: 0}
   monsterPosition: {x: 0, y: 0}
   distanceToPlayer: 0
-  runPosition: 15
+  runPosition: 8
   elapsedTime: 0
   distanceToStartPos: 0
   isDead: 0
@@ -520,6 +520,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: fb464bbe0737c4b438ea7680ebb45540, type: 2}
   - {fileID: 11400000, guid: 6471b1ef46b5f3245b6fbf910c48eee8, type: 2}
   - {fileID: 11400000, guid: 5c7a168c6d59d3144a495b4e3a7e8479, type: 2}
+  - {fileID: 11400000, guid: 35d3c2e1ff5aeaa40b841c3bd1f6bad7, type: 2}
+  - {fileID: 11400000, guid: 9ba273acde5a30c42b49c0690cafaee6, type: 2}
+  - {fileID: 11400000, guid: 1b64d089de98f104e9f20edd50bfee01, type: 2}
+  - {fileID: 11400000, guid: e32869988f3472e42ae465612d68c64e, type: 2}
+  - {fileID: 11400000, guid: 3d1376e9de75e11449e947ef6fc55053, type: 2}
+  - {fileID: 11400000, guid: 0e0a54e0c581ce046ae9cce6e370e192, type: 2}
   animationJson: {fileID: 4900000, guid: ed217a7771385ee4a8c3d4aec47f8eb9, type: 3}
   startAntPosition: {x: 0, y: 0}
   gizmoLeftPos: {x: 0, y: 0, z: 0}
@@ -552,7 +558,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 0
 --- !u!114 &8384665929770557629
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -623,8 +629,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectilePrefabs:
-  - {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
-  - {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
+  - {fileID: 2195216575799600643, guid: 6f378acdddf047043ac74fdd7c6952ea, type: 3}
+  - {fileID: 2195216575799600643, guid: 6f378acdddf047043ac74fdd7c6952ea, type: 3}
   poolSize: 10
 --- !u!1001 &968540296507541487
 PrefabInstance:
@@ -908,11 +914,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1907239521573671300, guid: 36845e75118631f4fa40a0c871107057, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.65
+      value: -1.88
       objectReference: {fileID: 0}
     - target: {fileID: 1907239521573671300, guid: 36845e75118631f4fa40a0c871107057, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4.48
+      value: 2.52
       objectReference: {fileID: 0}
     - target: {fileID: 4118111290795150332, guid: 36845e75118631f4fa40a0c871107057, type: 3}
       propertyPath: m_Name

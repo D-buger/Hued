@@ -27,7 +27,7 @@ MonoBehaviour:
   timeToWait: 3
   cuttingAttackDamage: 1
   cuttingAttackRebound: 15
-  cuttingAttackTime: 0.2
+  cuttingAttackTime: 0.5
   swordAttackDamage: 1
   swordAttackSpeed: 200
   swordAttackRange: 2

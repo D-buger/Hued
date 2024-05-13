@@ -22720,72 +22720,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6012641958603062874, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: projectilePrefabs.Array.data[0]
-      value: 
-      objectReference: {fileID: 2195216575799600643, guid: 6f378acdddf047043ac74fdd7c6952ea, type: 3}
-    - target: {fileID: 6012641958603062874, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: projectilePrefabs.Array.data[1]
-      value: 
-      objectReference: {fileID: 2195216575799600643, guid: 6f378acdddf047043ac74fdd7c6952ea, type: 3}
-    - target: {fileID: 6102530087147002526, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -1.88
-      objectReference: {fileID: 0}
-    - target: {fileID: 6102530087147002526, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.52
-      objectReference: {fileID: 0}
-    - target: {fileID: 6247883516432624620, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7110524173633863084, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_Name
       value: AntMonster 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7110524173633863084, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7554739694838036562, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
-    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: runPosition
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: aniClip.Array.size
-      value: 14
-      objectReference: {fileID: 0}
-    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: aniClip.Array.data[8]
-      value: 
-      objectReference: {fileID: 11400000, guid: 35d3c2e1ff5aeaa40b841c3bd1f6bad7, type: 2}
-    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: aniClip.Array.data[9]
-      value: 
-      objectReference: {fileID: 11400000, guid: 9ba273acde5a30c42b49c0690cafaee6, type: 2}
-    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: aniClip.Array.data[10]
-      value: 
-      objectReference: {fileID: 11400000, guid: 1b64d089de98f104e9f20edd50bfee01, type: 2}
-    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: aniClip.Array.data[11]
-      value: 
-      objectReference: {fileID: 11400000, guid: e32869988f3472e42ae465612d68c64e, type: 2}
-    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: aniClip.Array.data[12]
-      value: 
-      objectReference: {fileID: 11400000, guid: 3d1376e9de75e11449e947ef6fc55053, type: 2}
-    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-      propertyPath: aniClip.Array.data[13]
-      value: 
-      objectReference: {fileID: 11400000, guid: 0e0a54e0c581ce046ae9cce6e370e192, type: 2}
-    m_RemovedComponents:
-    - {fileID: 5467159008721956725, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

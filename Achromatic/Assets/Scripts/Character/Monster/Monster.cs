@@ -95,7 +95,7 @@ public abstract class Monster : MonoBehaviour, IAttack
             monsterPosition = monsterRunRightPosition;
         }
     }
-    private bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
+    public bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
     {
         return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
     }

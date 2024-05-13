@@ -90,7 +90,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         attackPoint = transform.GetChild(0).gameObject;
         meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
-    private void Start()
+
+    private void OnEnable()
     {
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         monsterRunleftPosition.y = transform.position.y;
@@ -216,9 +217,18 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 animState = EanimState.EnemyDisco;
                 SetCurrentAnimation(animState);
+                SetState(EMonsterState.isWait, false);
+                SetState(EMonsterState.isPlayerBetween, false);
+                SetState(EMonsterState.isBattle, false);
+                stat.moveSpeed = 0; // FIX 아래 매직넘버들 죄다 수정 예정
+                stat.runSpeed = 0;
+                CheckStateChange();
                 yield return Yields.WaitSeconds(1.0f);
+                stat.moveSpeed = 1; 
+                stat.runSpeed = 2;
                 SetState(EMonsterState.isPlayerBetween, true);
                 SetState(EMonsterState.isWait, false);
+                CheckStateChange();
                 isFirstAnimCheckIdle = true;
             }
             elapsedTime = 0f;
@@ -235,15 +245,36 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         if (elapsedTime >= baseStat.timeToWait && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
             elapsedTime = 0f;
+            SetState(EMonsterState.isWait, true);
             SetState(EMonsterState.isPlayerBetween, false);
             SetState(EMonsterState.isBattle, false);
             isFirstAnimCheckIdle = false;
-            isFirstAnimCheckAttack = true;
             animState = EanimState.Over;
             SetCurrentAnimation(animState);
-            SetState(EMonsterState.isWait, true);
             CheckStateChange();
             yield return Yields.WaitSeconds(1.0f);
+        }
+    }
+    public override void WaitSituation()
+    {
+        currentHP = baseStat.MonsterHP;
+        SetState(EMonsterState.isBattle, false);
+        transform.position = Vector2.MoveTowards(transform.position, monsterPosition, baseStat.moveSpeed * Time.deltaTime);
+        if (monsterPosition == monsterRunleftPosition)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else if (monsterPosition == monsterRunRightPosition)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        if (HasArrived((Vector2)transform.position, monsterRunRightPosition))
+        {
+            monsterPosition = monsterRunleftPosition;
+        }
+        else if (HasArrived((Vector2)transform.position, monsterRunleftPosition))
+        {
+            monsterPosition = monsterRunRightPosition;
         }
     }
     public override void Attack()
@@ -259,7 +290,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             StartCoroutine(AttackSequence(PlayerPos));
         }
     }
-    
+
     private IEnumerator AttackSequence(Vector2 attackAngle)
     {
         currentState |= EMonsterAttackState.IsAttack;
@@ -286,7 +317,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(1.3333f);
 
-        int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
+        int checkRandomAttackType = 25;// UnityEngine.Random.Range(1, 100);
         if (checkRandomAttackType <= stat.swordAttackPercent)
         {
             StartCoroutine(SwordAttack(value, check, ZAngle));
@@ -300,14 +331,12 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         else
         {
             StartCoroutine(CounterAttackStart());
-            Debug.Log("카운터 어택");
         }
 
         yield return Yields.WaitSeconds(stat.attackTime);
         currentState &= ~EMonsterAttackState.IsAttack;
         yield return Yields.WaitSeconds(stat.attackCooldown);
         canAttack = true;
-        Debug.Log("공격 한 번 끝");
     }
 
     private IEnumerator SwordAttack(Vector2 dir, Vector2 check, float ZAngle)
@@ -318,7 +347,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         }
         animState = EanimState.Sword;
         SetCurrentAnimation(animState);
-        yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_slash/ground_ant_battle_slash"]["events"][0]["time"]);
         rigid.AddForce(check * stat.cuttingAttackRebound, ForceMode2D.Impulse);
         yield return Yields.WaitSeconds(stat.cuttingAttackTime);
         swordAttackObject.SetActive(true);
