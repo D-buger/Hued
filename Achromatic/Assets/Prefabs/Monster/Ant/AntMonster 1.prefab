@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9d01208e66448429c3f5a3821786f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stat: {fileID: 11400000, guid: 0835df2a40e3e5e49929f0deb2ffba0b, type: 2}
+  stat: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
 --- !u!1 &6247883516432624620
 GameObject:
   m_ObjectHideFlags: 0
@@ -343,7 +343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b9d01208e66448429c3f5a3821786f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stat: {fileID: 11400000, guid: 0835df2a40e3e5e49929f0deb2ffba0b, type: 2}
+  stat: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
 --- !u!1 &7110524173633863084
 GameObject:
   m_ObjectHideFlags: 0
@@ -486,7 +486,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3458a01cd66aa2a409d16ab19ef572ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseStat: {fileID: 11400000, guid: 0835df2a40e3e5e49929f0deb2ffba0b, type: 2}
+  baseStat: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
   currentHP: 0
   monsterRunleftPosition: {x: 0, y: 0}
   monsterRunRightPosition: {x: 0, y: 0}
@@ -500,7 +500,7 @@ MonoBehaviour:
   state: 1
   canAttack: 1
   attackTransform: {fileID: 3582799192281400694}
-  stat: {fileID: 11400000, guid: 0835df2a40e3e5e49929f0deb2ffba0b, type: 2}
+  stat: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
   stabAttackOBJ:
   - {fileID: 5518125142217512503}
   - {fileID: 3206925597560285106}
@@ -652,6 +652,14 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Attack
       objectReference: {fileID: 0}
+    - target: {fileID: 1286127129992078454, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
+    - target: {fileID: 1582920001861911247, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
     - target: {fileID: 2056812654289517288, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
       propertyPath: m_IsTrigger
       value: 1
@@ -672,6 +680,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Attack
       objectReference: {fileID: 0}
+    - target: {fileID: 2915074938925939487, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
     - target: {fileID: 3099230992794101148, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -724,6 +736,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Attack
       objectReference: {fileID: 0}
+    - target: {fileID: 4036520817776556074, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
     - target: {fileID: 4530479246972902517, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
       propertyPath: m_LocalScale.x
       value: 5
@@ -736,6 +752,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 2.38
       objectReference: {fileID: 0}
+    - target: {fileID: 4644943741330123906, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
     - target: {fileID: 4748100020970787288, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
       propertyPath: m_Layer
       value: 8
@@ -804,6 +824,10 @@ PrefabInstance:
       propertyPath: m_Constraints
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 6548517337983448799, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
     - target: {fileID: 6958306918945774339, guid: b91b778287303af46af56d9fc724f5ed, type: 3}
       propertyPath: m_IsTrigger
       value: 1

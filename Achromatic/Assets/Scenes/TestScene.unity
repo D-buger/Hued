@@ -22720,6 +22720,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1767481564266808608, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
+    - target: {fileID: 2065410103738131353, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
+    - target: {fileID: 2667432195440327920, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
+    - target: {fileID: 3851817967091302341, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
+    - target: {fileID: 5550358876141661037, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
+    - target: {fileID: 6310092380171579696, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stat
+      value: 
+      objectReference: {fileID: 11400000, guid: f9e8cc895d9edde43a68302bf80794f9, type: 2}
     - target: {fileID: 7110524173633863084, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_Name
       value: AntMonster 1

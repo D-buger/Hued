@@ -317,7 +317,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(1.3333f);
 
-        int checkRandomAttackType = 25;// UnityEngine.Random.Range(1, 100);
+        int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
         if (checkRandomAttackType <= stat.swordAttackPercent)
         {
             StartCoroutine(SwordAttack(value, check, ZAngle));
@@ -345,6 +345,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield return null;
         }
+        yield return Yields.WaitSeconds(0.1f);
         animState = EanimState.Sword;
         SetCurrentAnimation(animState);
         rigid.AddForce(check * stat.cuttingAttackRebound, ForceMode2D.Impulse);
