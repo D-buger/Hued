@@ -111,7 +111,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Update()
     {
-        CheckPlayer(startSpiderPosition);
+        StartCoroutine(CheckPlayer(startSpiderPosition));
         if (canAttack && IsStateActive(EMonsterState.isBattle))
         {
             Attack();

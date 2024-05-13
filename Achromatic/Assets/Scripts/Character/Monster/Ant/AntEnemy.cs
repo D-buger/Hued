@@ -79,7 +79,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private EMonsterAttackState currentState = EMonsterAttackState.None;
 
     private bool isHeavy = false;
-
+    private bool isFirstAnimCheckIdle = false;
+    private bool isFirstAnimCheckAttack = true;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     private void Awake()
@@ -116,7 +117,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private void Update()
     {
-        CheckPlayer(startAntPosition);
+        StartCoroutine(CheckPlayer(startAntPosition));
         if (canAttack && IsStateActive(EMonsterState.isBattle))
         {
             Attack();
@@ -205,35 +206,44 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         currentAnimation = animClip.name;
     }
 
-    public override void CheckPlayer(Vector2 startMonsterPos)
+    public override IEnumerator CheckPlayer(Vector2 startMonsterPos)
     {
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
         distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
         if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
-            SetState(EMonsterState.isPlayerBetween, true);
-            SetState(EMonsterState.isWait, false);
-            //TimeÁ¶Á¤
+            if (!isFirstAnimCheckIdle)
+            {
+                animState = EanimState.EnemyDisco;
+                SetCurrentAnimation(animState);
+                yield return Yields.WaitSeconds(1.0f);
+                SetState(EMonsterState.isPlayerBetween, true);
+                SetState(EMonsterState.isWait, false);
+                isFirstAnimCheckIdle = true;
+            }
             elapsedTime = 0f;
             CheckStateChange();
         }
         else
         {
-            CheckWaitTime();
+            StartCoroutine(CheckWaitTime());
         }
     }
-    public override void CheckWaitTime()
+    public override IEnumerator CheckWaitTime()
     {
         elapsedTime += Time.deltaTime;
         if (elapsedTime >= baseStat.timeToWait && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
             elapsedTime = 0f;
-            SetState(EMonsterState.isWait, true);
             SetState(EMonsterState.isPlayerBetween, false);
             SetState(EMonsterState.isBattle, false);
+            isFirstAnimCheckIdle = false;
+            isFirstAnimCheckAttack = true;
             animState = EanimState.Over;
             SetCurrentAnimation(animState);
+            SetState(EMonsterState.isWait, true);
             CheckStateChange();
+            yield return Yields.WaitSeconds(1.0f);
         }
     }
     public override void Attack()
@@ -249,10 +259,12 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             StartCoroutine(AttackSequence(PlayerPos));
         }
     }
+    
     private IEnumerator AttackSequence(Vector2 attackAngle)
     {
         currentState |= EMonsterAttackState.IsAttack;
         canAttack = false;
+        isFirstAnimCheckAttack = false;
         float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
         Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         Vector2 check;
@@ -274,7 +286,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(1.3333f);
 
-        int checkRandomAttackType = 77;//UnityEngine.Random.Range(1, 100);
+        int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
         if (checkRandomAttackType <= stat.swordAttackPercent)
         {
             StartCoroutine(SwordAttack(value, check, ZAngle));
@@ -391,11 +403,12 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
         currentState |= EMonsterAttackState.isCounter;
         yield return Yields.WaitSeconds(stat.counterAttackTime);
-        if (currentState.HasFlag(EMonsterAttackState.isCounterAttack))
+        if (currentState.HasFlag(EMonsterAttackState.isCounter))
         {
             animState = EanimState.Off;
             SetCurrentAnimation(animState);
             currentState &= ~EMonsterAttackState.isCounter;
+            yield return Yields.WaitSeconds(0.2f);
         }
     }
     private IEnumerator CounterAttackPlay(Vector2 dir, float ZAngle)
@@ -459,11 +472,11 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             animState = EanimState.Trigger;
             SetCurrentAnimation(animState);
-            CounterAttackPlay(new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y), Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
+            StartCoroutine(CounterAttackPlay(new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y), Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg));
             currentState &= ~EMonsterAttackState.IsAttack;
         }
 
-        if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
+        else if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
         {
             HPDown(colorDamage);
             rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public abstract class Monster : MonoBehaviour, IAttack
@@ -38,7 +39,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     [HideInInspector]
     public bool canAttack = true;
 
-    public virtual void CheckPlayer(Vector2 startMonsterPos)
+    public virtual IEnumerator CheckPlayer(Vector2 startMonsterPos)
     {
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
         distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
@@ -53,7 +54,7 @@ public abstract class Monster : MonoBehaviour, IAttack
             }
             else
             {
-                CheckWaitTime();
+                StartCoroutine(CheckWaitTime());
             }
         }
         else
@@ -70,6 +71,7 @@ public abstract class Monster : MonoBehaviour, IAttack
                 CheckWaitTime();
             }
         }
+        yield break;
     }
     public virtual void WaitSituation()
     {
@@ -98,7 +100,7 @@ public abstract class Monster : MonoBehaviour, IAttack
         return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
     }
 
-    public virtual void CheckWaitTime()
+    public virtual IEnumerator CheckWaitTime()
     {
         elapsedTime += Time.deltaTime;
         if (elapsedTime >= baseStat.timeToWait && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
@@ -109,6 +111,7 @@ public abstract class Monster : MonoBehaviour, IAttack
             SetState(EMonsterState.isBattle, false);
             CheckStateChange();
         }
+        yield break;
     }
     public virtual void MoveToPlayer()
     {

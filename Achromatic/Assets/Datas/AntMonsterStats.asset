@@ -24,7 +24,7 @@ MonoBehaviour:
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  timeToWait: 1
+  timeToWait: 3
   cuttingAttackDamage: 1
   cuttingAttackRebound: 15
   cuttingAttackTime: 0.2

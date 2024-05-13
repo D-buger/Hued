@@ -191,7 +191,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &445262673976461986
 Transform:
   m_ObjectHideFlags: 0
@@ -201,8 +201,8 @@ Transform:
   m_GameObject: {fileID: 6247883516432624620}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.07, y: 3, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 1}
+  m_LocalPosition: {x: -2.57, y: 2.09, z: 0}
+  m_LocalScale: {x: 3.5, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1068515943601474151}
@@ -493,6 +493,7 @@ MonoBehaviour:
   monsterPosition: {x: 0, y: 0}
   distanceToPlayer: 0
   runPosition: 15
+  elapsedTime: 0
   distanceToStartPos: 0
   isDead: 0
   flyMonster: 0
@@ -508,7 +509,7 @@ MonoBehaviour:
   - {fileID: 4213296061160811107}
   - {fileID: 2418221333252122016}
   swordAttackObject: {fileID: 3568358085757717773}
-  CounterAttackObject: {fileID: 0}
+  CounterAttackObject: {fileID: 6247883516432624620}
   skeletonAnimation: {fileID: 9196179382876523621}
   aniClip:
   - {fileID: 11400000, guid: 047153e4e6440444585e4783d1b779b1, type: 2}
