@@ -196,8 +196,8 @@ public class FlyAntEnemy : Monster
         }
     }
 
-    public override void Respawn(GameObject monsterPos, bool isRespawnMonster)
-    {
-        throw new System.NotImplementedException();
-    }
+    //public override void Respawn(GameObject monsterPos, bool isRespawnMonster)
+    //{
+    //    throw new System.NotImplementedException();
+    //}
 }

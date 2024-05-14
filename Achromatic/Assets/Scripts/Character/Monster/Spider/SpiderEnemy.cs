@@ -84,10 +84,13 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         attackPoint = transform.GetChild(0).gameObject;
         meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
+    private void Start()
+    {
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
+    }
 
     private void OnEnable()
     {
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
         monsterRunleftPosition.y = transform.position.y;
         monsterRunRightPosition.y = transform.position.y;
@@ -505,8 +508,8 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
     }
 
-    public override void Respawn(GameObject monsterPos, bool isRespawnMonster)
-    {
-        throw new NotImplementedException();
-    }
+    //public override void Respawn(GameObject monsterPos, bool isRespawnMonster)
+    //{
+    //    throw new NotImplementedException();
+    //}
 }

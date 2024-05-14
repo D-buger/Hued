@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public abstract class Monster : MonoBehaviour, IAttack, ICheckMonster
+public abstract class Monster : MonoBehaviour, IAttack//, ICheckMonster
 {
     public MonsterStat baseStat;
     public int currentHP;
@@ -192,5 +192,5 @@ public abstract class Monster : MonoBehaviour, IAttack, ICheckMonster
 
     }
 
-    public abstract void Respawn(GameObject monsterPos, bool isRespawnMonster);
+    //public abstract void Respawn(GameObject monsterPos, bool isRespawnMonster);
 }

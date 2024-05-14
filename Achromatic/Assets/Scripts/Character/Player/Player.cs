@@ -273,7 +273,6 @@ public class Player : MonoBehaviour, IAttack
             }
             return;
         }
-        GetPlayerStat.playerHP -= 1;
         PlayerHitState hitState = (PlayerHitState)playerStates[ePlayerState.HIT];
         ChangeState(ePlayerState.HIT);
         hitState.Hit(damage, attackDir.normalized);
