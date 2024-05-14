@@ -87,15 +87,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     private void Start()
     {
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
-    }
-
-    private void OnEnable()
-    {
-
-    }
-    private void Start()
-    {
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         monsterRunleftPosition.y = transform.position.y;
         monsterRunRightPosition.y = transform.position.y;
         monsterRunleftPosition.x += transform.position.x + runPosition;

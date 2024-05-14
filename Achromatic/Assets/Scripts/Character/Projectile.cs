@@ -51,7 +51,7 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
 
     public virtual void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotAngle, eActivableColor color)
     {
-        float spitDir = shotAngle + 180;
+        float shotDir = shotAngle + 180;
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;
@@ -61,7 +61,7 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
         moveRange = range;
         fromVector = shotFrom.transform.position;
         enemyColor = color;
-        transform.rotation = Quaternion.Euler(1, 1, spitDir);
+        transform.rotation = Quaternion.Euler(1, 1, shotDir);
         rigid.AddForce(moveDirection * moveSpeed);
         gameObject.SetActive(true);
     }
