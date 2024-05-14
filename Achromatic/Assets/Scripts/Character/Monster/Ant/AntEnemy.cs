@@ -321,7 +321,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         }
         else
         {
-            int checkRandomAttackType = 25; //UnityEngine.Random.Range(1, 100);
+            int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
             if (checkRandomAttackType <= stat.swordAttackPercent)
             {
                 StartCoroutine(SwordAttack(new Vector2(value.x, -value.y - 0.22f), check, ZAngle));
