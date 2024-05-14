@@ -328,6 +328,26 @@ PrefabInstance:
       propertyPath: runPosition
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: counterAttackObject
+      value: 
+      objectReference: {fileID: 1809112238159747763}
+    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stabAttackObject.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stabAttackObject.Array.data[0]
+      value: 
+      objectReference: {fileID: 5715666476152303770}
+    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stabAttackObject.Array.data[1]
+      value: 
+      objectReference: {fileID: 8491277043909270332}
+    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: stabAttackObject.Array.data[2]
+      value: 
+      objectReference: {fileID: 7935499188474565887}
     - target: {fileID: 8154878912844992373, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_LocalScale.x
       value: 3
@@ -366,13 +386,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6012641958603062874, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 3206925597560285106, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+    - {fileID: 5518125142217512503, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+    - {fileID: 2770378349403726451, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+--- !u!1 &1809112238159747763 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6247883516432624620, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+  m_PrefabInstance: {fileID: 5742002707513667935}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4718524037102041912 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1068515943601474151, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+  m_PrefabInstance: {fileID: 5742002707513667935}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5715666476152303770 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 71373056999965125, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+  m_PrefabInstance: {fileID: 5742002707513667935}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7935499188474565887 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2418221333252122016, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+  m_PrefabInstance: {fileID: 5742002707513667935}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8491277043909270332 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4213296061160811107, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
   m_PrefabInstance: {fileID: 5742002707513667935}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6112088452122524896
@@ -387,13 +430,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpiderMonster
       objectReference: {fileID: 0}
+    - target: {fileID: 3029426164028853613, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: runPosition
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 79.9
+      value: 70.4
       objectReference: {fileID: 0}
     - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -7.2
+      value: -4.71
       objectReference: {fileID: 0}
     - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_LocalPosition.z

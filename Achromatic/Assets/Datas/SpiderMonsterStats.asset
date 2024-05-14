@@ -16,6 +16,7 @@ MonoBehaviour:
   enemyColor: 1
   senseCircle: 8
   moveSpeed: 1.4
+  runSpeed: 2
   attackDamage: 1
   attackTime: 0.3
   attackCooldown: 2
@@ -24,10 +25,11 @@ MonoBehaviour:
   heavyHitReboundPower: 10
   groggyTime: 0.5
   timeToWait: 1
+  deadDelay: 1.33
   meleeAttackRange: 3
   attackRange: 0.8
   rangedAttackDamege: 1
-  rangedAttackSpeed: 250
+  rangedAttackSpeed: 500
   rangedAttackRange: 5
   specialAttackRound: 70
   specialAttackSpeed: 3

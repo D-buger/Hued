@@ -52,7 +52,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     private string currentAnimation;
     private float angleThreshold = 52f;
     private float spitTime = 2.0f;
-    private float spitWaitTime = 0.2f;
+    private float spitWaitTime = 0.4f;
     private float delayToAttack = 0.05f;
     private float delayToDestory = 0.05f;
     private float delayToEarthAttack = 0.6f;
@@ -205,6 +205,28 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
         gameObject.layer = (color != stat.enemyColor) ? originLayer : colorVisibleLayer;
     }
+    public override void WaitSituation()
+    {
+        currentHP = stat.MonsterHP;
+        SetState(EMonsterState.isBattle, false);
+        transform.position = Vector2.MoveTowards(transform.position, monsterPosition, stat.moveSpeed * Time.deltaTime);
+        if (monsterPosition == monsterRunleftPosition)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else if (monsterPosition == monsterRunRightPosition)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        if (HasArrived((Vector2)transform.position, monsterRunRightPosition))
+        {
+            monsterPosition = monsterRunleftPosition;
+        }
+        else if (HasArrived((Vector2)transform.position, monsterRunleftPosition))
+        {
+            monsterPosition = monsterRunRightPosition;
+        }
+    }
 
 
     public override void Attack()
@@ -327,7 +349,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
         animState = EanimState.Spit;
         SetCurrentAnimation(animState);
-        yield return new WaitForSeconds(spitWaitTime);
+        yield return new WaitForSeconds((float)jsonObject["animations"]["attack/spit_web"]["events"][0]["time"]);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
         if (projectileObj != null)
         {
@@ -379,7 +401,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         rigid.AddForce(check * stat.compositeAttackRound, ForceMode2D.Impulse);
         animState = EanimState.Charge;
         SetCurrentAnimation(animState);
-        yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]); // FIX 애니메이션 속도 확인 이후 패치
+        yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
 
         StartCoroutine(EarthAttack());
     }

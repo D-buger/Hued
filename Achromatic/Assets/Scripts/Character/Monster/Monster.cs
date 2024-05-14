@@ -40,6 +40,11 @@ public abstract class Monster : MonoBehaviour, IAttack
     public bool canAttack = true;
     public bool isRespawnMonster = true;
 
+    public abstract void CheckStateChange();
+    public bool IsStateActive(EMonsterState eState)
+    {
+        return (state & eState) != 0;
+    }
     public virtual IEnumerator CheckPlayer(Vector2 startMonsterPos)
     {
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
@@ -74,28 +79,7 @@ public abstract class Monster : MonoBehaviour, IAttack
         }
         yield break;
     }
-    public virtual void WaitSituation()
-    {
-        currentHP = baseStat.MonsterHP;
-        SetState(EMonsterState.isBattle, false);
-        transform.position = Vector2.MoveTowards(transform.position, monsterPosition, baseStat.moveSpeed * Time.deltaTime);
-        if (monsterPosition == monsterRunleftPosition)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-        else if (monsterPosition == monsterRunRightPosition)
-        {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        if (HasArrived((Vector2)transform.position, monsterRunRightPosition))
-        {
-            monsterPosition = monsterRunleftPosition;
-        }
-        else if (HasArrived((Vector2)transform.position, monsterRunleftPosition))
-        {
-            monsterPosition = monsterRunRightPosition;
-        }
-    }
+    public abstract void WaitSituation();
     public bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
     {
         return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
@@ -153,7 +137,6 @@ public abstract class Monster : MonoBehaviour, IAttack
         }
     }
     public abstract void Attack();
-    public abstract void CheckStateChange();
     public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
 
@@ -181,11 +164,6 @@ public abstract class Monster : MonoBehaviour, IAttack
         {
             state &= ~eState;
         }
-    }
-
-    public bool IsStateActive(EMonsterState eState)
-    {
-        return (state & eState) != 0;
     }
     public void OnPostAttack(Vector2 vec)
     {

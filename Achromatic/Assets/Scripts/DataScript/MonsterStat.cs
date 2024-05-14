@@ -36,4 +36,5 @@ public class MonsterStat : ScriptableObject
     [Tooltip("대기 상태까지 걸리는 시간")]
     public float timeToWait = 1.0f;
     public float deadDelay = 1.33f;
+    public float AttackDelay = 1.33f;
 }

@@ -62,6 +62,29 @@ public class FlyAntEnemy : Monster
             ReturnMonster();
         }
     }
+
+    public override void WaitSituation()
+    {
+        currentHP = stat.MonsterHP;
+        SetState(EMonsterState.isBattle, false);
+        transform.position = Vector2.MoveTowards(transform.position, monsterPosition, stat.moveSpeed * Time.deltaTime);
+        if (monsterPosition == monsterRunleftPosition)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else if (monsterPosition == monsterRunRightPosition)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        if (HasArrived((Vector2)transform.position, monsterRunRightPosition))
+        {
+            monsterPosition = monsterRunleftPosition;
+        }
+        else if (HasArrived((Vector2)transform.position, monsterRunleftPosition))
+        {
+            monsterPosition = monsterRunRightPosition;
+        }
+    }
     public override void Attack()
     {
         if (canAttack && !currentState.HasFlag(EMonsterAttackState.IsAttack))
