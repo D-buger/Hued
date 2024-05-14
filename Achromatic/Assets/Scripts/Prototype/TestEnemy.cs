@@ -52,7 +52,7 @@ public class TestEnemy : MonoBehaviour, IAttack
         currentHP = stat.MonsterHP;
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor); ;
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();
@@ -92,12 +92,12 @@ public class TestEnemy : MonoBehaviour, IAttack
     IEnumerator AttackSequence(Vector2 attackAngle)
     {
         isAttack = true;
-        canAttack = false;
+        canAttack = false; 
         float horizontalValue = attackAngle.x - transform.position.x;
         float verticalValue = attackAngle.y - transform.position.y;
         Vector2 value = new Vector2(horizontalValue, verticalValue);
 
-        if (horizontalValue > 0)
+        if(horizontalValue > 0)
         {
             renderer.flipX = false;
         }
@@ -149,23 +149,29 @@ public class TestEnemy : MonoBehaviour, IAttack
     }
 
     // 임시 테스트 코드
-    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck)
     {
-        if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-        {
-            currentHP -= colorDamage;
-            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-        }
-        else
-        {
-            currentHP -= damage;
-            rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
-        }
-        if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-        {
-            currentHP -= damage;
-            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-        }
+        //if (!isHeavyAttack)
+        //{
+        //    if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
+        //    {
+        //        currentHP -= criticalDamage;
+        //        rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+        //    }
+        //    else
+        //    {
+        //        currentHP -= damage;
+        //        rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
+        //    }
+        //}
+        //else
+        //{
+        //    if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
+        //    {
+        //        currentHP -= damage;
+        //        rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+        //    }
+        //}
         CheckDead();
     }
 
@@ -200,7 +206,7 @@ public class TestEnemy : MonoBehaviour, IAttack
 
     private void IsActiveColor(eActivableColor color)
     {
-        if (color != stat.enemyColor)
+        if(color != stat.enemyColor)
         {
             gameObject.layer = originLayer;
         }
@@ -241,8 +247,8 @@ public class TestEnemy : MonoBehaviour, IAttack
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
-                    transform.position - collision.transform.position, null);
+            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage, 
+                    transform.position - collision.transform.position);
         }
     }
 }

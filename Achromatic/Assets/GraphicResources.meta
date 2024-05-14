@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Achromatic/Assets/Assets.meta
-guid: 9d129a578ca9bf44b9081ca0bfdc959d
-========
-guid: 66df0e1274825044ebb12d97a99caddf
->>>>>>>> 0c576a7404e865a3c092f9a8d1145b49d7184ff0:Achromatic/Assets/GraphicResources.meta
+guid: 09972de49be384b41a33ce76f1d9cb79
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

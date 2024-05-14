@@ -47,11 +47,10 @@ public class Attack : MonoBehaviour, IParryConditionCheck
 
     private void Start()
     {
-        originLayer = gameObject.layer;
-        ignoreLayers = LayerMask.GetMask("Platform") | LayerMask.GetMask("IgnoreAttack");
+        ignoreLayers = LayerMask.GetMask("Platform") | LayerMask.GetMask("IgnoreAttack") | LayerMask.GetMask("Object");
+        originLayer = LayerMask.GetMask(LayerMask.LayerToName(gameObject.layer));
         colorVisibleLayer = LayerMask.GetMask("ColorObject");
         PlayManager.Instance.FilterColorAttackEvent.AddListener(CheckIsHeavy);
-
     }
 
     public void SetAttack(string from, IAttack after, eActivableColor color = eActivableColor.MAX_COLOR)
@@ -83,7 +82,7 @@ public class Attack : MonoBehaviour, IParryConditionCheck
     private void CheckIsHeavy(eActivableColor color)
     {
         isCanParryAttack = attackColor != color ? false : true;
-        gameObject.layer = attackColor != color ? colorVisibleLayer : originLayer;
+        gameObject.layer = LayerMaskToNumber(attackColor != color ? colorVisibleLayer : originLayer);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -97,5 +96,17 @@ public class Attack : MonoBehaviour, IParryConditionCheck
             }
             collision.GetComponent<IAttack>()?.Hit(attackDamage, colorAttackDamage, attackDir);
         }
+    }
+
+    private int LayerMaskToNumber(LayerMask layerMask)
+    {
+        int layerNumber = 1;
+        int layer = layerMask.value;
+        while (layer > 0)
+        {
+            layer = layer >> 1;
+            layerNumber++;
+        }
+        return layerNumber;
     }
 }

@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Achromatic/Assets/GraphicResources/UI.meta
 guid: ac902ebbca121fd418553c83bb58cb33
+========
+guid: d45260bf639ecbc4aa9e487ed0b13b8e
+>>>>>>>> 23-UI-Development:Achromatic/Assets/Prefabs/UI.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -93,7 +94,19 @@ public class PlayerDashState : PlayerBaseState
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
 
-        yield return Yields.WaitSeconds(player.GetPlayerStat.dashCooldown - player.GetPlayerStat.dashAfterDelay);
+        float elapsedTime = 0;
+        while (true)
+        {
+            elapsedTime += Time.deltaTime;
+
+            UISystem.Instance.dashCooldownEvent.Invoke(elapsedTime / player.GetPlayerStat.dashCooldown);
+            if (elapsedTime > player.GetPlayerStat.dashCooldown)
+            {
+                break;
+            }
+            yield return null;
+        }
+        yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canDash = true;
     }
     IEnumerator ParrySequence()

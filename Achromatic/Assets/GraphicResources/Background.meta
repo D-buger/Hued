@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Achromatic/Assets/Scripts/UI.meta
-guid: 3b341281cdc937c49b9a1ef61ab29a46
-========
+<<<<<<<< HEAD:Achromatic/Assets/GraphicResources/Background.meta
 guid: 67c71d1b8a9a0a5478f1a027da66f112
->>>>>>>> 0c576a7404e865a3c092f9a8d1145b49d7184ff0:Achromatic/Assets/GraphicResources/Background.meta
+========
+guid: 63c211b86f06fc94eae4ad4ec3b8f5a8
+>>>>>>>> 23-UI-Development:Achromatic/Assets/GraphicResources/Prototype/effect.meta
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

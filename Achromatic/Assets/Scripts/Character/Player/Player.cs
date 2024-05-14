@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
@@ -37,8 +39,19 @@ public class Player : MonoBehaviour, IAttack
     [SerializeField]
     private PlayerStatus stat;
     public PlayerStatus GetPlayerStat => stat;
-
-    public int currentHP
+    public int MaxHP
+    {
+        get
+        {
+            return stat.maxHP;
+        }
+        set
+        {
+            stat.maxHP = value % 2 == 0 ? value : ++value;
+            PlayerMaxHPEvent?.Invoke(stat.maxHP, stat.currentHP);
+        }
+    }
+    public int CurrentHP
     {
         get
         {
@@ -46,14 +59,21 @@ public class Player : MonoBehaviour, IAttack
         }
         set
         {
-            stat.currentHP = value;
-            if (stat.currentHP < 0)
+            stat.currentHP = Mathf.Min(value, stat.maxHP);
+            if (stat.currentHP <= 0)
             {
                 Dead();
             }
-            
+            else
+            {
+                PlayerCurrentHPEvent?.Invoke(stat.maxHP, stat.currentHP);
+            }
         }
     }
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerCurrentHPEvent;
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerMaxHPEvent;
 
     private Dictionary<ePlayerState, PlayerBaseState> playerStates;
     private PlayerFSM playerFSM;
@@ -127,13 +147,14 @@ public class Player : MonoBehaviour, IAttack
         playerStates.Add(ePlayerState.DEAD, dead);
 
         playerFSM = new PlayerFSM(playerStates[ePlayerState.IDLE]);
-        stat.currentHP = stat.playerHP;
+        MaxHP = stat.playerHP;
+        CurrentHP = stat.playerHP;
 
-        GroundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("ColorObject"));
+        GroundLayer = LayerMask.GetMask("Platform") | LayerMask.GetMask("Object") | LayerMask.GetMask("ColorObject");
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 
-        UISystem.Instance?.hpSliderEvent?.Invoke(currentHP);
+        UISystem.Instance?.hpSliderEvent?.Invoke(CurrentHP);
     }
 
     private void Update()

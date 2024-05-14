@@ -10,8 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf3f9a6eaf9fb2b4e96bb948a78a6ae3, type: 3}
-  m_Name: GolemBossStat
+  m_Name: TestBossStatus
   m_EditorClassIdentifier: 
   patternDelayTime: 0.7
-  maxHp: 100
+  startPhasePatterns:
+  - {fileID: 1731651111441325411, guid: 60d2df6b91ee28b41a815726948a01f9, type: 3}
+  phaseChangePattern: {fileID: 0}
+  endPhasePatterns: []
+  maxHp: 10
   moveSpeed: 0.7
+  bossColor: 1

@@ -90,6 +90,10 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         attackPoint = transform.GetChild(0).gameObject;
         meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
+    private void Start()
+    {
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
+    }
 
     private void OnEnable()
     {
@@ -577,4 +581,9 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.senseCircle);
         }
     }
+
+    //public override void Respawn(GameObject monsterPos, bool isRespawnMonster)
+    //{
+    //    throw new NotImplementedException();
+    //}
 }
