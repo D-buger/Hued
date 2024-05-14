@@ -294,7 +294,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     {
         currentState |= EMonsterAttackState.IsAttack;
         canAttack = false;
-        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
         Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         Vector2 check;
         if (value.x <= 0)
@@ -314,6 +313,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         animState = EanimState.detection;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(1.3333f);
+        value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
+        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
         if (isDead)
         {
             yield return null;
