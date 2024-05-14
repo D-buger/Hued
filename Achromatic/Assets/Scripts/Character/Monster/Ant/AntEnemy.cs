@@ -217,9 +217,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 animState = EanimState.EnemyDisco;
                 SetCurrentAnimation(animState);
-                SetState(EMonsterState.isWait, false);
-                SetState(EMonsterState.isPlayerBetween, false);
-                SetState(EMonsterState.isBattle, false);
                 stat.moveSpeed = 0; // FIX 아래 매직넘버들 죄다 수정 예정
                 stat.runSpeed = 0;
                 CheckStateChange();
@@ -228,6 +225,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 stat.runSpeed = 2;
                 SetState(EMonsterState.isPlayerBetween, true);
                 SetState(EMonsterState.isWait, false);
+                SetState(EMonsterState.isBattle, false);
                 CheckStateChange();
                 isFirstAnimCheckIdle = true;
             }
@@ -321,7 +319,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         }
         else
         {
-            int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
+            int checkRandomAttackType = 45; //UnityEngine.Random.Range(1, 100);
             if (checkRandomAttackType <= stat.swordAttackPercent)
             {
                 StartCoroutine(SwordAttack(value, check, ZAngle));
@@ -356,9 +354,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         rigid.AddForce(check * stat.cuttingAttackRebound, ForceMode2D.Impulse);
         yield return Yields.WaitSeconds(stat.cuttingAttackTime);
         swordAttackObject.SetActive(true);
-        yield return Yields.WaitSeconds(stat.cuttingAttackTime);
-        swordAttackObject.SetActive(false);
-
+        yield return Yields.WaitSeconds(0.25f);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(1);
         if (projectileObj != null)
         {
@@ -375,6 +371,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 projectile.ReturnStartRoutine(stat.swordAttackRange);
             }
         }
+        yield return Yields.WaitSeconds(stat.cuttingAttackTime);
+        swordAttackObject.SetActive(false);
     }
 
     private IEnumerator StabAttack(float check)
@@ -383,31 +381,34 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield break;
         }
-        currentState |= EMonsterAttackState.isStabAttack;
-        float delayToAttack = 0.2f;
-        float delayToDestory = 0.05f;
-        int objectCount = stabAttackOBJ.Length / 2;
-
-        int satbValue = 3;
-        objectCount += satbValue;
-        while (currentState.HasFlag(EMonsterAttackState.isStabAttack))
+        if (!isDead)
         {
-            currentState &= ~EMonsterAttackState.isStabAttack;
-            for (int i = satbValue; i < objectCount; i += 1)
+            currentState |= EMonsterAttackState.isStabAttack;
+            float delayToAttack = 0.2f;
+            float delayToDestory = 0.05f;
+            int objectCount = stabAttackOBJ.Length / 2;
+
+            int satbValue = 3;
+            objectCount += satbValue;
+            while (currentState.HasFlag(EMonsterAttackState.isStabAttack))
             {
-                if (i == 2 || i == 5)
+                currentState &= ~EMonsterAttackState.isStabAttack;
+                for (int i = satbValue; i < objectCount; i += 1)
                 {
-                    StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, true));
-                    yield return new WaitForSeconds(delayToAttack);
-                    StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, false, true));
-                    yield return new WaitForSeconds(delayToDestory);
-                }
-                else
-                {
-                    StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, false));
-                    yield return new WaitForSeconds(delayToAttack);
-                    StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, false, false));
-                    yield return new WaitForSeconds(delayToDestory);
+                    if (i == 2 || i == 5)
+                    {
+                        StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, true));
+                        yield return new WaitForSeconds(delayToAttack);
+                        StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, false, true));
+                        yield return new WaitForSeconds(delayToDestory);
+                    }
+                    else
+                    {
+                        StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, false));
+                        yield return new WaitForSeconds(delayToAttack);
+                        StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, false, false));
+                        yield return new WaitForSeconds(delayToDestory);
+                    }
                 }
             }
         }
@@ -425,7 +426,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 }
                 else
                 {
-                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][4]["time"] - (float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][1]["time"]);
+                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][3]["time"]);
+                    objects[i].SetActive(isSet);
                     objects[i].SetActive(isSet);
                 }
             }
@@ -433,29 +435,35 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private IEnumerator CounterAttackStart()
     {
-        animState = EanimState.Counter;
-        SetCurrentAnimation(animState);
-        currentState |= EMonsterAttackState.isCounter;
-        yield return Yields.WaitSeconds(stat.counterAttackTime);
-        if (currentState.HasFlag(EMonsterAttackState.isCounter))
+        if (!isDead)
         {
-            animState = EanimState.Off;
+            animState = EanimState.Counter;
             SetCurrentAnimation(animState);
-            currentState &= ~EMonsterAttackState.isCounter;
-            yield return Yields.WaitSeconds(0.2f);
+            currentState |= EMonsterAttackState.isCounter;
+            yield return Yields.WaitSeconds(stat.counterAttackTime);
+            if (currentState.HasFlag(EMonsterAttackState.isCounter))
+            {
+                animState = EanimState.Off;
+                SetCurrentAnimation(animState);
+                currentState &= ~EMonsterAttackState.isCounter;
+                yield return Yields.WaitSeconds(0.2f);
+            }
         }
     }
     private IEnumerator CounterAttackPlay(Vector2 dir, float ZAngle)
     {
-        yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_parrying/ground_ant_battle_parrying"]["events"][0]["time"]);
-        animState = EanimState.CounterAttack;
-        SetCurrentAnimation(animState);
-        currentState |= EMonsterAttackState.isCounterAttack;
-        CounterAttackObject.SetActive(true);
-        yield return Yields.WaitSeconds(0.1f);
-        CounterAttackObject.SetActive(false);
-        currentState &= ~EMonsterAttackState.isCounterAttack;
-        currentState &= ~EMonsterAttackState.isCounter;
+        if (!isDead)
+        {
+            yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_parrying/ground_ant_battle_parrying"]["events"][0]["time"]);
+            animState = EanimState.CounterAttack;
+            SetCurrentAnimation(animState);
+            currentState |= EMonsterAttackState.isCounterAttack;
+            CounterAttackObject.SetActive(true);
+            yield return Yields.WaitSeconds(0.1f);
+            CounterAttackObject.SetActive(false);
+            currentState &= ~EMonsterAttackState.isCounterAttack;
+            currentState &= ~EMonsterAttackState.isCounter;
+        }
     }
     public override void Dead()
     {
@@ -481,27 +489,38 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     }
     public override void CheckStateChange()
     {
-        switch (state)
+        if (isDead)
         {
-            case EMonsterState.isBattle:
-                fsm.ChangeState("Attack");
-                break;
-            case EMonsterState.isPlayerBetween:
-                fsm.ChangeState("Chase");
-                animState = EanimState.Walk;
-                SetCurrentAnimation(animState);
-                break;
-            case EMonsterState.isWait:
-                fsm.ChangeState("Idle");
-                animState = EanimState.Idle;
-                SetCurrentAnimation(animState);
-                break;
-            default:
-                break;
+            return;
+        }
+        else
+        {
+            switch (state)
+            {
+                case EMonsterState.isBattle:
+                    fsm.ChangeState("Attack");
+                    break;
+                case EMonsterState.isPlayerBetween:
+                    fsm.ChangeState("Chase");
+                    animState = EanimState.Walk;
+                    SetCurrentAnimation(animState);
+                    break;
+                case EMonsterState.isWait:
+                    fsm.ChangeState("Idle");
+                    animState = EanimState.Idle;
+                    SetCurrentAnimation(animState);
+                    break;
+                default:
+                    break;
+            }
         }
     }
     public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
+        if (isDead)
+        {
+            return;
+        }
         if (currentState.HasFlag(EMonsterAttackState.isCounter))
         {
             animState = EanimState.Trigger;
