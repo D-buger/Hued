@@ -69,7 +69,7 @@ public abstract class Monster : MonoBehaviour, IAttack
             }
             else
             {
-                CheckWaitTime();
+                StartCoroutine(CheckWaitTime());
             }
         }
         yield break;
