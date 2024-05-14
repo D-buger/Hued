@@ -26,10 +26,13 @@ public class PlayerHitState : PlayerBaseState
         player.ParryCondition = false;
         if (!player.IsInvincibility)
         {
-            player.RigidbodyComp.velocity = Vector2.zero;
-            attackDir.y = 0;
             player.currentHP -= damage;
-            hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime));
+            if (!player.IsDead)
+            {
+                player.RigidbodyComp.velocity = Vector2.zero;
+                attackDir.y = 0;
+                hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime));
+            }
         }
     }
 
@@ -47,7 +50,7 @@ public class PlayerHitState : PlayerBaseState
         float elapsedTime = 0f;
         while (true)
         {
-            if (ReferenceEquals(player.RendererComp, null) || elapsedTime > reboundTime)
+            if (player.RendererComp is null || elapsedTime > reboundTime)
             {
                 break;
             }

@@ -66,6 +66,7 @@ public class Player : MonoBehaviour, IAttack
 
     public bool ParryCondition { get; set; } = false;
     public bool IsCriticalAttack{ get; set; } = false;
+    public bool IsDead { get; set; } = false;
     public bool OnGround { get; private set; }
     public float footOffGroundTime { get; set; } = 0f;
     public bool PlayerFaceRight { get; set; } = true;
@@ -259,6 +260,7 @@ public class Player : MonoBehaviour, IAttack
 
     private void Dead()
     {
+        IsDead = true;
         Debug.Log("Player Dead");
         SceneManager.LoadScene(0);
     }
