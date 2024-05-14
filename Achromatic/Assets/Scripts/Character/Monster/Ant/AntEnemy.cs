@@ -93,7 +93,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private void OnEnable()
     {
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         monsterRunleftPosition.y = transform.position.y;
         monsterRunRightPosition.y = transform.position.y;
         monsterRunleftPosition.x += transform.position.x + runPosition;
@@ -116,6 +115,10 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         CheckStateChange();
     }
 
+    private void Start()
+    {
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
+    }
     private void Update()
     {
         StartCoroutine(CheckPlayer(startAntPosition));
@@ -200,8 +203,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             return;
         }
-
         skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
+        Debug.Log(skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale);
         skeletonAnimation.loop = loop;
         skeletonAnimation.timeScale = timeScale;
         currentAnimation = animClip.name;
@@ -217,15 +220,15 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 animState = EanimState.EnemyDisco;
                 SetCurrentAnimation(animState);
-                stat.moveSpeed = 0; // FIX 아래 매직넘버들 죄다 수정 예정
-                stat.runSpeed = 0;
-                CheckStateChange();
-                yield return Yields.WaitSeconds(1.0f);
-                stat.moveSpeed = 1; 
-                stat.runSpeed = 2;
                 SetState(EMonsterState.isPlayerBetween, true);
                 SetState(EMonsterState.isWait, false);
                 SetState(EMonsterState.isBattle, false);
+                stat.moveSpeed = 0; // FIX 아래 매직넘버들 죄다 수정 예정
+                stat.runSpeed = 0;
+                CheckStateChange();
+                yield return Yields.WaitSeconds(0.5f);
+                stat.moveSpeed = 1; 
+                stat.runSpeed = 2;
                 CheckStateChange();
                 isFirstAnimCheckIdle = true;
             }
@@ -277,7 +280,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     }
     public override void Attack()
     {
-        if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle)
+        if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle && canAttack)
         {
             SetState(EMonsterState.isBattle, false);
             SetState(EMonsterState.isPlayerBetween, true);
@@ -426,7 +429,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 }
                 else
                 {
-                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][3]["time"]);
+                    yield return Yields.WaitSeconds((float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][4]["time"] - (float)jsonObject["animations"]["ground_ant/ground_ant_battle/ground_ant_battle_stabbing/ground_ant_battle_stabbing_full/ground_ant_battle_stabbing_full"]["events"][0]["time"]);
                     objects[i].SetActive(isSet);
                     objects[i].SetActive(isSet);
                 }

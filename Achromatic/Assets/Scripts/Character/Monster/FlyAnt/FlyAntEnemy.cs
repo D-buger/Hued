@@ -46,6 +46,9 @@ public class FlyAntEnemy : Monster
     {
         attackDir = (PlayerPos - (Vector2)transform.position).normalized;
         startPos = new Vector2(transform.position.x, transform.position.y);
+    }
+    private void Start()
+    {
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
     }
     private void Update()
