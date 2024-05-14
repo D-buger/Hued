@@ -25,9 +25,11 @@ MonoBehaviour:
   heavyHitReboundPower: 10
   groggyTime: 0.5
   timeToWait: 3
+  deadDelay: 1.33
   cuttingAttackDamage: 1
   cuttingAttackRebound: 15
-  cuttingAttackTime: 0.5
+  cuttingAttackDelay: 0.75
+  cuttingAttackTime: 0.2
   swordAttackDamage: 1
   swordAttackSpeed: 200
   swordAttackRange: 2

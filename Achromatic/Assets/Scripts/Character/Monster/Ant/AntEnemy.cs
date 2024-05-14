@@ -68,7 +68,10 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private string currentAnimation;
     private float angleThreshold = 52f;
+    private float stabDelayToAttack = 0.2f;
+    private float stabDelayToDestory = 0.05f;
 
+    private int satbValue = 3;
     private enum EMonsterAttackState
     {
         None = 0,
@@ -93,13 +96,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private void OnEnable()
     {
-        monsterRunleftPosition.y = transform.position.y;
-        monsterRunRightPosition.y = transform.position.y;
-        monsterRunleftPosition.x += transform.position.x + runPosition;
-        monsterRunRightPosition.x += transform.position.x - runPosition;
         currentHP = stat.MonsterHP;
-        monsterPosition = monsterRunRightPosition;
-        startAntPosition = new Vector2(transform.position.x, transform.position.y);
 
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
@@ -108,10 +105,16 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private void Start()
     {
+        monsterRunleftPosition.y = transform.position.y;
+        monsterRunRightPosition.y = transform.position.y;
+        monsterRunleftPosition.x += transform.position.x + runPosition;
+        monsterRunRightPosition.x += transform.position.x - runPosition;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         MonsterManager.Instance?.GetColorEvent.AddListener(CheckIsHeavy);
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();
+        monsterPosition = monsterRunRightPosition;
+        startAntPosition = new Vector2(transform.position.x, transform.position.y);
 
         if (animationJson != null)
         {
@@ -330,7 +333,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 animState = EanimState.Stab;
                 SetCurrentAnimation(animState);
-                StartCoroutine(StabAttack(value.x));
+                StartCoroutine(StabAttack());
             }
             else
             {
@@ -350,13 +353,13 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield return null;
         }
-        yield return Yields.WaitSeconds(0.1f);
         animState = EanimState.Sword;
         SetCurrentAnimation(animState);
         rigid.AddForce(check * stat.cuttingAttackRebound, ForceMode2D.Impulse);
-        yield return Yields.WaitSeconds(stat.cuttingAttackTime);
+        yield return Yields.WaitSeconds(stat.cuttingAttackDelay);
         swordAttackObject.SetActive(true);
-        yield return Yields.WaitSeconds(0.25f);
+        yield return Yields.WaitSeconds(stat.cuttingAttackTime);
+        swordAttackObject.SetActive(false);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(1);
         if (projectileObj != null)
         {
@@ -372,11 +375,10 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 projectile.ReturnStartRoutine(stat.swordAttackRange);
             }
         }
-        yield return Yields.WaitSeconds(stat.cuttingAttackTime);
-        swordAttackObject.SetActive(false);
+        yield return Yields.WaitSeconds(stat.cuttingAttackDelay);
     }
 
-    private IEnumerator StabAttack(float check)
+    private IEnumerator StabAttack()
     {
         if (IsStateActive(EMonsterState.isWait))
         {
@@ -385,11 +387,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         if (!isDead)
         {
             currentState |= EMonsterAttackState.isStabAttack;
-            float delayToAttack = 0.2f;
-            float delayToDestory = 0.05f;
             int objectCount = stabAttackOBJ.Length / 2;
-
-            int satbValue = 3;
             objectCount += satbValue;
             while (currentState.HasFlag(EMonsterAttackState.isStabAttack))
             {
@@ -399,16 +397,16 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                     if (i == 2 || i == 5)
                     {
                         StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, true));
-                        yield return new WaitForSeconds(delayToAttack);
+                        yield return new WaitForSeconds(stabDelayToAttack);
                         StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, false, true));
-                        yield return new WaitForSeconds(delayToDestory);
+                        yield return new WaitForSeconds(stabDelayToDestory);
                     }
                     else
                     {
                         StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, true, false));
-                        yield return new WaitForSeconds(delayToAttack);
+                        yield return new WaitForSeconds(stabDelayToAttack);
                         StartCoroutine(ActivateObjects(stabAttackOBJ, i, i + 1, false, false));
-                        yield return new WaitForSeconds(delayToDestory);
+                        yield return new WaitForSeconds(stabDelayToDestory);
                     }
                 }
             }
@@ -473,20 +471,14 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private IEnumerator DeadSequence()
     {
-        float deadDelayTime = 1.3f;
         SetState(EMonsterState.isBattle, false);
         SetState(EMonsterState.isWait, false);
         SetState(EMonsterState.isPlayerBetween, false);
-
-        skeletonAnimation.state.GetCurrent(0).TimeScale = 0;
-        skeletonAnimation.state.GetCurrent(0).TimeScale = 1;
-        skeletonAnimation.loop = false;
         StopCoroutine(AttackSequence(PlayerPos));
-        ///<summary> 현재 실행중인 애니메이션 강제 종료, 따로 함수가 없음. ///</summary>
         animState = EanimState.Dead;
         SetCurrentAnimation(animState);
 
-        yield return new WaitForSeconds(deadDelayTime);
+        yield return new WaitForSeconds(stat.deadDelay);
         gameObject.SetActive(false);
     }
     public override void CheckStateChange()
