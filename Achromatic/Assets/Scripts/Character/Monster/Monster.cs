@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public abstract class Monster : MonoBehaviour, IAttack//, ICheckMonster
+public abstract class Monster : MonoBehaviour, IAttack
 {
     public MonsterStat baseStat;
     public int currentHP;
