@@ -57,7 +57,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Amount: 0.13
+    - _Amount: 0.48
     - _EnableExternalAlpha: 0
     - _Metallic: 0.8
     - _Parallax_Amplitude: 20
@@ -68,7 +68,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _CrystalColor: {r: 1, g: 0, b: 0, a: 0}
-    - _EmissionColor: {r: 62.10733, g: 3.2516918, b: 7.1438804, a: 0}
+    - _EmissionColor: {r: 3.8817096, g: 0.20323081, b: 0.3458023, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
