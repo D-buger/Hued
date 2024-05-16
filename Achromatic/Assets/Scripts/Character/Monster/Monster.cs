@@ -49,33 +49,16 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
         distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
-        if (flyMonster)
+        if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
-            if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
-            {
-                SetState(EMonsterState.isBattle, true);
-                SetState(EMonsterState.isWait, false);
-                elapsedTime = 0f;
-                CheckStateChange();
-            }
-            else
-            {
-                StartCoroutine(CheckWaitTime());
-            }
+            SetState(EMonsterState.isPlayerBetween, true);
+            SetState(EMonsterState.isWait, false);
+            elapsedTime = 0f;
+            CheckStateChange();
         }
         else
         {
-            if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
-            {
-                SetState(EMonsterState.isPlayerBetween, true);
-                SetState(EMonsterState.isWait, false);
-                elapsedTime = 0f;
-                CheckStateChange();
-            }
-            else
-            {
-                StartCoroutine(CheckWaitTime());
-            }
+            StartCoroutine(CheckWaitTime());
         }
         yield break;
     }

@@ -2,6 +2,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "FlyAntMonsterStat", menuName = "Scriptable Object/FlyAntMonsterStat")]
 public class FlyAntMonsterStat : MonsterStat
 {
+    [Tooltip("사각형 인지범위")]
+    public Vector3 senseCube = new(2,2,0);
     [Tooltip("공격과 공격 사이의 추가 딜레이")]
     public float flyAntAttackDelay = 1.0f;
     [Tooltip("돌진 속도")]

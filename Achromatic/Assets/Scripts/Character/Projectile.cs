@@ -12,7 +12,6 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
 
     private Vector2 moveDirection = Vector2.zero;
     private float moveSpeed = 1f;
-    private float moveRange = 5f;
     private int damage = 1;
 
     private bool isHeavyAttack = true;
@@ -29,10 +28,6 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
     {
         rigid = GetComponent<Rigidbody2D>();
         renderer = GetComponent<SpriteRenderer>();
-    }
-
-    private void Update()
-    {
     }
 
     public void CheckIsHeavyAttack(eActivableColor color)
@@ -58,7 +53,6 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
         moveSpeed = speed;
         isHeavyAttack = isHeavy;
         damage = dmg;
-        moveRange = range;
         fromVector = shotFrom.transform.position;
         enemyColor = color;
         transform.rotation = Quaternion.Euler(1, 1, shotDir);

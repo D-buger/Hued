@@ -322,6 +322,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         animState = EanimState.detection;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(stat.AttackDelay);
+
         value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
         if (isDead)

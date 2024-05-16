@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class TestEnemy : MonoBehaviour, IAttack
 {
-    private Rigidbody2D rigid;
     private SpriteRenderer renderer;
     private Animator anim;
 
@@ -36,7 +35,6 @@ public class TestEnemy : MonoBehaviour, IAttack
     private LayerMask colorVisibleLayer;
     private void Awake()
     {
-        rigid = GetComponent<Rigidbody2D>();
         renderer = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
 
@@ -95,7 +93,7 @@ public class TestEnemy : MonoBehaviour, IAttack
         canAttack = false; 
         float horizontalValue = attackAngle.x - transform.position.x;
         float verticalValue = attackAngle.y - transform.position.y;
-        Vector2 value = new Vector2(horizontalValue, verticalValue);
+        Vector2 value = new(horizontalValue, verticalValue);
 
         if(horizontalValue > 0)
         {
