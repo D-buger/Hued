@@ -10,6 +10,8 @@ public class FlyAntMonsterStat : MonsterStat
     public float badyAttackSpeed = 1.0f;
     [Tooltip("돌진 데미지")]
     public int badyAttackDamage = 5;
+    [Tooltip("연속 돌진이 딜레이되는 시간")]
+    public float badyAttackDelay = 1.0f;
     [Tooltip("연속 돌진까지 걸리는 시간")]
     public int repeatBadyAttackTime = 1;
     [Tooltip("창 던지기 발사 속도")]
