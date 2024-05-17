@@ -52,7 +52,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         IsAttack = 1 << 0,
         isBadyAttack = 2 << 0,
         isReturnEnemy = 3 << 0,
-        isFirstAttack = 4 << 0
+        isFirstAttack = 4 << 0,
+        isDoubleBadyAttack = 5 << 0
     }
     private EMonsterAttackState currentState = EMonsterAttackState.isFirstAttack;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
@@ -105,9 +106,9 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         {
             Attack();
         }
-        if (currentState.HasFlag(EMonsterAttackState.isBadyAttack))
+        if (currentState.HasFlag(EMonsterAttackState.isBadyAttack) && !currentState.HasFlag(EMonsterAttackState.isReturnEnemy))
         {
-            Rush();
+            StartCoroutine(Rush());
         }
         if (currentState.HasFlag(EMonsterAttackState.isReturnEnemy))
         {
@@ -240,8 +241,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         if (checkRandomAttackType > stat.doubleBadyAttackPer)
         {
             SetAttackState(EMonsterAttackState.isBadyAttack, true);
-            //yield return Yields.WaitSeconds(stat.badyAttackDelay);
-            //currentState |= EMonsterAttackState.isBadyAttack;
+            SetAttackState(EMonsterAttackState.isDoubleBadyAttack, true);
             Debug.Log("연속 돌진");
         }
         else
@@ -251,15 +251,25 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         }
         stat.contactDamage = dmagepool;
     }
-    private void Rush()
+    private IEnumerator Rush()
     {
         transform.position = Vector2.MoveTowards(transform.position, targetPos, stat.badyAttackSpeed * Time.deltaTime);
         Debug.Log("러시");
         if (Vector2.Distance(transform.position, targetPos) <= stat.returnPosValue)
         {
-            SetAttackState(EMonsterAttackState.isBadyAttack, false);
-            SetAttackState(EMonsterAttackState.isReturnEnemy, true);
+            if (currentState.HasFlag(EMonsterAttackState.isDoubleBadyAttack))
+            {
+                targetPos = new(PlayerPos.x, PlayerPos.y);
+                SetAttackState(EMonsterAttackState.isDoubleBadyAttack, false);
+                yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
+            }
+            else
+            {
+                SetAttackState(EMonsterAttackState.isBadyAttack, false);
+                SetAttackState(EMonsterAttackState.isReturnEnemy, true);
+            }
         }
+        yield break;
     }
     private void ReturnMonster()
     {

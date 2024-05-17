@@ -16,6 +16,7 @@ MonoBehaviour:
   enemyColor: 0
   senseCircle: 5
   moveSpeed: 1
+  runSpeed: 2
   attackDamage: 1
   attackTime: 0.3
   attackCooldown: 1
@@ -24,11 +25,15 @@ MonoBehaviour:
   heavyHitReboundPower: 10
   groggyTime: 0.5
   timeToWait: 1
+  deadDelay: 1.33
+  AttackDelay: 1.33
+  senseCube: {x: 2, y: 2, z: 0}
   flyAntAttackDelay: 1
-  badyAttackSpeed: 1
+  badyAttackSpeed: 2
   badyAttackDamage: 5
+  badyAttackDelay: 0
   repeatBadyAttackTime: 1
-  stabThrowSpeed: 50
+  stabThrowSpeed: 150
   stabThrowDamage: 7
   stabThrowReturnDamage: 4
   stabThrowReturnSpeed: 50
