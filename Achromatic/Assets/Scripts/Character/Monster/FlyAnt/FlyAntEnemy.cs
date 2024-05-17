@@ -37,6 +37,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private float deadDelayTime = 1.3f;
 
     private bool isHeavy = false;
+    private bool isDoubleBadyAttack = false;
+    private bool isReturnStop = false;
 
     [Header("Animation")]
     [SerializeField]
@@ -53,8 +55,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         isBadyAttack = 2 << 0,
         isReturnEnemy = 3 << 0,
         isFirstAttack = 4 << 0,
-        isDoubleBadyAttack = 5 << 0
     }
+    [SerializeField]
     private EMonsterAttackState currentState = EMonsterAttackState.isFirstAttack;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
@@ -110,7 +112,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         {
             StartCoroutine(Rush());
         }
-        if (currentState.HasFlag(EMonsterAttackState.isReturnEnemy))
+        if (currentState.HasFlag(EMonsterAttackState.isReturnEnemy) && !isReturnStop)
         {
             ReturnMonster();
         }
@@ -234,20 +236,20 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private IEnumerator BadyAttack()
     {
         targetPos = new(PlayerPos.x, PlayerPos.y);
-        int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
+        int checkRandomAttackType = 60;//UnityEngine.Random.Range(1, 100);
         int dmagepool = stat.contactDamage;
         yield return Yields.WaitSeconds(stat.flyAntAttackDelay);
         stat.contactDamage = stat.badyAttackDamage;
         if (checkRandomAttackType > stat.doubleBadyAttackPer)
         {
             SetAttackState(EMonsterAttackState.isBadyAttack, true);
-            SetAttackState(EMonsterAttackState.isDoubleBadyAttack, true);
+            isDoubleBadyAttack = true;
+            isReturnStop = true;
             Debug.Log("연속 돌진");
         }
         else
         {
             SetAttackState(EMonsterAttackState.isBadyAttack, true);
-            Debug.Log("1회 돌진");
         }
         stat.contactDamage = dmagepool;
     }
@@ -257,19 +259,21 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         Debug.Log("러시");
         if (Vector2.Distance(transform.position, targetPos) <= stat.returnPosValue)
         {
-            if (currentState.HasFlag(EMonsterAttackState.isDoubleBadyAttack))
+            if (isDoubleBadyAttack)
             {
                 targetPos = new(PlayerPos.x, PlayerPos.y);
-                SetAttackState(EMonsterAttackState.isDoubleBadyAttack, false);
+                SetAttackState(EMonsterAttackState.isBadyAttack, true);
                 yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
+                isDoubleBadyAttack= false;
             }
             else
             {
+                Debug.Log("일반 돌진이 선택됨");
                 SetAttackState(EMonsterAttackState.isBadyAttack, false);
                 SetAttackState(EMonsterAttackState.isReturnEnemy, true);
+                isReturnStop = false;
             }
         }
-        yield break;
     }
     private void ReturnMonster()
     {
