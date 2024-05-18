@@ -18,13 +18,13 @@ public class SwordAttack : MonoBehaviour, IParryConditionCheck
         {
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                collision.gameObject.GetComponent<Player>().Hit(stat.cuttingAttackDamage,
-                stat.cuttingAttackDamage, transform.position - collision.transform.position, this);
+                collision.gameObject.GetComponent<Player>().Hit(stat.slashAttackDamage,
+                stat.slashAttackDamage, transform.position - collision.transform.position, this);
             }
             else
             {
-                collision.gameObject.GetComponent<Player>().Hit(stat.cuttingAttackDamage,
-                stat.cuttingAttackDamage, transform.position - collision.transform.position, null);
+                collision.gameObject.GetComponent<Player>().Hit(stat.slashAttackDamage,
+                stat.slashAttackDamage, transform.position - collision.transform.position, null);
             }
             gameObject.SetActive(false);
         }

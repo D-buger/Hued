@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class Monster : MonoBehaviour, IAttack
 {
-    public MonsterStat baseStat;
+    protected MonsterStat baseStat;
     public int currentHP;
 
     [HideInInspector]
@@ -25,8 +25,6 @@ public abstract class Monster : MonoBehaviour, IAttack
     public float distanceToStartPos = 0;
     [HideInInspector]
     public bool isDead = false;
-    [SerializeField]
-    private bool flyMonster = false;
 
     [System.Flags]
     public enum EMonsterState
@@ -49,33 +47,16 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
         distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
-        if (flyMonster)
+        if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
-            if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
-            {
-                SetState(EMonsterState.isBattle, true);
-                SetState(EMonsterState.isWait, false);
-                elapsedTime = 0f;
-                CheckStateChange();
-            }
-            else
-            {
-                StartCoroutine(CheckWaitTime());
-            }
+            SetState(EMonsterState.isPlayerBetween, true);
+            SetState(EMonsterState.isWait, false);
+            elapsedTime = 0f;
+            CheckStateChange();
         }
         else
         {
-            if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
-            {
-                SetState(EMonsterState.isPlayerBetween, true);
-                SetState(EMonsterState.isWait, false);
-                elapsedTime = 0f;
-                CheckStateChange();
-            }
-            else
-            {
-                StartCoroutine(CheckWaitTime());
-            }
+            StartCoroutine(CheckWaitTime());
         }
         yield break;
     }
@@ -88,7 +69,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     public virtual IEnumerator CheckWaitTime()
     {
         elapsedTime += Time.deltaTime;
-        if (elapsedTime >= baseStat.timeToWait && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        if (elapsedTime >= baseStat.waitStateDelay && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
             elapsedTime = 0f;
             SetState(EMonsterState.isWait, true);
@@ -100,40 +81,22 @@ public abstract class Monster : MonoBehaviour, IAttack
     }
     public virtual void MoveToPlayer()
     {
-        if (PlayerPos == null)
+        if (ReferenceEquals(PlayerPos, null))
         {
             return;
         }
         float horizontalValue = PlayerPos.x - transform.position.x;
         transform.localScale = (horizontalValue >= 0) ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
-        if (!flyMonster)
+        if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
         {
-            if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
-            {
-                SetState(EMonsterState.isBattle, true);
-                SetState(EMonsterState.isWait, false);
-                SetState(EMonsterState.isPlayerBetween, false);
-                CheckStateChange();
-            }
-            else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.runSpeed * Time.deltaTime);
-            }
+            SetState(EMonsterState.isBattle, true);
+            SetState(EMonsterState.isWait, false);
+            SetState(EMonsterState.isPlayerBetween, false);
+            CheckStateChange();
         }
-        else
+        else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
-            // FIX 기획서 나오면 날아다니는 몬스터에 맞게 판정 변경
-            if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
-            {
-                SetState(EMonsterState.isBattle, true);
-                SetState(EMonsterState.isWait, false);
-                SetState(EMonsterState.isPlayerBetween, false);
-                CheckStateChange();
-            }
-            else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
-            {
-                transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
-            }
+            transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
         }
     }
     public abstract void Attack();
@@ -141,7 +104,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     {
 
     }
-    public virtual void HPDown(int hitDamage)
+    private void HPDown(int hitDamage)
     {
         currentHP -= hitDamage;
     }

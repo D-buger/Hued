@@ -29,23 +29,23 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     private TextAsset animationJson;
     public enum EanimState
     {
-        Idle,
-        Walk,
-        Charge,
-        Ground,
-        Spit,
-        Detection,
-        Dead
+        IDLE,
+        WALK,
+        CHARGE,
+        GROUND,
+        SPIT,
+        DETECTION,
+        DEAD
     }
     [Flags]
     private enum EMonsterAttackState
     {
-        None = 0,
-        IsAttack = 1 << 0,
-        IsFirstAttack = 1 << 1,
-        IsEarthAttack = 1 << 2
+        NONE = 0,
+        ISATTACK = 1 << 0,
+        ISFIRSTATTACK = 1 << 1,
+        ISEARTHATTACK = 1 << 2
     }
-    private EMonsterAttackState currentState = EMonsterAttackState.IsFirstAttack;
+    private EMonsterAttackState currentState = EMonsterAttackState.ISFIRSTATTACK;
     [SerializeField]
     private EanimState animState;
 
@@ -60,7 +60,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
 
     public ParticleSystem[] earthParticleGroup;
 
-    public UnityEvent<eActivableColor> SpIderColorEvent;
+    public UnityEvent<eActivableColor> spriderColorEvent;
 
     [SerializeField]
     private GameObject[] earthObjects;
@@ -70,7 +70,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     public Vector2 startSpiderPosition;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
     private LayerMask originLayer;
-    private LayerMask colorVisibleLayer;
+    private int colorVisibleLayer;
 
     private JObject jsonObject;
 
@@ -83,25 +83,32 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         attackPoint = transform.GetChild(0).gameObject;
         meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
+    private void OnEnable()
+    {
+        currentHP = stat.MonsterHP;
+        SetState(EMonsterState.isWait, true);
+        isDead = false;
+        CheckStateChange();
+    }
     private void Start()
     {
+        monsterRunleftPosition = transform.position;
+        monsterRunRightPosition = transform.position;
+        monsterRunleftPosition.x += runPosition;
+        monsterRunRightPosition.x -= runPosition;
+
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
-        monsterRunleftPosition.y = transform.position.y;
-        monsterRunRightPosition.y = transform.position.y;
-        monsterRunleftPosition.x += transform.position.x + runPosition;
-        monsterRunRightPosition.x += transform.position.x - runPosition;
         startSpiderPosition = new Vector2(transform.position.x, transform.position.y);
-        currentHP = stat.MonsterHP;
         monsterPosition = monsterRunRightPosition;
 
         originLayer = gameObject.layer;
-        colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
+        colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
 
         MonsterManager.Instance?.GetColorEvent.AddListener(CheckIsHeavy);
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();
         angleThreshold += transform.position.y;
-        if (animationJson != null)
+        if (animationJson is not null)
         {
             jsonObject = JObject.Parse(animationJson.text);
         }
@@ -131,12 +138,12 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
                 break;
             case EMonsterState.isPlayerBetween:
                 fsm.ChangeState("Chase");
-                animState = EanimState.Walk;
+                animState = EanimState.WALK;
                 SetCurrentAnimation(animState);
                 break;
             case EMonsterState.isWait:
                 fsm.ChangeState("Idle");
-                animState = EanimState.Walk;
+                animState = EanimState.WALK;
                 SetCurrentAnimation(animState);
                 break;
             default:
@@ -150,7 +157,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             isHeavy = true;
         }
-        SpIderColorEvent?.Invoke(color);
+        spriderColorEvent?.Invoke(color);
     }
 
     private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
@@ -170,26 +177,26 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         float timeScale = 1;
         switch (_state)
         {
-            case EanimState.Idle:
-                AsyncAnimation(aniClip[(int)EanimState.Idle], true, timeScale);
+            case EanimState.IDLE:
+                AsyncAnimation(aniClip[(int)EanimState.IDLE], true, timeScale);
                 break;
-            case EanimState.Walk:
-                AsyncAnimation(aniClip[(int)EanimState.Walk], true, timeScale);
+            case EanimState.WALK:
+                AsyncAnimation(aniClip[(int)EanimState.WALK], true, timeScale);
                 break;
-            case EanimState.Charge:
-                AsyncAnimation(aniClip[(int)EanimState.Charge], false, timeScale);
+            case EanimState.CHARGE:
+                AsyncAnimation(aniClip[(int)EanimState.CHARGE], false, timeScale);
                 break;
-            case EanimState.Ground:
-                AsyncAnimation(aniClip[(int)EanimState.Ground], false, timeScale);
+            case EanimState.GROUND:
+                AsyncAnimation(aniClip[(int)EanimState.GROUND], false, timeScale);
                 break;
-            case EanimState.Spit:
-                AsyncAnimation(aniClip[(int)EanimState.Spit], false, timeScale);
+            case EanimState.SPIT:
+                AsyncAnimation(aniClip[(int)EanimState.SPIT], false, timeScale);
                 break;
-            case EanimState.Detection:
-                AsyncAnimation(aniClip[(int)EanimState.Detection], false, timeScale);
+            case EanimState.DETECTION:
+                AsyncAnimation(aniClip[(int)EanimState.DETECTION], false, timeScale);
                 break;
-            case EanimState.Dead:
-                AsyncAnimation(aniClip[(int)EanimState.Dead], false, timeScale);
+            case EanimState.DEAD:
+                AsyncAnimation(aniClip[(int)EanimState.DEAD], false, timeScale);
                 break;
         }
     }
@@ -204,6 +211,39 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
             gameObject.layer = colorVisibleLayer;
         }
         gameObject.layer = (color != stat.enemyColor) ? originLayer : colorVisibleLayer;
+    }
+    public override IEnumerator CheckWaitTime()
+    {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= stat.waitStateDelay && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        {
+            elapsedTime = 0f;
+            SetState(EMonsterState.isWait, true);
+            SetState(EMonsterState.isPlayerBetween, false);
+            SetState(EMonsterState.isBattle, false);
+            CheckStateChange();
+        }
+        yield break;
+    }
+    public override void MoveToPlayer()
+    {
+        if (ReferenceEquals(PlayerPos, null))
+        {
+            return;
+        }
+        float horizontalValue = PlayerPos.x - transform.position.x;
+        transform.localScale = (horizontalValue >= 0) ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
+        if (distanceToPlayer <= stat.senseCircle && !IsStateActive(EMonsterState.isBattle))
+        {
+            SetState(EMonsterState.isBattle, true);
+            SetState(EMonsterState.isWait, false);
+            SetState(EMonsterState.isPlayerBetween, false);
+            CheckStateChange();
+        }
+        else if (distanceToPlayer > stat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, PlayerPos, stat.moveSpeed * Time.deltaTime);
+        }
     }
     public override void WaitSituation()
     {
@@ -228,7 +268,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
     }
 
-
     public override void Attack()
     {
         if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle)
@@ -237,7 +276,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
             SetState(EMonsterState.isPlayerBetween, true);
             SetState(EMonsterState.isWait, false);
         }
-        else if (canAttack && !currentState.HasFlag(EMonsterAttackState.IsAttack))
+        else if (canAttack && !currentState.HasFlag(EMonsterAttackState.ISATTACK))
         {
             StartCoroutine(AttackSequence(PlayerPos));
         }
@@ -245,7 +284,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
 
     private IEnumerator AttackSequence(Vector2 attackAngle)
     {
-        currentState |= EMonsterAttackState.IsAttack;
+        currentState |= EMonsterAttackState.ISATTACK;
         canAttack = false;
         float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
@@ -262,17 +301,17 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
             transform.localScale = new Vector2(-1, 1);
             check = new Vector2(1f, 0);
         }
-        animState = EanimState.Detection;
+        animState = EanimState.DETECTION;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
-        if (currentState.HasFlag(EMonsterAttackState.IsFirstAttack))
+        if (currentState.HasFlag(EMonsterAttackState.ISFIRSTATTACK))
         {
             StartCoroutine(Spit(value, ZAngle));
-            currentState &= ~EMonsterAttackState.IsFirstAttack;
+            currentState &= ~EMonsterAttackState.ISFIRSTATTACK;
         }
         else if (distanceToPlayer < stat.meleeAttackRange)
         {
-            int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
+            int checkRandomAttackType = UnityEngine.Random.Range(1, 101);
             if (facingPlayer && checkRandomAttackType >= stat.specialAttackPercent)
             {
                 StartCoroutine(ChargeAttack(value, check));
@@ -284,14 +323,14 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
         else
         {
-            int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
-            if (checkRandomAttackType <= stat.rangeAttackPercent)
+            int checkRandomAttackType = UnityEngine.Random.Range(1, 101);
+            if (checkRandomAttackType <= stat.rangedAttackPercent)
             {
                 StartCoroutine(Spit(value, ZAngle));
             }
             else
             {
-                StartCoroutine(CompositeAttack(check));
+                StartCoroutine(rushGroundAttack(check));
                 yield return Yields.WaitSeconds(4.0f);
             }
 
@@ -322,7 +361,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
 
         }
         yield return Yields.WaitSeconds(stat.attackTime);
-        currentState &= ~EMonsterAttackState.IsAttack;
+        currentState &= ~EMonsterAttackState.ISATTACK;
         yield return Yields.WaitSeconds(stat.attackCooldown);
         canAttack = true;
     }
@@ -347,19 +386,19 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield break;
         }
-        animState = EanimState.Spit;
+        animState = EanimState.SPIT;
         SetCurrentAnimation(animState);
         yield return new WaitForSeconds((float)jsonObject["animations"]["attack/spit_web"]["events"][0]["time"]);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
-        if (projectileObj != null)
+        if (projectileObj is not null)
         {
             projectileObj.SetActive(true);
 
             Projectile projectile = projectileObj.GetComponent<Projectile>();
-            if (projectile != null)
+            if (projectile is not null)
             {
                 projectile.Shot(gameObject, attackTransform.transform.position, value.normalized,
-                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamege, false, zAngle, eActivableColor.RED);
+                    stat.rangedAttackRange, stat.rangedAttackSpeed, stat.rangedAttackDamage, false, zAngle, eActivableColor.RED);
                 projectileObj.transform.position = attackTransform.transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
@@ -374,12 +413,12 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield break;
         }
-        animState = EanimState.Charge;
+        animState = EanimState.CHARGE;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
 
         meleeAttack?.AttackEnable(-value, stat.attackDamage, stat.attackDamage);
-        rigid.AddForce(check * stat.specialAttackRound, ForceMode2D.Impulse);
+        rigid.AddForce(check * stat.specialAttackReboundPower, ForceMode2D.Impulse);
         meleeAttack?.AttackDisable();
     }
     private IEnumerator EarthAttack()
@@ -388,18 +427,18 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield break;
         }
-        animState = EanimState.Ground;
+        animState = EanimState.GROUND;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/ground_attack"]["events"][0]["time"]);
         rigid.velocity = Vector2.up * stat.earthAttackJump;
-        currentState |= EMonsterAttackState.IsEarthAttack;
+        currentState |= EMonsterAttackState.ISEARTHATTACK;
 
         StartCoroutine(SpawnObjects());
     }
-    private IEnumerator CompositeAttack(Vector2 check)
+    private IEnumerator rushGroundAttack(Vector2 check)
     {
-        rigid.AddForce(check * stat.compositeAttackRound, ForceMode2D.Impulse);
-        animState = EanimState.Charge;
+        rigid.AddForce(check * stat.rushGroundAttackRange, ForceMode2D.Impulse);
+        animState = EanimState.CHARGE;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
 
@@ -412,13 +451,13 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
             yield break;
         }
         int objectCount = earthObjects.Length;
-        while (currentState.HasFlag(EMonsterAttackState.IsEarthAttack))
+        while (currentState.HasFlag(EMonsterAttackState.ISEARTHATTACK))
         {
             yield return new WaitForSeconds(delayToEarthAttack);
 
             StartCoroutine(ActivateParticle(earthParticleGroup));
 
-            currentState &= ~EMonsterAttackState.IsEarthAttack;
+            currentState &= ~EMonsterAttackState.ISEARTHATTACK;
 
             for (int i = 0; i < objectCount; i += 2)
             {
@@ -434,14 +473,14 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     {
         for (int i = 0; i < particles.Length; i++)
         {
-            if (particles[i] != null)
+            if (particles[i] is not null)
             {
                 particles[i].Play();
             }
 
             if (i % 2 == 1)
             {
-                yield return new WaitForSeconds(stat.earthAttackTime);
+                yield return new WaitForSeconds(stat.earthAttackDuration);
             }
         }
     }
@@ -449,7 +488,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     {
         for (int i = startIndex; i < endIndex; i++)
         {
-            if (objects[i] != null)
+            if (objects[i] is not null)
             {
                 objects[i].SetActive(isSet);
             }
@@ -462,12 +501,12 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                HPDown(colorDamage);
+                currentHP -= colorDamage;
                 rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
             }
             else
             {
-                HPDown(damage);
+                currentHP -= damage;
                 rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
             }
             CheckDead();
@@ -483,7 +522,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     {
         SetState(EMonsterState.isBattle, false);
         StopCoroutine(AttackSequence(PlayerPos));
-        animState = EanimState.Dead;
+        animState = EanimState.DEAD;
         SetCurrentAnimation(animState);
         yield return new WaitForSeconds(stat.deadDelay);
         gameObject.SetActive(false);
