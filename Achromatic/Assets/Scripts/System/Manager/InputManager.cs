@@ -14,6 +14,7 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode DASH = KeyCode.Mouse1;
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
+    const KeyCode INVENTORY = KeyCode.I;
 
     [HideInInspector]
     public UnityEvent JumpEvent;
@@ -27,6 +28,8 @@ public class InputManager : SingletonBehavior<InputManager>
     public UnityEvent<Vector2> LightAttackEvent;
     [HideInInspector]
     public UnityEvent FilterEvent;
+    [HideInInspector]
+    public UnityEvent InventoryEvent;
 
     [SerializeField]
     private float jumpBufferTime = 0.1f;
@@ -90,18 +93,25 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             DashEvent?.Invoke(MouseVec);
         }
+
         if (Input.GetKey(FILTER))
         {
             FilterEvent?.Invoke();
+        }
+
+        if (Input.GetKey(INVENTORY))
+        {
+            InventoryEvent?.Invoke();
         }
 
         if (Input.GetKey(LOOK_DOWN))
         {
             LookEvent?.Invoke(-1);
         }
-        if (Input.GetKey(LOOK_UP))
+        else if (Input.GetKey(LOOK_UP))
         {
             LookEvent?.Invoke(1);
         }
+        
     }
 }
