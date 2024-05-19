@@ -4,27 +4,24 @@ using UnityEngine;
 public abstract class Monster : MonoBehaviour, IAttack
 {
     protected MonsterStat baseStat;
-    public int currentHP;
+    protected int currentHP;
 
+    protected Vector2 monsterRunleftPosition;
+    protected Vector2 monsterRunRightPosition;
+    protected Vector2 monsterPosition;
     [HideInInspector]
-    public Vector2 monsterRunleftPosition;
-    [HideInInspector]
-    public Vector2 monsterRunRightPosition;
-    [HideInInspector]
-    public Vector2 monsterPosition;
-    [HideInInspector]
-    public float distanceToPlayer;
+    protected float distanceToPlayer;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     public float runPosition;
 
     [HideInInspector]
-    public float elapsedTime = 0;
+    protected float elapsedTime = 0;
     private float arrivalThreshold = 1f;
     [HideInInspector]
-    public float distanceToStartPos = 0;
+    protected float distanceToStartPos = 0;
     [HideInInspector]
-    public bool isDead = false;
+    protected bool isDead = false;
 
     [System.Flags]
     public enum EMonsterState
@@ -35,8 +32,8 @@ public abstract class Monster : MonoBehaviour, IAttack
     }
     public EMonsterState state = EMonsterState.isWait;
     [HideInInspector]
-    public bool canAttack = true;
-    public bool isRespawnMonster = true;
+    protected bool canAttack = true;
+    protected bool isRespawnMonster = true;
 
     public abstract void CheckStateChange();
     public bool IsStateActive(EMonsterState eState)

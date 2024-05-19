@@ -4,6 +4,7 @@ using Spine.Unity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
@@ -28,9 +29,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private GameObject swordAttackObject;
     [SerializeField]
     private GameObject counterAttackObject;
-
-    private LayerMask originLayer;
-    private LayerMask colorVisibleLayer;
     [SerializeField]
     private JObject jsonObject;
 
@@ -71,6 +69,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private float originalMoveSpeed = 1;
     private float originalRunSpeed = 2;
     private int moveSpeedDown = 0;
+    private LayerMask colorVisibleLayer;
+    private LayerMask originalLayer;
     private enum EMonsterAttackState
     {
         NONE = 0,
@@ -81,7 +81,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private EMonsterAttackState currentState = EMonsterAttackState.NONE;
 
-    private bool isHeavy = false;
     private bool isFirstAnimCheckIdle = true;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
@@ -99,26 +98,30 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetState(EMonsterState.isWait, true);
         isDead = false;
         CheckStateChange();
-        originalMoveSpeed = stat.moveSpeed;
-        originalRunSpeed = stat.runSpeed;
+        stat.moveSpeed = originalMoveSpeed;
+        stat.runSpeed = originalRunSpeed;
     }
 
     private void Start()
     {
+        originalMoveSpeed = stat.moveSpeed;
+        originalRunSpeed = stat.runSpeed;
+
         monsterRunleftPosition.y = transform.position.y;
         monsterRunRightPosition.y = transform.position.y;
         monsterRunleftPosition.x += transform.position.x + runPosition;
         monsterRunRightPosition.x += transform.position.x - runPosition;
 
+        runPosition = stat.enemyRoamingRange;
+
+        originalLayer = LayerMask.GetMask("Enemy");
+        colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
+
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
-        MonsterManager.Instance?.GetColorEvent.AddListener(CheckIsHeavy);
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();
         monsterPosition = monsterRunRightPosition;
         startAntPosition = new Vector2(transform.position.x, transform.position.y);
-
-        originLayer = gameObject.layer;
-        colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
 
         if (animationJson is not null)
         {
@@ -193,17 +196,12 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         skeletonAnimation.timeScale = timeScale;
         currentAnimation = animClip.name;
     }
-    private void CheckIsHeavy(eActivableColor color)
-    {
-        if (color == stat.enemyColor)
-        {
-            isHeavy = false;
-        }
-        antColorEvent?.Invoke(color);
-    }
+
     private void IsActiveColor(eActivableColor color)
     {
-        gameObject.layer = (color != stat.enemyColor) ? originLayer : colorVisibleLayer;
+        int newLayer = SOO.Util.LayerMaskToNumber((color == stat.enemyColor) ? colorVisibleLayer : originalLayer);
+        newLayer -= 2;
+        gameObject.layer = newLayer;
     }
 
     public override IEnumerator CheckPlayer(Vector2 startMonsterPos)
@@ -216,12 +214,13 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 animState = EAnimState.ENEMYDISCOVERY;
                 SetCurrentAnimation(animState);
+                ///<summary>  FSM상 모든 상태를 일시적으로 종료시키고 애니메이션 대기 시간 이후 다시 FSM을 True를 시키는 방식입니다. ///</summary>
                 SetState(EMonsterState.isWait, false);
                 SetState(EMonsterState.isBattle, false);
                 stat.moveSpeed = moveSpeedDown;
                 stat.runSpeed = moveSpeedDown;
                 CheckStateChange();
-                yield return Yields.WaitSeconds(1f);
+                yield return Yields.WaitSeconds(stat.discoveryDuration);
                 SetState(EMonsterState.isPlayerBetween, true);
                 stat.moveSpeed = originalMoveSpeed;
                 stat.runSpeed = originalRunSpeed;
@@ -243,8 +242,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             elapsedTime = 0f;
             SetState(EMonsterState.isWait, true);
-            SetState(EMonsterState.isPlayerBetween, false);
-            SetState(EMonsterState.isBattle, false);
             isFirstAnimCheckIdle = true;
             animState = EAnimState.SPEAROVER;
             SetCurrentAnimation(animState);
@@ -284,8 +281,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         if (distanceToPlayer <= stat.senseCircle && !IsStateActive(EMonsterState.isBattle))
         {
             SetState(EMonsterState.isBattle, true);
-            SetState(EMonsterState.isWait, false);
-            SetState(EMonsterState.isPlayerBetween, false);
             CheckStateChange();
         }
         else if (distanceToPlayer > stat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
@@ -301,9 +296,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         }
         if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle && canAttack)
         {
-            SetState(EMonsterState.isBattle, false);
             SetState(EMonsterState.isPlayerBetween, true);
-            SetState(EMonsterState.isWait, false);
         }
         else if (!currentState.HasFlag(EMonsterAttackState.ISATTACK) && canAttack)
         {
@@ -382,7 +375,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             if (projectile is not null)
             {
                 projectile.Shot(gameObject, attackTransform.transform.position, dir.normalized,
-                    stat.swordAuraRangePerTime, stat.swordAttackSpeed, stat.swordAttackDamage, isHeavy, -ZAngle, eActivableColor.RED);
+                    stat.swordAuraRangePerTime, stat.swordAttackSpeed, stat.swordAttackDamage, -ZAngle, eActivableColor.RED);
                 projectileObj.transform.position = attackTransform.transform.position;
                 PlayManager.Instance.UpdateColorthing();
                 projectile.ReturnStartRoutine(stat.swordAuraRangePerTime);
@@ -558,7 +551,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     {
         if (null != stat)
         {
-            Gizmos.color = stat.senseCircle >= distanceToStartPos ? Color.red : Color.green;
+            Gizmos.color = stat.senseCircle >= distanceToStartPos ? UnityEngine.Color.red : UnityEngine.Color.green;
             Gizmos.DrawWireSphere(transform.position + transform.forward, stat.senseCircle);
         }
     }

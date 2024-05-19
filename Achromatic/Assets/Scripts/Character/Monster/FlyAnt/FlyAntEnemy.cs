@@ -176,7 +176,7 @@ public class FlyAntEnemy : Monster
             if (projectile != null)
             {
                 projectile.Shot(gameObject, attackTransform.transform.position, new Vector2(dir.x, dir.y).normalized,
-                    stat.stabThrowAttackRange, stat.stabThrowSpeed, stat.stabThrowDamage, isHeavy, ZAngle, eActivableColor.RED);
+                    stat.stabThrowAttackRange, stat.stabThrowSpeed, stat.stabThrowDamage, ZAngle, eActivableColor.RED);
                 projectileObj.transform.position = transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
