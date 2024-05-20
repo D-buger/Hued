@@ -9,7 +9,8 @@ public class ChaseState : MonsterState
     }
     public override void Enter()
     {
-
+        monster.SetState(Monster.EMonsterState.isWait, false);
+        monster.SetState(Monster.EMonsterState.isBattle, false);
     }
 
     public override void Execute()

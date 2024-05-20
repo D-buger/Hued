@@ -13,10 +13,12 @@ public class ObjectPoolManager : MonoBehaviour
     private int poolSize = 10;
 
     private Queue<GameObject>[] inactivePools;
+    private GameObject poolParent;
 
     void Awake()
     {
         instance = this;
+        poolParent = new GameObject("ProjectilePool");
         InitializePools();
     }
 
@@ -28,7 +30,7 @@ public class ObjectPoolManager : MonoBehaviour
             inactivePools[i] = new Queue<GameObject>();
             for (int j = 0; j < poolSize; j++)
             {
-                GameObject projectile = Instantiate(projectilePrefabs[i]);
+                GameObject projectile = Instantiate(projectilePrefabs[i], poolParent.transform);
                 projectile.SetActive(false);
                 inactivePools[i].Enqueue(projectile);
             }
@@ -50,7 +52,8 @@ public class ObjectPoolManager : MonoBehaviour
         }
         else
         {
-            GameObject newProjectile = Instantiate(projectilePrefabs[index]);
+            GameObject newProjectile = Instantiate(projectilePrefabs[index], poolParent.transform);
+            newProjectile.SetActive(true);
             return newProjectile;
         }
     }

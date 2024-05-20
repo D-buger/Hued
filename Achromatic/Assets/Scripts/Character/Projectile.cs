@@ -12,10 +12,8 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
 
     private Vector2 moveDirection = Vector2.zero;
     private float moveSpeed = 1f;
+    private float moveRange = 5f;
     private int damage = 1;
-
-    private bool isHeavyAttack = true;
-    public bool IsParryAllow => (!isHeavyAttack);
 
     private GameObject attackFrom;
     private Vector2 fromVector;
@@ -30,29 +28,16 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
         renderer = GetComponent<SpriteRenderer>();
     }
 
-    public void CheckIsHeavyAttack(eActivableColor color)
-    {
-        if (color == enemyColor)
-        {
-            isHeavyAttack = false;
-            renderer.color = Color.white;
-        }
-        else
-        {
-            isHeavyAttack = true;
-            renderer.color = Color.black;
-        }
-    }
 
-    public virtual void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotAngle, eActivableColor color)
+    public virtual void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, float shotAngle, eActivableColor color)
     {
         float shotDir = shotAngle + 180;
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;
         moveSpeed = speed;
-        isHeavyAttack = isHeavy;
         damage = dmg;
+        moveRange = range;
         fromVector = shotFrom.transform.position;
         enemyColor = color;
         transform.rotation = Quaternion.Euler(1, 1, shotDir);
@@ -69,7 +54,6 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
             damage = dmg;
             fromVector = shotFrom.transform.position;
             isParried = true;
-            isHeavyAttack = true;
             rigid.velocity = Vector2.zero;
             rigid.AddForce(moveDirection * moveSpeed);
         }

@@ -16,16 +16,8 @@ public class SwordAttack : MonoBehaviour, IParryConditionCheck
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                collision.gameObject.GetComponent<Player>().Hit(stat.cuttingAttackDamage,
-                stat.cuttingAttackDamage, transform.position - collision.transform.position, this);
-            }
-            else
-            {
-                collision.gameObject.GetComponent<Player>().Hit(stat.cuttingAttackDamage,
-                stat.cuttingAttackDamage, transform.position - collision.transform.position, null);
-            }
+            collision.gameObject.GetComponent<Player>().Hit(stat.slashAttackDamage,
+            stat.slashAttackDamage, transform.position - collision.transform.position, this);
             gameObject.SetActive(false);
         }
     }

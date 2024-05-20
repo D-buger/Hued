@@ -24,23 +24,28 @@ MonoBehaviour:
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  timeToWait: 3
+  waitStateDelay: 3
   deadDelay: 1.33
-  cuttingAttackDamage: 1
-  cuttingAttackRebound: 15
-  cuttingAttackDelay: 0.75
-  cuttingAttackTime: 0.2
+  attackDelay: 1.33
+  projectileAnglebyHeight: 0.22
+  enemyRoamingRange: 7
+  discoveryDuration: 1
+  slashAttackDamage: 1
+  slashAttackRebound: 45
+  slashAttackDelay: 0.1
+  slashAttackTime: 0.2
   swordAttackDamage: 1
   swordAttackSpeed: 200
-  swordAttackRange: 2
+  swordAuraRangePerTime: 2
   stabAttackDamage: 1
   lastStabAttackDamage: 2
   stabAttackSpeed: 2
   lastStabSpeed: 4
   stabAttackDelay: 1
   middleStabAttackDelay: 2
-  counterAttackTime: 3
+  counterDurationTime: 2
   counterAttackRange: 1
+  counterAttackDurationTime: 0
   counterAttackDamage: 2
   counterAttackSpeed: 6
   stabAttackPercent: 33
