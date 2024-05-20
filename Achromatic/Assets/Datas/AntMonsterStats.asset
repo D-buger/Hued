@@ -19,7 +19,7 @@ MonoBehaviour:
   runSpeed: 2
   attackDamage: 1
   attackTime: 2
-  attackCooldown: 2
+  attackCooldown: 1
   contactDamage: 1
   hitReboundPower: 5
   heavyHitReboundPower: 10
@@ -33,7 +33,7 @@ MonoBehaviour:
   slashAttackDamage: 1
   slashAttackRebound: 45
   slashAttackDelay: 0.1
-  slashAttackTime: 0.2
+  slashAttackTime: 0.8
   swordAttackDamage: 1
   swordAttackSpeed: 200
   swordAuraRangePerTime: 2
@@ -49,4 +49,4 @@ MonoBehaviour:
   counterAttackDamage: 2
   counterAttackSpeed: 6
   stabAttackPercent: 33
-  swordAttackPercent: 33
+  slashAttackPercent: 33

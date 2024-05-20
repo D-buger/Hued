@@ -75,7 +75,7 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
     {
         if (collision.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.GetComponent<IAttack>()?.Hit(damage, damage, moveDirection, this);
+            collision.GetComponent<IAttack>()?.Hit(damage, damage, -moveDirection, this);
             ReturnToPool();
         }
     }

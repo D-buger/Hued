@@ -413,7 +413,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             if (projectile is not null)
             {
                 projectile.Shot(gameObject, attackTransform.transform.position, dir.normalized,
-                    stat.swordAuraRangePerTime, stat.swordAttackSpeed, stat.swordAttackDamage, -ZAngle, eActivableColor.RED);
+                    stat.swordAuraRangePerTime, stat.swordAttackSpeed, stat.swordAttackDamage, ZAngle, eActivableColor.RED);
                 projectileObj.transform.position = attackTransform.transform.position;
                 PlayManager.Instance.UpdateColorthing();
                 projectile.ReturnStartRoutine(stat.swordAuraRangePerTime);
