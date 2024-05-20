@@ -214,7 +214,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             check = new Vector2(1f, 0);
         }
 
-        yield return Yields.WaitSeconds(stat.AttackDelay);
+        yield return Yields.WaitSeconds(stat.attackDelay);
         float ZAngle = (Mathf.Atan2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y) * Mathf.Rad2Deg);
         int checkRandomAttackType = 40;//UnityEngine.Random.Range(1, 100);
         if (checkRandomAttackType < 50)
@@ -342,14 +342,15 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         }
         if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
         {
-            HPDown(colorDamage);
+            currentHP -= colorDamage;
             rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
         }
         else
         {
-            HPDown(damage);
+            currentHP -= damage;
             rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
         }
+
         if (!isDead)
         {
             CheckDead();
