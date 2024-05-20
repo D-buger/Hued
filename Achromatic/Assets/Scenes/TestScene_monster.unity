@@ -30550,7 +30550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d6a3177fba0a8428e394b7af89a17f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runPosition: 0
+  runPosition: 8
   state: 1
   attackTransform: {fileID: 1128102460}
   stat: {fileID: 11400000, guid: 5c73b307a2101324e9bc3da0a6f9267e, type: 2}

@@ -26,7 +26,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     [SerializeField]
     private GameObject[] stabAttackObject;
     [SerializeField]
-    private GameObject swordAttackObject;
+    private GameObject SlashAttackObject;
     [SerializeField]
     private GameObject counterAttackObject;
     [SerializeField]
@@ -45,7 +45,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         IDLE,
         WALK,
         STAB,
-        SWORD,
+        SLASH,
         COUNTER,
         COUNTERATTACK,
         DEAD,
@@ -83,6 +83,9 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private EMonsterAttackState currentState = EMonsterAttackState.NONE;
 
     private bool isFirstAnimCheckIdle = true;
+    private bool canAttackSlash = true;
+    private bool canAttackSatb = true;
+    private bool canAttackCounter = true;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     private void Awake()
@@ -156,8 +159,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             case EAnimState.STAB:
                 AsyncAnimation(aniClip[(int)EAnimState.STAB], false, timeScale);
                 break;
-            case EAnimState.SWORD:
-                AsyncAnimation(aniClip[(int)EAnimState.SWORD], false, timeScale);
+            case EAnimState.SLASH:
+                AsyncAnimation(aniClip[(int)EAnimState.SLASH], false, timeScale);
                 break;
             case EAnimState.COUNTER:
                 AsyncAnimation(aniClip[(int)EAnimState.COUNTER], false, timeScale);
@@ -335,14 +338,35 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         yield return Yields.WaitSeconds(stat.attackDelay);
         value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
-        if (!isDead)
+        if (!isDead) // FIX 구조 개편 예정. 현재 똑같은 패턴 사용 불가능하게 하기 위해 임시로 처리해둠
         {
             int checkRandomAttackType = UnityEngine.Random.Range(1, 101);
-            if (checkRandomAttackType <= stat.swordAttackPercent)
+            if (!canAttackSlash)
             {
-                StartCoroutine(SwordAttack(new Vector2(value.x, -value.y - stat.projectileAnglebyHeight), reboundDirCheck, ZAngle));
+                checkRandomAttackType = UnityEngine.Random.Range(stat.slashAttackPercent, 101);
             }
-            else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.swordAttackPercent >= checkRandomAttackType)
+            else if (!canAttackCounter)
+            {
+                checkRandomAttackType = UnityEngine.Random.Range(1, 101 - stat.slashAttackPercent);
+            }
+
+            if (!canAttackSatb)
+            {
+                checkRandomAttackType = UnityEngine.Random.Range(1, 101);
+                if (checkRandomAttackType >= 50)
+                {
+                    StartCoroutine(SlashAttack(new Vector2(value.x, -value.y - stat.projectileAnglebyHeight), reboundDirCheck, ZAngle));
+                }
+                else
+                {
+                    StartCoroutine(CounterAttackStart());
+                }
+            }
+            else if (checkRandomAttackType <= stat.slashAttackPercent)
+            {
+                StartCoroutine(SlashAttack(new Vector2(value.x, -value.y - stat.projectileAnglebyHeight), reboundDirCheck, ZAngle));
+            }
+            else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.slashAttackPercent >= checkRandomAttackType)
             {
                 animState = EAnimState.STAB;
                 SetCurrentAnimation(animState);
@@ -360,21 +384,25 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         }
     }
 
-    private IEnumerator SwordAttack(Vector2 dir, Vector2 check, float ZAngle)
+    private IEnumerator SlashAttack(Vector2 dir, Vector2 check, float ZAngle)
     {
         if (IsStateActive(EMonsterState.isWait))
         {
             yield return null;
         }
-        animState = EAnimState.SWORD;
+        canAttackSatb = true;
+        canAttackSlash = false;
+        canAttackCounter = true;
+
+        animState = EAnimState.SLASH;
         SetCurrentAnimation(animState);
 
         rigid.AddForce(check * stat.slashAttackRebound, ForceMode2D.Impulse);
 
         yield return Yields.WaitSeconds(stat.slashAttackDelay);
-        swordAttackObject.SetActive(true);
+        SlashAttackObject.SetActive(true);
         yield return Yields.WaitSeconds(stat.slashAttackTime);
-        swordAttackObject.SetActive(false);
+        SlashAttackObject.SetActive(false);
 
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(1);
         if (projectileObj is not null)
@@ -400,6 +428,9 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield break;
         }
+        canAttackSatb = false;
+        canAttackSlash = true;
+        canAttackCounter = true;
         currentState |= EMonsterAttackState.ISSTABATTACK;
         while (currentState.HasFlag(EMonsterAttackState.ISSTABATTACK))
         {
@@ -445,18 +476,22 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private IEnumerator CounterAttackStart()
     {
-        if (!isDead)
+        if (isDead)
         {
-            animState = EAnimState.COUNTER;
+            yield break;
+        }
+        canAttackSatb = true;
+        canAttackSlash = true;
+        canAttackCounter = false;
+        animState = EAnimState.COUNTER;
+        SetCurrentAnimation(animState);
+        currentState |= EMonsterAttackState.ISCOUNTER;
+        yield return Yields.WaitSeconds(stat.counterDurationTime);
+        if (currentState.HasFlag(EMonsterAttackState.ISCOUNTER))
+        {
+            animState = EAnimState.COUNTEROFF;
             SetCurrentAnimation(animState);
-            currentState |= EMonsterAttackState.ISCOUNTER;
-            yield return Yields.WaitSeconds(stat.counterDurationTime);
-            if (currentState.HasFlag(EMonsterAttackState.ISCOUNTER))
-            {
-                animState = EAnimState.COUNTEROFF;
-                SetCurrentAnimation(animState);
-                currentState &= ~EMonsterAttackState.ISCOUNTER;
-            }
+            currentState &= ~EMonsterAttackState.ISCOUNTER;
         }
     }
     private IEnumerator CounterAttackPlay(Vector2 dir, float ZAngle)
