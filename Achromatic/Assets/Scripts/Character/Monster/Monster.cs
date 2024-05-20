@@ -9,18 +9,16 @@ public abstract class Monster : MonoBehaviour, IAttack
     protected Vector2 monsterRunleftPosition;
     protected Vector2 monsterRunRightPosition;
     protected Vector2 monsterPosition;
-    [HideInInspector]
     protected float distanceToPlayer;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     public float runPosition;
 
-    [HideInInspector]
     protected float elapsedTime = 0;
     private float arrivalThreshold = 1f;
-    [HideInInspector]
     protected float distanceToStartPos = 0;
-    [HideInInspector]
+    protected int DeadMass = 100;
+    protected int originalMass = 6;
     protected bool isDead = false;
 
     [System.Flags]
@@ -100,10 +98,6 @@ public abstract class Monster : MonoBehaviour, IAttack
     public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
 
-    }
-    private void HPDown(int hitDamage)
-    {
-        currentHP -= hitDamage;
     }
     public virtual void CheckDead()
     {

@@ -24,13 +24,14 @@ MonoBehaviour:
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  waitStateDelay: 1
+  waitStateDelay: 3
   deadDelay: 1.33
   attackDelay: 1.33
   projectileAnglebyHeight: 0.22
   enemyRoamingRange: 7
+  discoveryDuration: 1
   slashAttackDamage: 1
-  slashAttackRebound: 100
+  slashAttackRebound: 45
   slashAttackDelay: 0.1
   slashAttackTime: 0.2
   swordAttackDamage: 1

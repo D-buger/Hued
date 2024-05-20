@@ -24,20 +24,24 @@ MonoBehaviour:
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  timeToWait: 1
+  waitStateDelay: 1
   deadDelay: 1.33
+  attackDelay: 1.33
+  projectileAnglebyHeight: 0.22
+  enemyRoamingRange: 7
+  discoveryDuration: 1
   meleeAttackRange: 3
   attackRange: 0.8
-  rangedAttackDamege: 1
-  rangedAttackSpeed: 500
+  rangedAttackDamage: 1
+  rangedAttackSpeed: 250
   rangedAttackRange: 5
-  specialAttackRound: 70
+  specialAttackReboundPower: 1
   specialAttackSpeed: 3
   earthAttackSpeed: 150
-  earthAttackDamege: 1
-  earthAttackTime: 0.1
+  earthAttackDamage: 1
+  earthAttackDuration: 0.1
   earthAttackJump: 10
-  earthAttackDalay: 0.3
+  earthAttackDelay: 0.3
   specialAttackPercent: 60
-  rangeAttackPercent: 50
-  compositeAttackRound: 140
+  rangedAttackPercent: 50
+  rushGroundAttackRange: 20

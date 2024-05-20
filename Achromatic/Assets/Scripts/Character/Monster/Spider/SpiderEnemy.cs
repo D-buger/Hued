@@ -92,8 +92,11 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     {
         monsterRunleftPosition.y = transform.position.y;
         monsterRunRightPosition.y = transform.position.y;
-        monsterRunleftPosition.x += transform.position.x + runPosition;
-        monsterRunRightPosition.x += transform.position.x - runPosition;
+
+        monsterRunleftPosition.x = transform.position.x;
+        monsterRunRightPosition.x = transform.position.x;
+        monsterRunleftPosition.x += runPosition;
+        monsterRunRightPosition.x -= runPosition;
 
         runPosition = stat.enemyRoamingRange;
 
@@ -128,40 +131,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
     }
 
-    public override void CheckStateChange()
-    {
-        switch (state)
-        {
-            case EMonsterState.isBattle:
-                fsm.ChangeState("Attack");
-                break;
-            case EMonsterState.isPlayerBetween:
-                fsm.ChangeState("Chase");
-                animState = EanimState.WALK;
-                SetCurrentAnimation(animState);
-                break;
-            case EMonsterState.isWait:
-                fsm.ChangeState("Idle");
-                animState = EanimState.WALK;
-                SetCurrentAnimation(animState);
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
-    {
-        if (animClip.name.Equals(currentAnimation))
-        {
-            return;
-        }
-
-        skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
-        skeletonAnimation.loop = loop;
-        skeletonAnimation.timeScale = timeScale;
-        currentAnimation = animClip.name;
-    }
     private void SetCurrentAnimation(EanimState _state)
     {
         float timeScale = 1;
@@ -190,6 +159,18 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
                 break;
         }
     }
+    private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
+    {
+        if (animClip.name.Equals(currentAnimation))
+        {
+            return;
+        }
+
+        skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
+        skeletonAnimation.loop = loop;
+        skeletonAnimation.timeScale = timeScale;
+        currentAnimation = animClip.name;
+    }
     private void IsActiveColor(eActivableColor color)
     {
         if (color != stat.enemyColor)
@@ -209,6 +190,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             elapsedTime = 0f;
             SetState(EMonsterState.isWait, true);
+            SetState(EMonsterState.isPlayerBetween, false);
             CheckStateChange();
         }
         yield break;
@@ -224,6 +206,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         if (distanceToPlayer <= stat.senseCircle && !IsStateActive(EMonsterState.isBattle))
         {
             SetState(EMonsterState.isBattle, true);
+            SetState(EMonsterState.isPlayerBetween, false);
             CheckStateChange();
         }
         else if (distanceToPlayer > stat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
@@ -259,6 +242,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         if (Vector2.Distance(transform.position, PlayerPos) >= stat.senseCircle)
         {
             SetState(EMonsterState.isPlayerBetween, true);
+            SetState(EMonsterState.isBattle, false);
         }
         else if (canAttack && !currentState.HasFlag(EMonsterAttackState.ISATTACK))
         {
@@ -496,7 +480,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
             CheckDead();
         }
     }
-
     public override void Dead()
     {
         StartCoroutine(DeadSequence());
@@ -505,10 +488,35 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     private IEnumerator DeadSequence()
     {
         SetState(EMonsterState.isBattle, false);
+        SetState(EMonsterState.isWait, false);
+        SetState(EMonsterState.isPlayerBetween, false);
         animState = EanimState.DEAD;
         SetCurrentAnimation(animState);
+        rigid.mass = DeadMass;
         yield return new WaitForSeconds(stat.deadDelay);
+        rigid.mass = originalMass;
         gameObject.SetActive(false);
+    }
+    public override void CheckStateChange()
+    {
+        switch (state)
+        {
+            case EMonsterState.isBattle:
+                fsm.ChangeState("Attack");
+                break;
+            case EMonsterState.isPlayerBetween:
+                fsm.ChangeState("Chase");
+                animState = EanimState.WALK;
+                SetCurrentAnimation(animState);
+                break;
+            case EMonsterState.isWait:
+                fsm.ChangeState("Idle");
+                animState = EanimState.WALK;
+                SetCurrentAnimation(animState);
+                break;
+            default:
+                break;
+        }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
