@@ -16,14 +16,13 @@ GameObject:
   - component: {fileID: 6673812027509248250}
   - component: {fileID: 172978105296708143}
   - component: {fileID: 6053769463838272998}
-  - component: {fileID: 1456532816020936024}
   m_Layer: 8
   m_Name: SpiderMonster
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8032099443753483224
 Transform:
   m_ObjectHideFlags: 0
@@ -146,12 +145,14 @@ MonoBehaviour:
   monsterRunRightPosition: {x: 0, y: 0}
   monsterPosition: {x: 0, y: 0}
   distanceToPlayer: 0
-  runPosition: 8
+  runPosition: 4
+  elapsedTime: 0
   distanceToStartPos: 0
   isDead: 0
   flyMonster: 0
   state: 1
   canAttack: 1
+  isRespawnMonster: 1
   stat: {fileID: 11400000, guid: ac5f573b955fd424087ad2b6c6ed4901, type: 2}
   rangedAttack: {fileID: 8016990372567485329, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
   skeletonAnimation: {fileID: 2989040374440067903}
@@ -183,7 +184,6 @@ MonoBehaviour:
   - {fileID: 3459132020746436217}
   - {fileID: 7745427353880145620}
   attackTransform: {fileID: 8967579399920410377}
-  gizmoLeftPos: {x: 0, y: 0, z: 0}
   startSpiderPosition: {x: 0, y: 0}
 --- !u!50 &6673812027509248250
 Rigidbody2D:
@@ -269,21 +269,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 482ee8c86f9c04d46b6e28b144b14493, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1456532816020936024
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 373732617570613022}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b6eb746ee8495248a38042807706bd2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectilePrefabs:
-  - {fileID: 2195216575799600643, guid: c0b328487ed800a40847bb8c9b2fa1a4, type: 3}
-  poolSize: 10
 --- !u!1001 &3258161174444856539
 PrefabInstance:
   m_ObjectHideFlags: 0

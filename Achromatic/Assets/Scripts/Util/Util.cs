@@ -205,6 +205,16 @@ namespace SOO
            => Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
         public static Sprite TextureToSprite(this Texture2D texture, Rect rect)
            => Sprite.Create(texture, rect, new Vector2(0.5f, 0.5f));
-
+        public static int LayerMaskToNumber(LayerMask layerMask)
+        {
+            int layerNumber = 1;
+            int layer = layerMask.value;
+            while (layer > 0)
+            {
+                layer = layer >> 1;
+                layerNumber++;
+            }
+            return layerNumber;
+        }
     }
 }

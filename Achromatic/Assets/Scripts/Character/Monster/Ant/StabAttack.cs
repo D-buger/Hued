@@ -25,16 +25,8 @@ public class StabAttack : MonoBehaviour, IParryConditionCheck
             }
             else
             {
-                if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-                {
-                    collision.gameObject.GetComponent<Player>().Hit(stat.lastStabAttackDamage,
-                    stat.lastStabAttackDamage, transform.position - collision.transform.position, this);
-                }
-                else
-                {
-                    collision.gameObject.GetComponent<Player>().Hit(stat.lastStabAttackDamage,
-                    stat.lastStabAttackDamage, transform.position - collision.transform.position, null);
-                }
+                collision.gameObject.GetComponent<Player>().Hit(stat.lastStabAttackDamage,
+                stat.lastStabAttackDamage, transform.position - collision.transform.position, this);
             }
             gameObject.SetActive(false);
         }

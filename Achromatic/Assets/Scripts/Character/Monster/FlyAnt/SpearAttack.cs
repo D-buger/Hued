@@ -20,9 +20,9 @@ public class SpearAttack : Projectile
             ReturnObject(flyAntMonster);
         }
     }
-    public override void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, float shotAngle, eActivableColor color)
+    public override void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, float shotAngle, eActivableColor color)
     {
-        base.Shot(shotFrom, from, dir, range, speed, dmg, isHeavy, shotAngle, color);
+        base.Shot(shotFrom, from, dir, range, speed, dmg, shotAngle, color);
 
     }
 

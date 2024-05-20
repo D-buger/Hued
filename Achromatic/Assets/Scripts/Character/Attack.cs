@@ -82,12 +82,12 @@ public class Attack : MonoBehaviour, IParryConditionCheck
     private void CheckIsHeavy(eActivableColor color)
     {
         isCanParryAttack = attackColor != color ? false : true;
-        gameObject.layer = LayerMaskToNumber(attackColor != color ? colorVisibleLayer : originLayer);
+        gameObject.layer = SOO.Util.LayerMaskToNumber(attackColor != color ? colorVisibleLayer : originLayer);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag(attackFrom) && 
+        if (!collision.CompareTag(attackFrom) &&
             ignoreLayers != (ignoreLayers | (1 << collision.gameObject.layer)))
         {
             if (!ReferenceEquals(afterAttack, null))
@@ -96,17 +96,5 @@ public class Attack : MonoBehaviour, IParryConditionCheck
             }
             collision.GetComponent<IAttack>()?.Hit(attackDamage, colorAttackDamage, attackDir);
         }
-    }
-
-    private int LayerMaskToNumber(LayerMask layerMask)
-    {
-        int layerNumber = 1;
-        int layer = layerMask.value;
-        while (layer > 0)
-        {
-            layer = layer >> 1;
-            layerNumber++;
-        }
-        return layerNumber;
     }
 }

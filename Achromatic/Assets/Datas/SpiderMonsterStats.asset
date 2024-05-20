@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13f29fb973c82d8448b1118c3211ad09, type: 3}
   m_Name: SpiderMonsterStats
   m_EditorClassIdentifier: 
-  monsterHP: 5
+  monsterHP: 20
   enemyColor: 1
   senseCircle: 8
   moveSpeed: 1.4
+  runSpeed: 2
   attackDamage: 1
   attackTime: 0.3
   attackCooldown: 2
@@ -23,19 +24,24 @@ MonoBehaviour:
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  timeToWait: 1
+  waitStateDelay: 1
+  deadDelay: 1.33
+  attackDelay: 1.33
+  projectileAnglebyHeight: 0.22
+  enemyRoamingRange: 7
+  discoveryDuration: 1
   meleeAttackRange: 3
   attackRange: 0.8
-  rangedAttackDamege: 1
+  rangedAttackDamage: 1
   rangedAttackSpeed: 250
   rangedAttackRange: 5
-  specialAttackRound: 70
+  specialAttackReboundPower: 1
   specialAttackSpeed: 3
   earthAttackSpeed: 150
-  earthAttackDamege: 1
-  earthAttackTime: 0.1
+  earthAttackDamage: 1
+  earthAttackDuration: 0.1
   earthAttackJump: 10
-  earthAttackDalay: 0.3
+  earthAttackDelay: 0.3
   specialAttackPercent: 60
-  rangeAttackPercent: 50
-  compositeAttackRound: 140
+  rangedAttackPercent: 50
+  rushGroundAttackRange: 20

@@ -46,6 +46,9 @@ public class FlyAntEnemy : Monster
     {
         attackDir = (PlayerPos - (Vector2)transform.position).normalized;
         startPos = new Vector2(transform.position.x, transform.position.y);
+    }
+    private void Start()
+    {
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
     }
     private void Update()
@@ -57,6 +60,29 @@ public class FlyAntEnemy : Monster
         if (currentState.HasFlag(EMonsterAttackState.isReturnEnemy))
         {
             ReturnMonster();
+        }
+    }
+
+    public override void WaitSituation()
+    {
+        currentHP = stat.MonsterHP;
+        SetState(EMonsterState.isBattle, false);
+        transform.position = Vector2.MoveTowards(transform.position, monsterPosition, stat.moveSpeed * Time.deltaTime);
+        if (monsterPosition == monsterRunleftPosition)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        else if (monsterPosition == monsterRunRightPosition)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+        if (HasArrived((Vector2)transform.position, monsterRunRightPosition))
+        {
+            monsterPosition = monsterRunleftPosition;
+        }
+        else if (HasArrived((Vector2)transform.position, monsterRunleftPosition))
+        {
+            monsterPosition = monsterRunRightPosition;
         }
     }
     public override void Attack()
@@ -150,7 +176,7 @@ public class FlyAntEnemy : Monster
             if (projectile != null)
             {
                 projectile.Shot(gameObject, attackTransform.transform.position, new Vector2(dir.x, dir.y).normalized,
-                    stat.stabThrowAttackRange, stat.stabThrowSpeed, stat.stabThrowDamage, isHeavy, ZAngle, eActivableColor.RED);
+                    stat.stabThrowAttackRange, stat.stabThrowSpeed, stat.stabThrowDamage, ZAngle, eActivableColor.RED);
                 projectileObj.transform.position = transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
