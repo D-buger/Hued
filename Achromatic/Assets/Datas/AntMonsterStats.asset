@@ -28,7 +28,7 @@ MonoBehaviour:
   deadDelay: 1.33
   attackDelay: 1.33
   projectileAnglebyHeight: 0.22
-  enemyRoamingRange: 7
+  enemyRoamingRange: 8
   discoveryDuration: 1
   slashAttackDamage: 1
   slashAttackRebound: 45

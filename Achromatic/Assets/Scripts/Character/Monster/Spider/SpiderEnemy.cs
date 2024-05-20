@@ -104,7 +104,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         startSpiderPosition = new Vector2(transform.position.x, transform.position.y);
         monsterPosition = monsterRunRightPosition;
 
-        originLayer = gameObject.layer;
+        originLayer = LayerMask.GetMask("Enemy");
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
@@ -173,15 +173,9 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void IsActiveColor(eActivableColor color)
     {
-        if (color != stat.enemyColor)
-        {
-            gameObject.layer = originLayer;
-        }
-        else
-        {
-            gameObject.layer = colorVisibleLayer;
-        }
-        gameObject.layer = (color != stat.enemyColor) ? originLayer : colorVisibleLayer;
+        int newLayer = SOO.Util.LayerMaskToNumber((color == stat.enemyColor) ? colorVisibleLayer : originLayer);
+        newLayer -= 2;
+        gameObject.layer = newLayer;
     }
     public override IEnumerator CheckWaitTime()
     {
