@@ -37,8 +37,10 @@ public class MonsterStat : ScriptableObject
     public float waitStateDelay = 1.0f;
     public float deadDelay = 1.33f;
     public float attackDelay = 1.33f;
-    [Tooltip("몬스터 키 차이에 따른 투사체 각도 변환")]
-    public float projectileAnglebyHeight = 0.22f;
+    [Tooltip("몬스터 키 차이에 따른 투사체 날아가는 각도 변환")]
+    public float projectileAngleByHeight = 0.22f;
+    [Tooltip("몬스터 키 차이에 따른 투사체 렌더러 Z값 각도 변환")]
+    public float projectileZAngleByHeight = 180f;
     public float enemyRoamingRange = 7.0f;
     [Tooltip("몬스터가 적을 발견했을 때 걸리는 애니메이션의 시간")]
     public float discoveryDuration = 1.0f;

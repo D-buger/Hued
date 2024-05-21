@@ -27,7 +27,8 @@ MonoBehaviour:
   waitStateDelay: 1
   deadDelay: 1.33
   attackDelay: 1.33
-  projectileAnglebyHeight: 0.22
+  projectileAngleByHeight: 0.22
+  projectileZAngleByHeight: 180
   enemyRoamingRange: 8
   discoveryDuration: 1
   meleeAttackRange: 3

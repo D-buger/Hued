@@ -31,7 +31,7 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
 
     public virtual void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, float shotAngle, eActivableColor color)
     {
-        float shotDir = shotAngle + 180;
+        float shotDir = shotAngle;
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;

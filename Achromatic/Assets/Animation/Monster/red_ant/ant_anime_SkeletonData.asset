@@ -19,12 +19,11 @@ MonoBehaviour:
   isUpgradingBlendModeMaterials: 0
   blendModeMaterials:
     requiresBlendModeMaterials: 0
-    applyAdditiveMaterial: 0
+    applyAdditiveMaterial: 1
     additiveMaterials: []
     multiplyMaterials: []
     screenMaterials: []
-  skeletonDataModifiers:
-  - {fileID: 11400000, guid: 8623082208cae724e88314ec951691e1, type: 2}
+  skeletonDataModifiers: []
   fromAnimation: []
   toAnimation: []
   duration: []

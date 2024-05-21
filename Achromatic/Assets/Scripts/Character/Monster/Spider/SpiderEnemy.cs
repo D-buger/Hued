@@ -165,7 +165,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             return;
         }
-
         skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
         skeletonAnimation.loop = loop;
         skeletonAnimation.timeScale = timeScale;
@@ -250,7 +249,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         canAttack = false;
         float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
-        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
+        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
         Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         Vector2 reboundDirCheck;
         if (value.x <= 0)
@@ -352,6 +351,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
         yield return new WaitForSeconds((float)jsonObject["animations"]["attack/spit_web"]["events"][0]["time"]);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
+        zAngle = (Mathf.Atan2(PlayerPos.y - transform.position.y, PlayerPos.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
         if (projectileObj is not null)
         {
             projectileObj.SetActive(true);

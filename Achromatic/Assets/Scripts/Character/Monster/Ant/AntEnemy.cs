@@ -68,6 +68,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private float stabDelayToDestory = 0.05f;
     private float originalMoveSpeed = 1;
     private float originalRunSpeed = 4;
+    private float rightZAngle = 200;
+    private float leftZAngle = 140;
     private int moveSpeedDown = 0;
 
     private LayerMask colorVisibleLayer;
@@ -134,6 +136,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             jsonObject = JObject.Parse(animationJson.text);
         }
+        CheckStateChange();
     }
     private void Update()
     {
@@ -327,17 +330,19 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             transform.localScale = new Vector2(1, 1);
             reboundDirCheck = new Vector2(-1f, 0);
+            stat.projectileZAngleByHeight = rightZAngle;
         }
         else
         {
             transform.localScale = new Vector2(-1, 1);
             reboundDirCheck = new Vector2(1f, 0);
+            stat.projectileZAngleByHeight = leftZAngle;
         }
         animState = EAnimState.DETECTION;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(stat.attackDelay);
         value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
-        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
+        float zAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
         if (!isDead) // FIX 구조 개편 예정. 현재 똑같은 패턴 사용 불가능하게 하기 위해 임시로 처리해둠
         {
             int checkRandomAttackType = UnityEngine.Random.Range(1, 101);
@@ -355,7 +360,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 checkRandomAttackType = UnityEngine.Random.Range(1, 101);
                 if (checkRandomAttackType >= 50)
                 {
-                    StartCoroutine(SlashAttack(new Vector2(value.x, -value.y - stat.projectileAnglebyHeight), reboundDirCheck, ZAngle));
+                    StartCoroutine(SlashAttack(new Vector2(value.x, -value.y - stat.projectileAngleByHeight), reboundDirCheck, zAngle));
                 }
                 else
                 {
@@ -364,7 +369,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             }
             else if (checkRandomAttackType <= stat.slashAttackPercent)
             {
-                StartCoroutine(SlashAttack(new Vector2(value.x, -value.y - stat.projectileAnglebyHeight), reboundDirCheck, ZAngle));
+                StartCoroutine(SlashAttack(new Vector2(value.x, -value.y - stat.projectileAngleByHeight), reboundDirCheck, zAngle));
             }
             else if (checkRandomAttackType >= stat.stabAttackPercent && stat.stabAttackPercent + stat.slashAttackPercent >= checkRandomAttackType)
             {
@@ -403,6 +408,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SlashAttackObject.SetActive(true);
         yield return Yields.WaitSeconds(stat.slashAttackTime);
         SlashAttackObject.SetActive(false);
+
+        ZAngle = (Mathf.Atan2(PlayerPos.y - transform.position.y, PlayerPos.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
 
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(1);
         if (projectileObj is not null)
