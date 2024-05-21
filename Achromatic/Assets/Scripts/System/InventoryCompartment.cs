@@ -16,10 +16,11 @@ public class InventoryCompartment : MonoBehaviour, IPointerClickHandler
         imageComponent = GetComponent<Image>();
     }
 
-    public void SetItem(Item item)
+    public void SetItem(Item item, Color color = default)
     {
         this.item = item;
         imageComponent.sprite = item.itemSprite;
+        imageComponent.color = color;
     }
 
     public void Clear()

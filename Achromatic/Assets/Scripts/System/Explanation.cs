@@ -15,10 +15,10 @@ public class Explanation : MonoBehaviour
     private void Awake()
     {
         itemImage = transform.GetComponentInChildren<Image>();
-        itemNameText = transform.GetChild(1).GetComponent<TextMeshPro>();
-        itemNameText = transform.GetChild(2).GetComponent<TextMeshPro>();
-        itemEquipButton = transform.GetChild(3).GetComponent<Button>();
-        itemEquipButtonText = transform.GetChild(3).GetComponentInChildren<TextMeshPro>();
+        itemNameText = transform.GetChild(1).GetChild(0).GetComponent<TextMeshPro>();
+        itemExplanationText = transform.GetChild(1).GetChild(1).GetComponent<TextMeshPro>();
+        itemEquipButton = transform.GetChild(2).GetComponent<Button>();
+        itemEquipButtonText = transform.GetChild(2).GetComponentInChildren<TextMeshPro>();
     }
 
     public void SetExplanation(EquippableItem equipment)
