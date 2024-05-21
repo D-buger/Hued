@@ -20,4 +20,10 @@ public abstract class EquippableItem : Item
     }
 
     public abstract void AffectStat(bool equipped);
+    public override EItemType ItemType() => EItemType.EQUIPPABLE;
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+
+    }
 }

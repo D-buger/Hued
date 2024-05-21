@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.EventSystems;
 
-public class Inventory : MonoBehaviour
+public class Inventory : MonoBehaviour, IPointerClickHandler
 {
     private readonly Color ACTIVE_COLOR = Color.white;
     private readonly Color INACTIVE_COLOR = new Color(0.1f, 0.1f, 0.1f, 1);
@@ -26,24 +29,34 @@ public class Inventory : MonoBehaviour
     private InventoryCompartment[] equippableItemEquipCompartments;
     private InventoryCompartment[] expendableItemCompartments;
     private InventoryCompartment[] equippableItemCompartments;
+
+    private Explanation explanation;
+    public Explanation Explanation => explanation;
+
     private void Awake()
     {
         expendableItemEquipCompartments = expendableItemEquipCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
         equippableItemEquipCompartments = equippableItemEquipCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
         expendableItemCompartments = expendableItemCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
         equippableItemCompartments = equippableItemCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
+        explanation = GetComponentInChildren<Explanation>(true);
+        Explanation.Clear();
 
-        for(int i = 0; i < expendables.Length; i++)
-        {
-            expendables[i].isDiscovered = false;
-            expendableItems.Add(expendables[i]);
-        }
+        expendableItems.AddRange(expendables);
     }
 
     private void Start()
     {
         InputManager.Instance.InventoryEvent?.AddListener(() => SetActiveInventory(true));
+        InputManager.Instance.ExitEvent?.AddListener(() => SetActiveInventory(false));
         SetExpendableItem();
+    }
+
+    public void SetActiveInventory(bool active)
+    {
+        Time.timeScale = active ? 0.0f : 1.0f;
+        InputManager.Instance.CanInput = !active;
+        gameObject.SetActive(active);
     }
 
     public void GetItem(ExpendableItem item)
@@ -79,19 +92,12 @@ public class Inventory : MonoBehaviour
     {
         for(int i = 0; i < equippableItems.Count; i++)
         {
-            equippableItemCompartments[i].SetItem(equippableItems[i]);
+            equippableItemCompartments[i].SetItem(equippableItems[i], ACTIVE_COLOR);
         }
     }
 
-    public void SetActiveInventory(bool active)
+    public void OnPointerClick(PointerEventData eventData)
     {
-        Time.timeScale = active ? 0.0f : 1.0f;
-        InputManager.Instance.CanInput = !active;
-        gameObject.SetActive(active);
-    }
-
-    public void SetExplanationTap(Item item)
-    {
-        Debug.Log(item);
+        Explanation.Clear();
     }
 }

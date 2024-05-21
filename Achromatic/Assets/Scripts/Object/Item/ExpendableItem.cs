@@ -11,4 +11,11 @@ public abstract class ExpendableItem : Item
     public bool isDiscovered = false;
 
     public abstract void UseItem();
+    public override EItemType ItemType() => EItemType.EXPENDABLE;
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        currentCount = maxCount;
+        isDiscovered = false;
+    }
 }

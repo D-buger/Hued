@@ -6,6 +6,7 @@ using UnityEngine.Events;
 
 public class InputManager : SingletonBehavior<InputManager>
 {
+    const KeyCode EXIT = KeyCode.Escape;
     const KeyCode JUMP = KeyCode.Space;
     const KeyCode LEFT = KeyCode.A;
     const KeyCode RIGHT = KeyCode.D;
@@ -16,6 +17,8 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode FILTER = KeyCode.F;
     const KeyCode INVENTORY = KeyCode.I;
 
+    [HideInInspector]
+    public UnityEvent ExitEvent;
     [HideInInspector]
     public UnityEvent JumpEvent;
     [HideInInspector]
@@ -51,6 +54,11 @@ public class InputManager : SingletonBehavior<InputManager>
     {
         MouseVec = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         prevGetJumpTime += Time.deltaTime;
+
+        if (Input.GetKey(EXIT))
+        {
+            ExitEvent?.Invoke();
+        }
 
         if (!CanInput)
         {
@@ -112,6 +120,5 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             LookEvent?.Invoke(1);
         }
-        
     }
 }
