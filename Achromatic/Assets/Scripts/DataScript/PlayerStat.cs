@@ -6,6 +6,8 @@ using UnityEngine;
 public class PlayerStatus : ScriptableObject
 {
     [HideInInspector]
+    public int maxHP;
+    [HideInInspector]
     public int currentHP;
     [SerializeField]
     public int playerHP = 5;

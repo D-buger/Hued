@@ -26,7 +26,7 @@ public class PlayerHitState : PlayerBaseState
         {
             player.RigidbodyComp.velocity = Vector2.zero;
             attackDir.y = 0;
-            player.currentHP -= damage;
+            player.CurrentHP -= damage;
             hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime));
         }
     }
