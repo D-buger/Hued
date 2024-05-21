@@ -38,7 +38,7 @@ public class Player : MonoBehaviour, IAttack
     private PlayerStatus stat;
     public PlayerStatus GetPlayerStat => stat;
 
-    public int currentHP
+    public int CurrentHP
     {
         get
         {
@@ -133,7 +133,7 @@ public class Player : MonoBehaviour, IAttack
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 
-        UISystem.Instance?.hpSliderEvent?.Invoke(currentHP);
+        UISystem.Instance?.hpSliderEvent?.Invoke(CurrentHP);
     }
 
     private void Update()
