@@ -67,7 +67,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private float stabDelayToAttack = 0.2f;
     private float stabDelayToDestory = 0.05f;
     private float originalMoveSpeed = 1;
-    private float originalRunSpeed = 2;
+    private float originalRunSpeed = 4;
     private int moveSpeedDown = 0;
 
     private LayerMask colorVisibleLayer;
