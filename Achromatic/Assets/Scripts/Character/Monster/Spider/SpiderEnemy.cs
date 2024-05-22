@@ -520,7 +520,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
             collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
-                    transform.position - collision.transform.position, this);
+                    transform.position - collision.transform.position, null);
         }
     }
 
