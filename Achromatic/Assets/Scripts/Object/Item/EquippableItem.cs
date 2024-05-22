@@ -4,22 +4,8 @@ using UnityEngine;
 
 public abstract class EquippableItem : Item
 {
-    [HideInInspector]
-    public bool isEquipped = false;
-
-    public virtual void EquipItem()
-    {
-        isEquipped = true;
-        AffectStat(isEquipped);
-    }
-
-    public virtual void DisarmItem()
-    {
-        isEquipped = false;
-        AffectStat(isEquipped);
-    }
-
-    public abstract void AffectStat(bool equipped);
+    public abstract void EquipItem();
+    public abstract void DisarmItem();
     public override EItemType ItemType() => EItemType.EQUIPPABLE;
     protected override void OnEnable()
     {

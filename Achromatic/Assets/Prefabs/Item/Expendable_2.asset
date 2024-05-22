@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2333704009543aa43ba07e8f080ea7f5, type: 3}
   m_Name: Expendable_2
   m_EditorClassIdentifier: 
-  itemSprite: {fileID: 21300000, guid: 1477bd825d9796142900c45e51a33171, type: 3}
+  itemSprite: {fileID: 21300000, guid: 8a7519b4a2d2f8242b7feed9388b117f, type: 3}
   itemName: "\uD14C\uC2A4\uD2B8\uC6A9 \uC0AC\uC6A9\uC544\uC774\uD15C2"
   itemExplanation: "HP \uD68C\uBCF5 \uCB49\uCB49"
+  isEquipped: 0
   maxCount: 5
   currentCount: 5
   isDiscovered: 0

@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 public class Explanation : MonoBehaviour
 {
     private const string ITEM_EQUIP_BUTTON_TEXT = "ÀåÂø";
     private const string ITEM_DISARM_BUTTON_TEXT = "ÇØÁ¦";
+    private Inventory Inventory => PlayManager.Instance.GetInventory;
 
     private Image itemImage;
     private TMP_Text itemNameText;
@@ -33,25 +35,14 @@ public class Explanation : MonoBehaviour
         if (item.isEquipped)
         {
             itemEquipButtonText.text = ITEM_DISARM_BUTTON_TEXT;
-            itemEquipButton.onClick.AddListener(DisarmItem);
+            itemEquipButton.onClick.AddListener(() => Inventory.EquipItem(item, false));
         }
         else
         {
             itemEquipButtonText.text = ITEM_EQUIP_BUTTON_TEXT;
-            itemEquipButton.onClick.AddListener(EquipItem);
+            itemEquipButton.onClick.AddListener(() => Inventory.EquipItem(item, true));
         }
     }
-
-    private void EquipItem()
-    {
-
-    }
-
-    private void DisarmItem()
-    {
-
-    }
-
 
     public void Clear()
     {

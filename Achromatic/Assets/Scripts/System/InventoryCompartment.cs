@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,6 +24,8 @@ public class InventoryCompartment : MonoBehaviour, IPointerClickHandler
         imageComponent.sprite = item.itemSprite;
         imageComponent.color = color;
     }
+    public Item GetItem => item;
+    public bool HasItem() => item is not null;
 
     public void Clear()
     {

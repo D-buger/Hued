@@ -25,7 +25,7 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     private List<ExpendableItem> expendableItems = new List<ExpendableItem>();
     private List<EquippableItem> equippableItems = new List<EquippableItem>();
 
-    private InventoryCompartment[] expendableItemEquipCompartments;
+    private InventoryCompartment expendableItemEquipCompartment;
     private InventoryCompartment[] equippableItemEquipCompartments;
     private InventoryCompartment[] expendableItemCompartments;
     private InventoryCompartment[] equippableItemCompartments;
@@ -35,7 +35,7 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
 
     private void Awake()
     {
-        expendableItemEquipCompartments = expendableItemEquipCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
+        expendableItemEquipCompartment = expendableItemEquipCompartmentParent.GetComponentInChildren<InventoryCompartment>(true);
         equippableItemEquipCompartments = equippableItemEquipCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
         expendableItemCompartments = expendableItemCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
         equippableItemCompartments = equippableItemCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
@@ -96,8 +96,33 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public void EquipItem(Item item, bool equip)
+    {
+        item.isEquipped = equip;
+        switch (item.ItemType())
+        {
+            case EItemType.EQUIPPABLE:
+                EquippableItem equipItem = item as EquippableItem;
+
+                break;
+            case EItemType.EXPENDABLE:
+                ExpendableItem expendItem = item as ExpendableItem;
+
+                break;
+        }
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         Explanation.Clear();
+    }
+
+    public void UseItem()
+    {
+        if (expendableItemEquipCompartment.HasItem())
+        {
+            ExpendableItem expendItem = expendableItemEquipCompartment.GetItem as ExpendableItem;
+            expendItem.UseItem();
+        }
     }
 }
