@@ -132,11 +132,12 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         monsterPosition = monsterRunRightPosition;
         startAntPosition = new Vector2(transform.position.x, transform.position.y);
 
+        CheckStateChange();
+
         if (animationJson is not null)
         {
             jsonObject = JObject.Parse(animationJson.text);
         }
-        CheckStateChange();
     }
     private void Update()
     {
@@ -144,6 +145,17 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             StartCoroutine(CheckPlayer(startAntPosition));
         }
+    }
+    private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
+    {
+        if (animClip.name.Equals(currentAnimation))
+        {
+            return;
+        }
+        skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
+        skeletonAnimation.loop = loop;
+        skeletonAnimation.timeScale = timeScale;
+        currentAnimation = animClip.name;
     }
     private void SetCurrentAnimation(EAnimState _state)
     {
@@ -193,17 +205,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
                 AsyncAnimation(aniClip[(int)EAnimState.ENEMYDISCOVERY], false, timeScale);
                 break;
         }
-    }
-    private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
-    {
-        if (animClip.name.Equals(currentAnimation))
-        {
-            return;
-        }
-        skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
-        skeletonAnimation.loop = loop;
-        skeletonAnimation.timeScale = timeScale;
-        currentAnimation = animClip.name;
     }
 
     private void IsActiveColor(eActivableColor color)
