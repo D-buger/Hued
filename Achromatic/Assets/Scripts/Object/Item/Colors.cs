@@ -8,8 +8,12 @@ public class Colors : MonoBehaviour
     [SerializeField]
     eActivableColor color;
 
-    protected void OnTriggerEnter2D()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        PlayManager.Instance.ActivationColors = color;
+        if (collision.CompareTag(PlayManager.PLAYER_TAG))
+        {
+            PlayManager.Instance.ActivationColors = color;
+            gameObject.SetActive(false);
+        }
     }
 }

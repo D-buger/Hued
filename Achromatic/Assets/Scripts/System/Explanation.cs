@@ -36,12 +36,14 @@ public class Explanation : MonoBehaviour
             itemImage.sprite = default;
             itemNameText.text = ITEM_CONCEALED_NAME_TEXT;
             itemExplanationText.text = ITEM_CONCEALED_EXPLANATION_TEXT;
+            itemEquipButton?.gameObject.SetActive(false);
         }
         else
         {
             itemImage.sprite = item.itemSprite;
             itemNameText.text = item.name;
             itemExplanationText.text = item.itemExplanation;
+            itemEquipButton?.gameObject.SetActive(true);
             itemEquipButton?.onClick.RemoveAllListeners();
             if (item.isEquipped)
             {

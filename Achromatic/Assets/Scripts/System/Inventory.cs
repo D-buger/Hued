@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -18,9 +19,12 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     private GameObject expendableItemCompartmentParent;
     [SerializeField]
     private GameObject equippableItemCompartmentParent;
-
     [SerializeField]
     private ExpendableItem[] expendables;
+    [SerializeField]
+    private float xSwipeValue = 200;
+    [SerializeField]
+    private float swipeDurationTime = 1;
 
     private List<ExpendableItem> expendableItems = new List<ExpendableItem>();
     private List<EquippableItem> equippableItems = new List<EquippableItem>();
@@ -30,10 +34,16 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     private InventoryCompartment[] expendableItemCompartments;
     private InventoryCompartment[] equippableItemCompartments;
 
+    private RectTransform equippableItemParentRect;
+
     private Explanation explanation;
     public Explanation Explanation => explanation;
 
+    private Coroutine swipeCoroutine;
+    private Vector3 equippableItemParentOriPosition;
+
     private int equippableItemIndex = 0;
+    private int equippableItemRectIndex = 0;
 
     private void Awake()
     {
@@ -42,6 +52,8 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
         expendableItemCompartments = expendableItemCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
         equippableItemCompartments = equippableItemCompartmentParent.GetComponentsInChildren<InventoryCompartment>(true);
         explanation = GetComponentInChildren<Explanation>(true);
+        equippableItemParentRect = equippableItemCompartmentParent.GetComponent<RectTransform>();
+        equippableItemParentOriPosition = equippableItemParentRect.position;
         Explanation.Clear();
 
         expendableItems.AddRange(expendables);
@@ -62,6 +74,8 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
         InputManager.Instance.CanInput = !active;
         explanation.gameObject.SetActive(false);
         gameObject.SetActive(active);
+        equippableItemRectIndex = 0;
+        equippableItemParentRect.position = equippableItemParentOriPosition;
     }
 
     public void GetItem(ExpendableItem item)
@@ -156,5 +170,37 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
             ExpendableItem expendItem = expendableItemEquipCompartment.GetItem() as ExpendableItem;
             expendItem.UseItem();
         }
+    }
+
+    public void SwipeEquippableItemCompartments(int index)
+    {
+        if(swipeCoroutine is not null)
+        {
+            StopCoroutine(swipeCoroutine);
+        }
+        swipeCoroutine = StartCoroutine(SwipeCompartmentsRoutine(index));
+        equippableItemRectIndex = index;
+    }
+
+    private IEnumerator SwipeCompartmentsRoutine(int index)
+    {
+        Vector3 startVector = equippableItemParentRect.position;
+        Vector3 endVector = equippableItemParentOriPosition;
+        endVector.x += xSwipeValue * (index * -1);
+        float elapsedTime = 0;
+        while (true)
+        {
+            elapsedTime += Time.unscaledDeltaTime / swipeDurationTime;
+
+            equippableItemParentRect.position = Vector3.Lerp(startVector, endVector, elapsedTime);
+
+            if (elapsedTime > 1)
+            {
+                break;
+            }
+            yield return null;
+        }
+        equippableItemParentRect.position = endVector;
+        swipeCoroutine = null;
     }
 }
