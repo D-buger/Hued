@@ -36,7 +36,7 @@ public class SpearAttack : Projectile
         Vector2 originalPos = obj.transform.position;
         Vector2 attackDir = (originalPos - (Vector2)transform.position).normalized;
 
-        transform.Translate(attackDir * stat.stabThrowReturnSpeed * Time.deltaTime);
+        transform.Translate(attackDir * stat.spearThrowReturnSpeed * Time.deltaTime);
 
         if (Vector2.Distance(originalPos, (Vector2)transform.position) > stat.returnPosValue)
         {

@@ -24773,33 +24773,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster
       objectReference: {fileID: 0}
-    - target: {fileID: 2546351987518370047, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
-      propertyPath: m_Mesh
-      value: 
+    - target: {fileID: 1445012356358492418, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2725688696495312473, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
-      propertyPath: aniClip.Array.size
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 2725688696495312473, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
-      propertyPath: aniClip.Array.data[14]
-      value: 
-      objectReference: {fileID: 11400000, guid: 047153e4e6440444585e4783d1b779b1, type: 2}
     - target: {fileID: 2844131687937591565, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3583621916964841850, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -79.84053
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3583621916964841850, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.5028323
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3583621916964841850, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.07350635
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3583621916964841850, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_LocalRotation.w
@@ -24829,11 +24821,15 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5088073245345081577, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: animationJson
+      value: 
+      objectReference: {fileID: 4900000, guid: ed217a7771385ee4a8c3d4aec47f8eb9, type: 3}
     - target: {fileID: 5661355990402070758, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7155751384073689063, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
