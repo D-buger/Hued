@@ -47,7 +47,6 @@ public class Player : MonoBehaviour, IAttack
         }
         set
         {
-            Debug.Log("max hp : " + stat.maxHP);
             stat.maxHP = value % 2 == 0 ? value : ++value;
             PlayerMaxHPEvent?.Invoke(stat.maxHP, stat.currentHP);
         }
@@ -60,7 +59,6 @@ public class Player : MonoBehaviour, IAttack
         }
         set
         {
-            Debug.Log("current hp : " + stat.currentHP);
             stat.currentHP = Mathf.Min(value, stat.maxHP);
             if (stat.currentHP <= 0)
             {

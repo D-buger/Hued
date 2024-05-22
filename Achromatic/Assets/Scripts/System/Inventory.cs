@@ -53,6 +53,7 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
         InputManager.Instance.ExitEvent?.AddListener(() => SetActiveInventory(false));
         InputManager.Instance.UseItemEvent?.AddListener(UseItem);
         SetExpendableItem();
+        gameObject.SetActive(false);
     }
 
     public void SetActiveInventory(bool active)
