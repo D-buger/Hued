@@ -264,6 +264,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3568358085757717773, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_Name
+      value: SlashAttack
+      objectReference: {fileID: 0}
     - target: {fileID: 4213296061160811107, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_IsActive
       value: 0

@@ -18,8 +18,8 @@ MonoBehaviour:
   moveSpeed: 1.4
   runSpeed: 2
   attackDamage: 1
-  attackTime: 0.3
-  attackCooldown: 2
+  attackTime: 1.33
+  attackCooldown: 1
   contactDamage: 1
   hitReboundPower: 5
   heavyHitReboundPower: 10

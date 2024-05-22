@@ -24,8 +24,11 @@ MonoBehaviour:
     multiplyMaterials: []
     screenMaterials: []
   skeletonDataModifiers: []
-  fromAnimation: []
-  toAnimation: []
-  duration: []
-  defaultMix: 0
+  fromAnimation:
+  - ground_ant/ground_ant_battle/ground_ant_battle_move/ground_ant_battle_run
+  toAnimation:
+  - ground_ant/ground_ant_battle/ground_ant_battle_move/ground_ant_battle_brake
+  duration:
+  - 0
+  defaultMix: 0.3
   controller: {fileID: 0}

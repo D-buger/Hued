@@ -323,6 +323,8 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
         yield return Yields.WaitSeconds(stat.attackTime);
         currentState &= ~EMonsterAttackState.ISATTACK;
+        animState = EanimState.IDLE;
+        SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(stat.attackCooldown);
         canAttack = true;
     }

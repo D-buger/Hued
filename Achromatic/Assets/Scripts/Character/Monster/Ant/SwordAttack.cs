@@ -12,7 +12,7 @@ public class SwordAttack : MonoBehaviour, IParryConditionCheck
     {
         col = GetComponent<Collider2D>();
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {

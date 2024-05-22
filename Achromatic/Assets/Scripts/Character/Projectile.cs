@@ -28,7 +28,6 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
         renderer = GetComponent<SpriteRenderer>();
     }
 
-
     public virtual void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, float shotAngle, eActivableColor color)
     {
         float shotDir = shotAngle;
@@ -56,6 +55,7 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
             isParried = true;
             rigid.velocity = Vector2.zero;
             rigid.AddForce(moveDirection * moveSpeed);
+            Debug.Log(dir);
         }
     }
     public void ReturnToPool()

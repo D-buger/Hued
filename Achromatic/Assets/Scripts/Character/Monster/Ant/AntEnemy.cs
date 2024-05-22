@@ -54,7 +54,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SPEAROVER,
         COUNTEROFF,
         COUNTERTRIGGER,
-        ENEMYDISCOVERY
+        ENEMYDISCOVERY,
+        BATTLEIDLE
     }
     [SerializeField]
     private EAnimState animState;
@@ -88,6 +89,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     private bool canAttackSlash = true;
     private bool canAttackSatb = true;
     private bool canAttackCounter = true;
+    private bool canAnimMoveToBreak = true;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     private void Awake()
@@ -204,6 +206,9 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             case EAnimState.ENEMYDISCOVERY:
                 AsyncAnimation(aniClip[(int)EAnimState.ENEMYDISCOVERY], false, timeScale);
                 break;
+            case EAnimState.BATTLEIDLE:
+                AsyncAnimation(aniClip[(int)EAnimState.BATTLEIDLE], true, timeScale);
+                break;
         }
     }
 
@@ -318,6 +323,11 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         else if (!currentState.HasFlag(EMonsterAttackState.ISATTACK) && canAttack)
         {
             StartCoroutine(AttackSequence(PlayerPos));
+            if (canAnimMoveToBreak)
+            {
+                animState = EAnimState.MOVETOBREAK;
+                SetCurrentAnimation(animState);
+            }
         }
     }
 
@@ -385,6 +395,8 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
             yield return Yields.WaitSeconds(stat.attackTime);
             currentState &= ~EMonsterAttackState.ISATTACK;
+            animState = EAnimState.BATTLEIDLE;
+            SetCurrentAnimation(animState);
             yield return Yields.WaitSeconds(stat.attackCooldown);
             canAttack = true;
         }
@@ -404,7 +416,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
 
         rigid.AddForce(check * stat.slashAttackRebound, ForceMode2D.Impulse);
-
         yield return Yields.WaitSeconds(stat.slashAttackDelay);
         SlashAttackObject.SetActive(true);
         yield return Yields.WaitSeconds(stat.slashAttackTime);
