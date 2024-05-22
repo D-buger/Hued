@@ -41,5 +41,5 @@ public class AntMonsterStat : MonsterStat
     [Tooltip("Âî¸£±â °ø°Ý È®·ü")]
     public int stabAttackPercent = 33;
     [Tooltip("°Ë±â °ø°Ý È®·ü")]
-    public int swordAttackPercent = 33;
+    public int slashAttackPercent = 33;
 }

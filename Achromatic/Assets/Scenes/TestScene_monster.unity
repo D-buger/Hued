@@ -28104,6 +28104,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4164911985738473624, guid: 0c178c56fe83fb341a9e37a8dbd2a85f, type: 3}
   m_PrefabInstance: {fileID: 1127076029}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1127970703 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9091338074848607314, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+  m_PrefabInstance: {fileID: 2300437218067640319}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1128102460
 GameObject:
   m_ObjectHideFlags: 0
@@ -30550,7 +30555,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50d6a3177fba0a8428e394b7af89a17f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  runPosition: 0
+  runPosition: 8
   state: 1
   attackTransform: {fileID: 1128102460}
   stat: {fileID: 11400000, guid: 5c73b307a2101324e9bc3da0a6f9267e, type: 2}
@@ -49052,6 +49057,10 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 2725688696495312473, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: SlashAttackObject
+      value: 
+      objectReference: {fileID: 1127970703}
+    - target: {fileID: 2725688696495312473, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: stabAttackObject.Array.data[0]
       value: 
       objectReference: {fileID: 114688170}
@@ -49149,7 +49158,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5907952801845234686, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6121999992420219336, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_Name

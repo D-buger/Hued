@@ -104,7 +104,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         startSpiderPosition = new Vector2(transform.position.x, transform.position.y);
         monsterPosition = monsterRunRightPosition;
 
-        originLayer = gameObject.layer;
+        originLayer = LayerMask.GetMask("Enemy");
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
@@ -165,7 +165,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             return;
         }
-
         skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
         skeletonAnimation.loop = loop;
         skeletonAnimation.timeScale = timeScale;
@@ -173,15 +172,9 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void IsActiveColor(eActivableColor color)
     {
-        if (color != stat.enemyColor)
-        {
-            gameObject.layer = originLayer;
-        }
-        else
-        {
-            gameObject.layer = colorVisibleLayer;
-        }
-        gameObject.layer = (color != stat.enemyColor) ? originLayer : colorVisibleLayer;
+        int newLayer = SOO.Util.LayerMaskToNumber((color == stat.enemyColor) ? colorVisibleLayer : originLayer);
+        newLayer -= 2;
+        gameObject.layer = newLayer;
     }
     public override IEnumerator CheckWaitTime()
     {
@@ -256,7 +249,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         canAttack = false;
         float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
-        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg);
+        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
         Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
         Vector2 reboundDirCheck;
         if (value.x <= 0)
@@ -330,6 +323,8 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
         yield return Yields.WaitSeconds(stat.attackTime);
         currentState &= ~EMonsterAttackState.ISATTACK;
+        animState = EanimState.IDLE;
+        SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(stat.attackCooldown);
         canAttack = true;
     }
@@ -358,6 +353,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         SetCurrentAnimation(animState);
         yield return new WaitForSeconds((float)jsonObject["animations"]["attack/spit_web"]["events"][0]["time"]);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(0);
+        zAngle = (Mathf.Atan2(PlayerPos.y - transform.position.y, PlayerPos.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
         if (projectileObj is not null)
         {
             projectileObj.SetActive(true);
@@ -524,7 +520,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
             collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
-                    transform.position - collision.transform.position, this);
+                    transform.position - collision.transform.position, null);
         }
     }
 

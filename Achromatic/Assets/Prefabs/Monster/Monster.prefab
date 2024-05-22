@@ -82,7 +82,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7677763391887178161
 Transform:
   m_ObjectHideFlags: 0
@@ -212,13 +212,17 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 1.76
       objectReference: {fileID: 0}
+    - target: {fileID: 853984382455717785, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1068515943601474151, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 67
+      value: -6.82
       objectReference: {fileID: 0}
     - target: {fileID: 1068515943601474151, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.4
+      value: -7.17
       objectReference: {fileID: 0}
     - target: {fileID: 1068515943601474151, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_LocalPosition.z
@@ -252,9 +256,17 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1397905782507853125, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2418221333252122016, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3568358085757717773, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_Name
+      value: SlashAttack
       objectReference: {fileID: 0}
     - target: {fileID: 4213296061160811107, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_IsActive
@@ -276,6 +288,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 1.6200001
       objectReference: {fileID: 0}
+    - target: {fileID: 4866046569132824453, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5318167043576920963, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_LocalScale.x
       value: 3.5
@@ -292,6 +308,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 1.82
       objectReference: {fileID: 0}
+    - target: {fileID: 5467159008721956725, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_Color.a
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6012641958603062874, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: projectilePrefab
       value: 
@@ -303,6 +323,10 @@ PrefabInstance:
     - target: {fileID: 6102530087147002526, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.97
+      objectReference: {fileID: 0}
+    - target: {fileID: 6336367556918088374, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: m_Color.a
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7110524173633863084, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_Name
@@ -318,16 +342,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7615893006791624227, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_Size.y
-      value: 4.108194
+      value: 3.7809691
       objectReference: {fileID: 0}
     - target: {fileID: 7615893006791624227, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: m_Offset.y
-      value: 2.131173
+      value: 1.967561
       objectReference: {fileID: 0}
     - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: runPosition
-      value: 15
+      value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+      propertyPath: SlashAttackObject
+      value: 
+      objectReference: {fileID: 9091338074848607314}
     - target: {fileID: 7673050092618153734, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
       propertyPath: counterAttackObject
       value: 
@@ -418,6 +446,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 4213296061160811107, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
   m_PrefabInstance: {fileID: 5742002707513667935}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &9091338074848607314 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3568358085757717773, guid: a20c5ae82f1627148b86d06f15163972, type: 3}
+  m_PrefabInstance: {fileID: 5742002707513667935}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6112088452122524896
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -430,17 +463,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpiderMonster
       objectReference: {fileID: 0}
+    - target: {fileID: 373732617570613022, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3029426164028853613, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: runPosition
-      value: 8
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 70.4
+      value: 18.88
       objectReference: {fileID: 0}
     - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -4.71
+      value: -7.16
       objectReference: {fileID: 0}
     - target: {fileID: 8032099443753483224, guid: 518c27c72928d4044939a7faad4fb259, type: 3}
       propertyPath: m_LocalPosition.z

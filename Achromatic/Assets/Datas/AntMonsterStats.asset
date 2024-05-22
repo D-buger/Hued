@@ -12,30 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f282e72a1e66b6842811d0af00d71795, type: 3}
   m_Name: AntMonsterStats
   m_EditorClassIdentifier: 
-  monsterHP: 5
+  monsterHP: 20
   enemyColor: 1
   senseCircle: 5
   moveSpeed: 1
-  runSpeed: 2
+  runSpeed: 4
   attackDamage: 1
-  attackTime: 2
+  attackTime: 1.3333
   attackCooldown: 2
   contactDamage: 1
-  hitReboundPower: 5
-  heavyHitReboundPower: 10
+  hitReboundPower: 2
+  heavyHitReboundPower: 3
   groggyTime: 0.5
   waitStateDelay: 3
   deadDelay: 1.33
   attackDelay: 1.33
-  projectileAnglebyHeight: 0.22
-  enemyRoamingRange: 7
+  projectileAngleByHeight: 0.22
+  projectileZAngleByHeight: 140
+  enemyRoamingRange: 8
   discoveryDuration: 1
   slashAttackDamage: 1
   slashAttackRebound: 45
   slashAttackDelay: 0.1
-  slashAttackTime: 0.2
+  slashAttackTime: 0.8
   swordAttackDamage: 1
-  swordAttackSpeed: 200
+  swordAttackSpeed: 400
   swordAuraRangePerTime: 2
   stabAttackDamage: 1
   lastStabAttackDamage: 2
@@ -48,5 +49,5 @@ MonoBehaviour:
   counterAttackDurationTime: 0
   counterAttackDamage: 2
   counterAttackSpeed: 6
-  stabAttackPercent: 33
-  swordAttackPercent: 33
+  stabAttackPercent: 13
+  slashAttackPercent: 100
