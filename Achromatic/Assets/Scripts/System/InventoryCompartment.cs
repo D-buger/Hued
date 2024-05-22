@@ -24,11 +24,17 @@ public class InventoryCompartment : MonoBehaviour, IPointerClickHandler
         imageComponent.sprite = item.itemSprite;
         imageComponent.color = color;
     }
-    public Item GetItem => item;
+    public Item GetItem() => item;
     public bool HasItem() => item is not null;
+    public bool CompareItem(Item item) => this.item == item;
 
     public void Clear()
     {
+        if (HasItem())
+        {
+            item.isEquipped = false;
+        }
+
         item = null;
         imageComponent.sprite = default;
     }

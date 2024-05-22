@@ -1,14 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Unity.VisualScripting;
+using static UnityEditor.Progress;
 
 public class Explanation : MonoBehaviour
 {
     private const string ITEM_EQUIP_BUTTON_TEXT = "장착";
     private const string ITEM_DISARM_BUTTON_TEXT = "해제";
+
+    private const string ITEM_CONCEALED_NAME_TEXT = "???";
+    private const string ITEM_CONCEALED_EXPLANATION_TEXT = "아직 발견되지 않은 듯 하다";
     private Inventory Inventory => PlayManager.Instance.GetInventory;
 
     private Image itemImage;
@@ -29,24 +30,35 @@ public class Explanation : MonoBehaviour
     public void SetExplanation(Item item)
     {
         gameObject.SetActive(true);
-        itemImage.sprite = item.itemSprite;
-        itemNameText.text = item.name;
-        itemExplanationText.text = item.itemExplanation;
-        if (item.isEquipped)
+        if (item.ItemType() == EItemType.EXPENDABLE 
+            && !(item as ExpendableItem).isDiscovered)
         {
-            itemEquipButtonText.text = ITEM_DISARM_BUTTON_TEXT;
-            itemEquipButton.onClick.AddListener(() => Inventory.EquipItem(item, false));
+            itemImage.sprite = default;
+            itemNameText.text = ITEM_CONCEALED_NAME_TEXT;
+            itemExplanationText.text = ITEM_CONCEALED_EXPLANATION_TEXT;
         }
         else
         {
-            itemEquipButtonText.text = ITEM_EQUIP_BUTTON_TEXT;
-            itemEquipButton.onClick.AddListener(() => Inventory.EquipItem(item, true));
+            itemImage.sprite = item.itemSprite;
+            itemNameText.text = item.name;
+            itemExplanationText.text = item.itemExplanation;
+            itemEquipButton?.onClick.RemoveAllListeners();
+            if (item.isEquipped)
+            {
+                itemEquipButtonText.text = ITEM_DISARM_BUTTON_TEXT;
+                itemEquipButton.onClick.AddListener(() => Inventory.EquipItem(item, false));
+            }
+            else
+            {
+                itemEquipButtonText.text = ITEM_EQUIP_BUTTON_TEXT;
+                itemEquipButton.onClick.AddListener(() => Inventory.EquipItem(item, true));
+            }
         }
     }
 
     public void Clear()
     {
-        itemEquipButton.onClick.RemoveAllListeners();
+        itemEquipButton?.onClick.RemoveAllListeners();
         gameObject.SetActive(false);
     }
 }

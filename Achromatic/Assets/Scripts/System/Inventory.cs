@@ -33,6 +33,8 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     private Explanation explanation;
     public Explanation Explanation => explanation;
 
+    private int equippableItemIndex = 0;
+
     private void Awake()
     {
         expendableItemEquipCompartment = expendableItemEquipCompartmentParent.GetComponentInChildren<InventoryCompartment>(true);
@@ -49,6 +51,7 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     {
         InputManager.Instance.InventoryEvent?.AddListener(() => SetActiveInventory(true));
         InputManager.Instance.ExitEvent?.AddListener(() => SetActiveInventory(false));
+        InputManager.Instance.UseItemEvent?.AddListener(UseItem);
         SetExpendableItem();
     }
 
@@ -56,6 +59,7 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     {
         Time.timeScale = active ? 0.0f : 1.0f;
         InputManager.Instance.CanInput = !active;
+        explanation.gameObject.SetActive(false);
         gameObject.SetActive(active);
     }
 
@@ -98,18 +102,45 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
 
     public void EquipItem(Item item, bool equip)
     {
-        item.isEquipped = equip;
         switch (item.ItemType())
         {
             case EItemType.EQUIPPABLE:
-                EquippableItem equipItem = item as EquippableItem;
-
+                if (equip)
+                {
+                    EquippableItem equipItem = item as EquippableItem;
+                    equipItem.isEquipped = true;
+                    equipItem.EquipItem();
+                    (equippableItemEquipCompartments[equippableItemIndex].GetItem() as EquippableItem)?.DisarmItem();
+                    equippableItemEquipCompartments[equippableItemIndex].Clear();
+                    equippableItemEquipCompartments[equippableItemIndex].SetItem(equipItem, ACTIVE_COLOR);
+                }
+                else
+                {
+                    for(int i = 0; i < equippableItemEquipCompartments.Length; i++)
+                    {
+                        if (equippableItemEquipCompartments[i].CompareItem(item))
+                        {
+                            (equippableItemEquipCompartments[equippableItemIndex].GetItem() as EquippableItem)?.DisarmItem();
+                            equippableItemEquipCompartments[i].Clear();
+                        }
+                    }
+                }
                 break;
             case EItemType.EXPENDABLE:
                 ExpendableItem expendItem = item as ExpendableItem;
+                if (expendItem.isDiscovered)
+                {
+                    expendableItemEquipCompartment.Clear();
 
+                    if (equip)
+                    {
+                        expendItem.isEquipped = true;
+                        expendableItemEquipCompartment.SetItem(expendItem, ACTIVE_COLOR);
+                    }
+                }
                 break;
         }
+        explanation.SetExplanation(item);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -121,7 +152,7 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     {
         if (expendableItemEquipCompartment.HasItem())
         {
-            ExpendableItem expendItem = expendableItemEquipCompartment.GetItem as ExpendableItem;
+            ExpendableItem expendItem = expendableItemEquipCompartment.GetItem() as ExpendableItem;
             expendItem.UseItem();
         }
     }

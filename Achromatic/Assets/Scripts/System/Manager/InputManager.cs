@@ -16,6 +16,7 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
     const KeyCode INVENTORY = KeyCode.I;
+    const KeyCode USE_ITEM = KeyCode.Alpha1;
 
     [HideInInspector]
     public UnityEvent ExitEvent;
@@ -33,6 +34,8 @@ public class InputManager : SingletonBehavior<InputManager>
     public UnityEvent FilterEvent;
     [HideInInspector]
     public UnityEvent InventoryEvent;
+    [HideInInspector]
+    public UnityEvent UseItemEvent;
 
     [SerializeField]
     private float jumpBufferTime = 0.1f;
@@ -119,6 +122,11 @@ public class InputManager : SingletonBehavior<InputManager>
         else if (Input.GetKey(LOOK_UP))
         {
             LookEvent?.Invoke(1);
+        }
+
+        if (Input.GetKeyDown(USE_ITEM))
+        {
+            UseItemEvent?.Invoke();
         }
     }
 }
