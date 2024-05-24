@@ -24,19 +24,23 @@ MonoBehaviour:
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  timeToWait: 1
+  waitStateDelay: 1
   deadDelay: 1.33
-  AttackDelay: 1.33
+  attackDelay: 1.33
+  projectileAngleByHeight: 0.22
+  projectileZAngleByHeight: 0
+  enemyRoamingRange: 7
+  discoveryDuration: 1
   senseCube: {x: 2, y: 2, z: 0}
   flyAntAttackDelay: 1
-  badyAttackSpeed: 2
-  badyAttackDamage: 5
-  badyAttackDelay: 0
-  repeatBadyAttackTime: 1
-  stabThrowSpeed: 150
-  stabThrowDamage: 7
-  stabThrowReturnDamage: 4
-  stabThrowReturnSpeed: 50
-  stabThrowAttackRange: 6
-  doubleBadyAttackPer: 50
+  rushAttackSpeed: 3
+  rushAttackDamage: 5
+  rushAttackDelay: 1
+  doubleRushAttackBetweenDelay: 1
+  spearThrowSpeed: 50
+  spearThrowDamage: 7
+  spearThrowReturnDamage: 4
+  spearThrowReturnSpeed: 50
+  spearThrowAttackRange: 6
+  doubleBadyAttackPercent: 50
   returnPosValue: 0.3

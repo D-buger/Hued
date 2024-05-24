@@ -24824,7 +24824,39 @@ PrefabInstance:
     - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: animationJson
       value: 
-      objectReference: {fileID: 4900000, guid: ed217a7771385ee4a8c3d4aec47f8eb9, type: 3}
+      objectReference: {fileID: 4900000, guid: fe49f9a563fb3d24596d126c1836a56b, type: 3}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: aniClip.Array.size
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: aniClip.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: cf86621df3f7d6946af5727d68d235e8, type: 2}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: aniClip.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 971370847c046194288b8a7a1abcf3fb, type: 2}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: aniClip.Array.data[2]
+      value: 
+      objectReference: {fileID: 11400000, guid: f0926863930cbbf449db57e14fcc140e, type: 2}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: aniClip.Array.data[3]
+      value: 
+      objectReference: {fileID: 11400000, guid: c4c77f23fdb37a84c9373695617ae47d, type: 2}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: aniClip.Array.data[4]
+      value: 
+      objectReference: {fileID: 11400000, guid: 6cf03f9b9b56d854493d9dba0576621d, type: 2}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: aniClip.Array.data[5]
+      value: 
+      objectReference: {fileID: 11400000, guid: 20559faef1cc8794487e7414d343ba0e, type: 2}
+    - target: {fileID: 3805980094517802922, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: aniClip.Array.data[6]
+      value: 
+      objectReference: {fileID: 11400000, guid: 47e429c7e23036f4bbf96b1b3cbc6771, type: 2}
     - target: {fileID: 5661355990402070758, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_Mesh
       value: 

@@ -335,7 +335,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
     {
         currentState |= EMonsterAttackState.ISATTACK;
         canAttack = false;
-        Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
+        Vector2 value = attackAngle - (Vector2)transform.position;
         Vector2 reboundDirCheck;
         if (value.x <= 0)
         {

@@ -249,8 +249,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         canAttack = false;
         float angleToPlayer = Mathf.Atan2(attackAngle.y, transform.position.y) * Mathf.Rad2Deg;
         bool facingPlayer = Mathf.Abs(angleToPlayer - transform.eulerAngles.z) < angleThreshold;
-        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
-        Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
+        Vector2 value = attackAngle - (Vector2)transform.position;
         Vector2 reboundDirCheck;
         if (value.x <= 0)
         {
@@ -265,6 +264,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         animState = EanimState.DETECTION;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
+        float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
         if (currentState.HasFlag(EMonsterAttackState.ISFIRSTATTACK))
         {
             StartCoroutine(Spit(value, ZAngle));

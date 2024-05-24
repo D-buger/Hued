@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEditor.ShaderGraph.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEngine.Rendering.DebugUI;
 using Color = UnityEngine.Color;
 
 public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
@@ -45,6 +46,10 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         DETECTION,
         IDLE,
         WALK,
+        CHARGEREADY,
+        CHARGE,
+        CHARGEIDLE,
+        CHARGEFINISH
     }
     [Header("Animation")]
     [SerializeField]
@@ -141,13 +146,25 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         switch (_state)
         {
             case EAnimState.DETECTION:
-                AsyncAnimation(aniClip[(int)EAnimState.DETECTION], true, timeScale);
+                AsyncAnimation(aniClip[(int)EAnimState.DETECTION], false, timeScale);
                 break;
             case EAnimState.IDLE:
                 AsyncAnimation(aniClip[(int)EAnimState.IDLE], true, timeScale);
                 break;
             case EAnimState.WALK:
                 AsyncAnimation(aniClip[(int)EAnimState.WALK], true, timeScale);
+                break;
+            case EAnimState.CHARGEREADY:
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGEREADY], false, timeScale);
+                break;
+            case EAnimState.CHARGE:
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGE], false, timeScale);
+                break;
+            case EAnimState.CHARGEIDLE:
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGEIDLE], false, timeScale);
+                break;
+            case EAnimState.CHARGEFINISH:
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGEFINISH], false, timeScale);
                 break;
         }
 }
@@ -234,25 +251,23 @@ private void IsActiveColor(eActivableColor color)
         SetAttackState(EMonsterAttackState.IsAttack, true);
         canAttack = false;
 
-        Vector2 value = attackAngle - (Vector2)transform.position;
-        Vector2 check;
-        if (value.x <= 0)
+        Vector2 monsterMoveDirection = attackAngle - (Vector2)transform.position;
+        if (monsterMoveDirection.x <= 0)
         {
             transform.localScale = new Vector2(1, 1);
-            check = new Vector2(-1f, 0);
         }
         else
         {
             transform.localScale = new Vector2(-1, 1);
-            check = new Vector2(1f, 0);
         }
-
-        yield return Yields.WaitSeconds(stat.attackDelay);
-        float ZAngle = (Mathf.Atan2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y) * Mathf.Rad2Deg);
+        animState = EAnimState.DETECTION;
+        SetCurrentAnimation(animState);
+        yield return Yields.WaitSeconds(1.33f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
+        float zAngle = 0;
         int checkRandomAttackType = 40;//UnityEngine.Random.Range(1, 101);
         if (checkRandomAttackType < 50)
         {
-            StartCoroutine(RushAttack()); // 돌진 공격
+            StartCoroutine(RushAttack(zAngle)); // 돌진 공격
             Debug.Log("돌진 공격");
         }
         else
@@ -266,13 +281,32 @@ private void IsActiveColor(eActivableColor color)
         meleeAttack?.AttackDisable();
     }
 
-    private IEnumerator RushAttack()
+    private IEnumerator RushAttack(float zAngle)
     {
+        Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
+        animState = EAnimState.CHARGEREADY;
+        SetCurrentAnimation(animState);
+        yield return Yields.WaitSeconds(1.5f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
         targetPos = new(PlayerPos.x, PlayerPos.y);
         int checkRandomAttackType = 60;//UnityEngine.Random.Range(1, 101);
         int dmagepool = stat.contactDamage;
         yield return Yields.WaitSeconds(stat.flyAntAttackDelay);
         stat.contactDamage = stat.rushAttackDamage;
+        animState = EAnimState.CHARGE;
+        SetCurrentAnimation(animState);
+        yield return Yields.WaitSeconds(0.3f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
+        zAngle = (Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
+        Debug.Log(zAngle);
+        if (attackDirection.x <= 0)
+        {
+            transform.localScale = new Vector2(1, 1);
+            transform.rotation = Quaternion.Euler(1, 1, 30);
+        }
+        else
+        {
+            transform.localScale = new Vector2(-1, 1);
+            transform.rotation = Quaternion.Euler(1, 1, -30);
+        }
         if (checkRandomAttackType > stat.doubleBadyAttackPercent)
         {
             SetAttackState(EMonsterAttackState.isBadyAttack, true);
@@ -288,6 +322,9 @@ private void IsActiveColor(eActivableColor color)
     }
     private IEnumerator Rush()
     {
+        Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
+        animState = EAnimState.CHARGEIDLE;
+        SetCurrentAnimation(animState);
         transform.position = Vector2.MoveTowards(transform.position, targetPos, stat.rushAttackSpeed * Time.deltaTime);
         Debug.Log("러시");
         if (Vector2.Distance(transform.position, targetPos) <= stat.returnPosValue)
@@ -296,8 +333,18 @@ private void IsActiveColor(eActivableColor color)
             {
                 targetPos = new(PlayerPos.x, PlayerPos.y);
                 SetAttackState(EMonsterAttackState.isBadyAttack, true);
+                if (attackDirection.x <= 0)
+                {
+                    transform.localScale = new Vector2(1, 1);
+                    transform.rotation = Quaternion.Euler(1, 1, 30);
+                }
+                else
+                {
+                    transform.localScale = new Vector2(-1, 1);
+                    transform.rotation = Quaternion.Euler(1, 1, -30);
+                }
                 yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
-                isDoubleBadyAttack= false;
+                isDoubleBadyAttack = false;
             }
             else
             {
@@ -311,7 +358,10 @@ private void IsActiveColor(eActivableColor color)
     private void ReturnMonster()
     {
         Debug.Log("리턴");
+        animState = EAnimState.IDLE;
+        SetCurrentAnimation(animState);
         transform.position = Vector2.MoveTowards(transform.position, battlePos, stat.rushAttackSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.Euler(1, 1, 1);
         if (Vector2.Distance(transform.position, battlePos) <= stat.returnPosValue)
         {
             SetAttackState(EMonsterAttackState.isReturnEnemy, false);
@@ -361,6 +411,8 @@ private void IsActiveColor(eActivableColor color)
                 break;
             case EMonsterState.isWait:
                 fsm.ChangeState("Idle");
+                animState = EAnimState.IDLE;
+                SetCurrentAnimation(animState);
                 break;
             default:
                 break;
