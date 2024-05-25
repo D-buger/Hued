@@ -112,6 +112,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private void Start()
     {
+        runPosition = stat.enemyRoamingRange;
         originalMoveSpeed = stat.moveSpeed;
         originalRunSpeed = stat.runSpeed;
 
@@ -122,8 +123,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         monsterRunRightPosition.x = transform.position.x;
         monsterRunleftPosition.x += runPosition;
         monsterRunRightPosition.x -= runPosition;
-
-        runPosition = stat.enemyRoamingRange;
 
         originalLayer = LayerMask.GetMask("Enemy");
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");

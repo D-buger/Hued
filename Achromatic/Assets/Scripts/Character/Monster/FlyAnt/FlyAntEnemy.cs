@@ -21,6 +21,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     [SerializeField]
     private GameObject attackTransform;
     [SerializeField]
+    private GameObject rushAttackObject;
+    [SerializeField]
     private FlyAntMonsterStat stat;
     [SerializeField]
     private JObject jsonObject;
@@ -71,7 +73,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         isFirstAttack = 4 << 0,
     }
     [SerializeField]
-    private EMonsterAttackState currentState = EMonsterAttackState.isFirstAttack;
+    private EMonsterAttackState attackState = EMonsterAttackState.isFirstAttack;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     private void Awake()
@@ -93,6 +95,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     {
         monsterStartPos = new Vector2(transform.position.x, transform.position.y);
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
+
+        runPosition = stat.enemyRoamingRange;
 
         monsterRunleftPosition.y = transform.position.y;
         monsterRunRightPosition.y = transform.position.y;
@@ -120,13 +124,13 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         {
             Attack();
         }
-        if (currentState.HasFlag(EMonsterAttackState.isBadyAttack) && !currentState.HasFlag(EMonsterAttackState.isReturnEnemy))
-        {
-            StartCoroutine(Rush());
-        }
-        if (currentState.HasFlag(EMonsterAttackState.isReturnEnemy) && !isReturnStop)
+        if (attackState.HasFlag(EMonsterAttackState.isReturnEnemy) && !isReturnStop)
         {
             ReturnMonster();
+        }
+        if (attackState.HasFlag(EMonsterAttackState.isBadyAttack) && !attackState.HasFlag(EMonsterAttackState.isReturnEnemy))
+        {
+            StartCoroutine(Rush());
         }
     }
     private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
@@ -161,7 +165,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 AsyncAnimation(aniClip[(int)EAnimState.CHARGE], false, timeScale);
                 break;
             case EAnimState.CHARGEIDLE:
-                AsyncAnimation(aniClip[(int)EAnimState.CHARGEIDLE], false, timeScale);
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGEIDLE], true, timeScale);
                 break;
             case EAnimState.CHARGEFINISH:
                 AsyncAnimation(aniClip[(int)EAnimState.CHARGEFINISH], false, timeScale);
@@ -235,13 +239,13 @@ private void IsActiveColor(eActivableColor color)
             return;
         }
 
-        if (currentState.HasFlag(EMonsterAttackState.isFirstAttack))
+        if (attackState.HasFlag(EMonsterAttackState.isFirstAttack))
         {
             battlePos = new(transform.position.x, transform.position.y);
             SetAttackState(EMonsterAttackState.isFirstAttack, false);
         }
 
-        if (canAttack && !currentState.HasFlag(EMonsterAttackState.IsAttack))
+        if (canAttack && !attackState.HasFlag(EMonsterAttackState.IsAttack))
         {
             StartCoroutine(AttackSequence(PlayerPos));
         }
@@ -300,12 +304,12 @@ private void IsActiveColor(eActivableColor color)
         if (attackDirection.x <= 0)
         {
             transform.localScale = new Vector2(1, 1);
-            transform.rotation = Quaternion.Euler(1, 1, 30);
+            transform.rotation = Quaternion.Euler(1, 1, 40);
         }
         else
         {
             transform.localScale = new Vector2(-1, 1);
-            transform.rotation = Quaternion.Euler(1, 1, -30);
+            transform.rotation = Quaternion.Euler(1, 1, -40);
         }
         if (checkRandomAttackType > stat.doubleBadyAttackPercent)
         {
@@ -317,18 +321,17 @@ private void IsActiveColor(eActivableColor color)
         else
         {
             SetAttackState(EMonsterAttackState.isBadyAttack, true);
+            Debug.Log("일반 돌진이 선택됨");
         }
+        CheckAttackStateChange();
         stat.contactDamage = dmagepool;
     }
     private IEnumerator Rush()
     {
-        Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
-        animState = EAnimState.CHARGEIDLE;
-        SetCurrentAnimation(animState);
         transform.position = Vector2.MoveTowards(transform.position, targetPos, stat.rushAttackSpeed * Time.deltaTime);
-        Debug.Log("러시");
         if (Vector2.Distance(transform.position, targetPos) <= stat.returnPosValue)
         {
+            Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
             if (isDoubleBadyAttack)
             {
                 targetPos = new(PlayerPos.x, PlayerPos.y);
@@ -348,7 +351,6 @@ private void IsActiveColor(eActivableColor color)
             }
             else
             {
-                Debug.Log("일반 돌진이 선택됨");
                 SetAttackState(EMonsterAttackState.isBadyAttack, false);
                 SetAttackState(EMonsterAttackState.isReturnEnemy, true);
                 isReturnStop = false;
@@ -418,6 +420,18 @@ private void IsActiveColor(eActivableColor color)
                 break;
         }
     }
+    private void CheckAttackStateChange()
+    {
+        switch (attackState)
+        {
+            case EMonsterAttackState.isBadyAttack:
+                animState = EAnimState.CHARGEIDLE;
+                SetCurrentAnimation(animState);
+                break;
+            default:
+                break;
+        }
+    }
 
     public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
@@ -460,11 +474,11 @@ private void IsActiveColor(eActivableColor color)
     {
         if (value)
         {
-            currentState |= eState;
+            attackState |= eState;
         }
         else
         {
-            currentState &= ~eState;
+            attackState &= ~eState;
         }
     }
     private void OnDrawmos()

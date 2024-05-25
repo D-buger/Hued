@@ -12,6 +12,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     protected float distanceToPlayer;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
+    [HideInInspector]
     public float runPosition;
 
     protected float elapsedTime = 0;

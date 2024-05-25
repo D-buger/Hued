@@ -90,6 +90,8 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
+        runPosition = stat.enemyRoamingRange;
+
         monsterRunleftPosition.y = transform.position.y;
         monsterRunRightPosition.y = transform.position.y;
 
@@ -97,8 +99,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         monsterRunRightPosition.x = transform.position.x;
         monsterRunleftPosition.x += runPosition;
         monsterRunRightPosition.x -= runPosition;
-
-        runPosition = stat.enemyRoamingRange;
 
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         startSpiderPosition = new Vector2(transform.position.x, transform.position.y);
