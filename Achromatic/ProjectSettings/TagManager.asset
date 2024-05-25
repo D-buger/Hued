@@ -7,6 +7,7 @@ TagManager:
   - ColorObjects
   - Attack
   - Enemy
+  - Floor
   layers:
   - Default
   - TransparentFX
@@ -50,6 +51,9 @@ TagManager:
   - name: Object
     uniqueID: 3330452827
     locked: 0
+  - name: Platform
+    uniqueID: 4145286485
+    locked: 0
   - name: Enemy
     uniqueID: 3932407487
     locked: 0
@@ -61,4 +65,7 @@ TagManager:
     locked: 0
   - name: Frontground
     uniqueID: 2942064287
+    locked: 0
+  - name: UI
+    uniqueID: 2890551357
     locked: 0

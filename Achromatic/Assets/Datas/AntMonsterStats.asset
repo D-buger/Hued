@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f282e72a1e66b6842811d0af00d71795, type: 3}
+  m_Name: AntMonsterStats
+  m_EditorClassIdentifier: 
+  monsterHP: 20
+  enemyColor: 1
+  senseCircle: 5
+  moveSpeed: 1
+  runSpeed: 2
+  attackDamage: 1
+  attackTime: 2
+  attackCooldown: 1
+  contactDamage: 1
+  hitReboundPower: 5
+  heavyHitReboundPower: 10
+  groggyTime: 0.5
+  waitStateDelay: 3
+  deadDelay: 1.33
+  attackDelay: 1.33
+  projectileAnglebyHeight: 0.22
+  enemyRoamingRange: 7
+  discoveryDuration: 1
+  slashAttackDamage: 1
+  slashAttackRebound: 45
+  slashAttackDelay: 0.1
+  slashAttackTime: 0.8
+  swordAttackDamage: 1
+  swordAttackSpeed: 200
+  swordAuraRangePerTime: 2
+  stabAttackDamage: 1
+  lastStabAttackDamage: 2
+  stabAttackSpeed: 2
+  lastStabSpeed: 4
+  stabAttackDelay: 1
+  middleStabAttackDelay: 2
+  counterDurationTime: 2
+  counterAttackRange: 1
+  counterAttackDurationTime: 0
+  counterAttackDamage: 2
+  counterAttackSpeed: 6
+  stabAttackPercent: 33
+  slashAttackPercent: 33

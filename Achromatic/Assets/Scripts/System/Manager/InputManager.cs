@@ -27,6 +27,8 @@ public class InputManager : SingletonBehavior<InputManager>
     public UnityEvent<Vector2> LightAttackEvent;
     [HideInInspector]
     public UnityEvent FilterEvent;
+    [HideInInspector]
+    public UnityEvent DownJumpEvent;
 
     [SerializeField]
     private float jumpBufferTime = 0.1f;
@@ -75,7 +77,11 @@ public class InputManager : SingletonBehavior<InputManager>
             LightAttackEvent?.Invoke(MouseVec);
         }
 
-        if (Input.GetKey(JUMP))
+        if (Input.GetKey(LOOK_DOWN) && Input.GetKey(JUMP))
+        {
+            DownJumpEvent?.Invoke();
+        }
+        else if (Input.GetKey(JUMP))
         {
             prevGetJumpTime = 0;
             JumpEvent?.Invoke();
@@ -84,7 +90,6 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             JumpEvent?.Invoke();
         }
-        
 
         if(Input.GetKey(DASH))
         {
@@ -103,5 +108,6 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             LookEvent?.Invoke(1);
         }
+
     }
 }

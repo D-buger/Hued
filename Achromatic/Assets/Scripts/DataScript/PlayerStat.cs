@@ -6,8 +6,10 @@ using UnityEngine;
 public class PlayerStatus : ScriptableObject
 {
     [HideInInspector]
+    public int maxHP;
+    [HideInInspector]
     public int currentHP;
-    [SerializeField]
+
     public int playerHP = 5;
 
     [Space(10), Header("Move")]
@@ -15,11 +17,8 @@ public class PlayerStatus : ScriptableObject
 
     [Space(10), Header("Jump")]
     public float jumpPower = 30;
-    [SerializeField]
     public float jumpCooldown = 0.8f;
-    [SerializeField]
     public float koyoteTime = 0.5f;
-    [SerializeField]
     public float airHangTime = 0.5f;
 
     [Space(10), Header("Dash")]
@@ -46,9 +45,8 @@ public class PlayerStatus : ScriptableObject
     public float attackCooldown = 0.3f;
     [Space(5)]
     public int attackDamage = 1;
-    public int criticalAttackDamage = 2;
-    public int colorAttackDamage = 3;
-    public int colorCriticalAttackDamage = 4;
+    public int colorAttackDamage = 2;
+    public int criticalAttackDamageMultiple = 2;
 
     [Space(10), Header("Hit")]
     public float hitReboundPower = 30;

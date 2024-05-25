@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
@@ -37,8 +39,19 @@ public class Player : MonoBehaviour, IAttack
     [SerializeField]
     private PlayerStatus stat;
     public PlayerStatus GetPlayerStat => stat;
-
-    public int currentHP
+    public int MaxHP
+    {
+        get
+        {
+            return stat.maxHP;
+        }
+        set
+        {
+            stat.maxHP = value % 2 == 0 ? value : ++value;
+            PlayerMaxHPEvent?.Invoke(stat.maxHP, stat.currentHP);
+        }
+    }
+    public int CurrentHP
     {
         get
         {
@@ -46,14 +59,21 @@ public class Player : MonoBehaviour, IAttack
         }
         set
         {
-            stat.currentHP = value;
-            if (stat.currentHP < 0)
+            stat.currentHP = Mathf.Min(value, stat.maxHP);
+            if (stat.currentHP <= 0)
             {
                 Dead();
             }
-            
+            else
+            {
+                PlayerCurrentHPEvent?.Invoke(stat.maxHP, stat.currentHP);
+            }
         }
     }
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerCurrentHPEvent;
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerMaxHPEvent;
 
     private Dictionary<ePlayerState, PlayerBaseState> playerStates;
     private PlayerFSM playerFSM;
@@ -127,13 +147,14 @@ public class Player : MonoBehaviour, IAttack
         playerStates.Add(ePlayerState.DEAD, dead);
 
         playerFSM = new PlayerFSM(playerStates[ePlayerState.IDLE]);
-        stat.currentHP = stat.playerHP;
+        MaxHP = stat.playerHP;
+        CurrentHP = stat.playerHP;
 
-        GroundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("ColorObject"));
+        GroundLayer = LayerMask.GetMask("Platform") | LayerMask.GetMask("Object") | LayerMask.GetMask("ColorObject");
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 
-        UISystem.Instance?.hpSliderEvent?.Invoke(currentHP);
+        UISystem.Instance?.hpSliderEvent?.Invoke(CurrentHP);
     }
 
     private void Update()
@@ -242,10 +263,14 @@ public class Player : MonoBehaviour, IAttack
     }
 
 
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
         if(IsDash || IsParryDash)
         {
+            if (!ReferenceEquals(parryCheck, null))
+            {
+                ParryCondition = parryCheck.CanParryAttack() ? true : ParryCondition;
+            }
             return;
         }
         PlayerHitState hitState = (PlayerHitState)playerStates[ePlayerState.HIT];
@@ -266,8 +291,8 @@ public class Player : MonoBehaviour, IAttack
             if (IsDash || IsParryDash)
             {
                 int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<Monster>()?.Hit(damage, 
-                    collision.transform.position - transform.position, false, damage);
+                collision.gameObject.GetComponent<Monster>()?.Hit(damage, damage,
+                    collision.transform.position - transform.position);
             }
         }
     }
@@ -293,18 +318,11 @@ public class Player : MonoBehaviour, IAttack
     {
         if (IsDash && collision.CompareTag(PlayManager.ATTACK_TAG))
         {
-            Attack attack = collision.GetComponent<Attack>();
-            Projectile projectile = collision.GetComponent<Projectile>();
-            if (attack != null && attack.isCanParryAttack(PlayManager.PLAYER_TAG))
+            IParryConditionCheck checkParry = collision.GetComponent<IParryConditionCheck>();
+            if (checkParry != null && checkParry.CanParryAttack())
             {
                 ParryCondition = true;
             }
-            else if(projectile != null && projectile.IsParryAllow)
-            {
-                ParryCondition = true;
-            }
-
         }
-
     }
 }

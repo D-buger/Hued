@@ -9,6 +9,8 @@ public class AttackState : MonsterState
     }
     public override void Enter()
     {
+        monster.SetState(Monster.EMonsterState.isPlayerBetween, false);
+        monster.SetState(Monster.EMonsterState.isWait, false);
     }
 
     public override void Execute()

@@ -5,42 +5,38 @@ using UnityEngine;
 public interface IAttack
 {
     void OnPostAttack(Vector2 attackDir);
-    void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0);
+    void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null);
 }
 
-public interface IParry
+public interface IParryConditionCheck
 {
-    void Parried();
+    public bool CanParryAttack();
 }
 
-public class Attack : MonoBehaviour
+public class Attack : MonoBehaviour, IParryConditionCheck
 {
     private Collider2D col;
     private SpriteRenderer render;
     private Animator anim;
 
     private IAttack afterAttack;
-    private IParry parried;
-    public IParry Parried => parried;
 
     private string attackFrom;
-    public bool isCanParryAttack(string me) => !string.Equals(me, attackFrom) && !isHeavyAttack;
+
     private Vector2 attackDir;
     private int attackDamage;
-    private int criticalDamage;
+    private int colorAttackDamage;
 
-    // 몬스터의 약공 기준 => 색이 보이면 약공
-    private bool isHeavyAttack;
+    private bool isCanParryAttack;
     private bool isAttackEnable = false;
 
     private eActivableColor attackColor;
-
-    private float attackTime = 0f;
 
     private LayerMask ignoreLayers;
 
     private LayerMask originLayer;
     private LayerMask colorVisibleLayer;
+    public bool CanParryAttack() => !string.Equals(PlayManager.PLAYER_TAG, attackFrom) && isCanParryAttack;
 
     private void Awake()
     {
@@ -51,25 +47,16 @@ public class Attack : MonoBehaviour
 
     private void Start()
     {
-        originLayer = gameObject.layer;
-        ignoreLayers = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("IgnoreAttack"));
-        colorVisibleLayer = LayerMask.NameToLayer("ColorObject");
+        ignoreLayers = LayerMask.GetMask("Platform") | LayerMask.GetMask("IgnoreAttack") | LayerMask.GetMask("Object");
+        originLayer = LayerMask.GetMask(LayerMask.LayerToName(gameObject.layer));
+        colorVisibleLayer = LayerMask.GetMask("ColorObject");
         PlayManager.Instance.FilterColorAttackEvent.AddListener(CheckIsHeavy);
-
-    }
-    private void Update()
-    {
-        if (isAttackEnable)
-        {
-            attackTime += Time.deltaTime;
-        }
     }
 
-    public void SetAttack(string from, IAttack after, eActivableColor color = eActivableColor.MAX_COLOR, IParry parry = null)
+    public void SetAttack(string from, IAttack after, eActivableColor color = eActivableColor.MAX_COLOR)
     {
         attackFrom = from;
         afterAttack = after;
-        parried = parry;
         attackColor = color;
         AttackDisable();
     }
@@ -79,44 +66,35 @@ public class Attack : MonoBehaviour
         col.enabled = false;
         render.enabled = false;
         isAttackEnable = false;
-        attackTime = 0f;
     }
 
-    public void AttackAble(Vector2 dir, int damage, int critical = 0)
+    public void AttackEnable(Vector2 dir, int damage, int colorDamage)
     {
         col.enabled = true;
         render.enabled = true;
         isAttackEnable = true;
         attackDir = dir;
         attackDamage = damage;
-        criticalDamage = critical;
+        colorAttackDamage = colorDamage;
         anim.SetTrigger("attackTrigger");
     }
 
     private void CheckIsHeavy(eActivableColor color)
     {
-        if(attackColor != color)
-        {
-            isHeavyAttack = true;
-            gameObject.layer = colorVisibleLayer;
-        }
-        else
-        {
-            isHeavyAttack = false;
-            gameObject.layer = originLayer;
-        }
+        isCanParryAttack = attackColor != color ? false : true;
+        gameObject.layer = SOO.Util.LayerMaskToNumber(attackColor != color ? colorVisibleLayer : originLayer);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag(attackFrom) && 
+        if (!collision.CompareTag(attackFrom) &&
             ignoreLayers != (ignoreLayers | (1 << collision.gameObject.layer)))
         {
-            if (null != afterAttack)
+            if (!ReferenceEquals(afterAttack, null))
             {
                 afterAttack.OnPostAttack(attackDir);
             }
-            collision.GetComponent<IAttack>()?.Hit(attackDamage, attackDir, isHeavyAttack, criticalDamage);
+            collision.GetComponent<IAttack>()?.Hit(attackDamage, colorAttackDamage, attackDir);
         }
     }
 }
