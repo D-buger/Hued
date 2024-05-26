@@ -1,0 +1,461 @@
+
+player_anime.png
+size: 429,270
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Acc_1
+  rotate: true
+  xy: 282, 2
+  size: 11, 33
+  orig: 11, 33
+  offset: 0, 0
+  index: -1
+Acc_1_a
+  rotate: true
+  xy: 360, 37
+  size: 10, 33
+  orig: 12, 35
+  offset: 1, 0
+  index: -1
+Jewelry
+  rotate: false
+  xy: 335, 143
+  size: 11, 14
+  orig: 11, 15
+  offset: 0, 0
+  index: -1
+Leg_L
+  rotate: false
+  xy: 282, 15
+  size: 30, 27
+  orig: 32, 28
+  offset: 1, 0
+  index: -1
+Leg_R
+  rotate: false
+  xy: 251, 73
+  size: 28, 27
+  orig: 29, 29
+  offset: 0, 1
+  index: -1
+Necklace
+  rotate: false
+  xy: 252, 48
+  size: 31, 23
+  orig: 31, 23
+  offset: 0, 0
+  index: -1
+Scabbard
+  rotate: false
+  xy: 283, 159
+  size: 63, 34
+  orig: 63, 35
+  offset: 0, 1
+  index: -1
+String_L
+  rotate: true
+  xy: 196, 73
+  size: 11, 53
+  orig: 11, 53
+  offset: 0, 0
+  index: -1
+String_R
+  rotate: true
+  xy: 2, 2
+  size: 14, 42
+  orig: 14, 43
+  offset: 0, 0
+  index: -1
+body
+  rotate: false
+  xy: 348, 141
+  size: 52, 58
+  orig: 53, 58
+  offset: 0, 0
+  index: -1
+cloack_R
+  rotate: false
+  xy: 402, 149
+  size: 25, 54
+  orig: 27, 55
+  offset: 1, 0
+  index: -1
+cloack_a
+  rotate: true
+  xy: 109, 41
+  size: 62, 20
+  orig: 63, 21
+  offset: 1, 0
+  index: -1
+cloak_L
+  rotate: true
+  xy: 109, 2
+  size: 37, 47
+  orig: 38, 51
+  offset: 0, 0
+  index: -1
+cloak_M
+  rotate: false
+  xy: 252, 102
+  size: 27, 59
+  orig: 34, 70
+  offset: 1, 0
+  index: -1
+cloak_b
+  rotate: false
+  xy: 131, 66
+  size: 39, 48
+  orig: 41, 53
+  offset: 1, 1
+  index: -1
+clothes_L
+  rotate: true
+  xy: 189, 47
+  size: 24, 61
+  orig: 26, 65
+  offset: 1, 2
+  index: -1
+clothes_M
+  rotate: true
+  xy: 335, 103
+  size: 36, 61
+  orig: 37, 62
+  offset: 1, 0
+  index: -1
+clothes_R
+  rotate: true
+  xy: 131, 41
+  size: 23, 56
+  orig: 25, 58
+  offset: 1, 1
+  index: -1
+clothes_a
+  rotate: false
+  xy: 46, 3
+  size: 39, 13
+  orig: 41, 14
+  offset: 1, 1
+  index: -1
+clothes_back
+  rotate: false
+  xy: 127, 116
+  size: 67, 63
+  orig: 67, 65
+  offset: 0, 0
+  index: -1
+earR
+  rotate: false
+  xy: 333, 201
+  size: 64, 67
+  orig: 67, 78
+  offset: 2, 6
+  index: -1
+ear_L
+  rotate: false
+  xy: 265, 195
+  size: 66, 73
+  orig: 67, 75
+  offset: 0, 2
+  index: -1
+ear_L_nohood
+  rotate: false
+  xy: 196, 195
+  size: 67, 73
+  orig: 80, 75
+  offset: 12, 2
+  index: -1
+eye_L
+  rotate: true
+  xy: 172, 66
+  size: 12, 14
+  orig: 13, 16
+  offset: 0, 1
+  index: -1
+eye_L_2
+  rotate: false
+  xy: 314, 16
+  size: 16, 20
+  orig: 16, 20
+  offset: 0, 0
+  index: -1
+eye_L_3
+  rotate: false
+  xy: 391, 14
+  size: 13, 7
+  orig: 13, 8
+  offset: 0, 1
+  index: -1
+eye_L_4
+  rotate: true
+  xy: 336, 2
+  size: 14, 11
+  orig: 14, 11
+  offset: 0, 0
+  index: -1
+eye_L_5
+  rotate: false
+  xy: 391, 23
+  size: 16, 10
+  orig: 16, 11
+  offset: 0, 0
+  index: -1
+eye_R
+  rotate: true
+  xy: 409, 23
+  size: 10, 14
+  orig: 12, 16
+  offset: 1, 1
+  index: -1
+eye_R_2
+  rotate: false
+  xy: 332, 18
+  size: 13, 18
+  orig: 13, 18
+  offset: 0, 0
+  index: -1
+eye_R_3
+  rotate: false
+  xy: 265, 2
+  size: 12, 8
+  orig: 12, 8
+  offset: 0, 0
+  index: -1
+eye_R_4
+  rotate: false
+  xy: 408, 11
+  size: 11, 10
+  orig: 11, 10
+  offset: 0, 0
+  index: -1
+eye_R_5
+  rotate: false
+  xy: 393, 2
+  size: 13, 10
+  orig: 13, 10
+  offset: 0, 0
+  index: -1
+face_shadow
+  rotate: false
+  xy: 87, 2
+  size: 18, 8
+  orig: 20, 10
+  offset: 1, 1
+  index: -1
+foot_L
+  rotate: true
+  xy: 323, 38
+  size: 31, 35
+  orig: 31, 36
+  offset: 0, 1
+  index: -1
+foot_R
+  rotate: false
+  xy: 398, 67
+  size: 29, 33
+  orig: 30, 36
+  offset: 0, 2
+  index: -1
+hand_R_1
+  rotate: false
+  xy: 398, 102
+  size: 29, 37
+  orig: 30, 39
+  offset: 1, 1
+  index: -1
+hand_R_2
+  rotate: false
+  xy: 158, 2
+  size: 36, 37
+  orig: 36, 38
+  offset: 0, 0
+  index: -1
+head
+  rotate: false
+  xy: 2, 18
+  size: 83, 77
+  orig: 84, 80
+  offset: 0, 0
+  index: -1
+head_nohood
+  rotate: false
+  xy: 111, 181
+  size: 83, 87
+  orig: 84, 87
+  offset: 0, 0
+  index: -1
+hood_back
+  rotate: false
+  xy: 2, 97
+  size: 105, 81
+  orig: 105, 91
+  offset: 0, 0
+  index: -1
+hood_front
+  rotate: false
+  xy: 2, 180
+  size: 107, 88
+  orig: 110, 90
+  offset: 0, 0
+  index: -1
+l_arm
+  rotate: false
+  xy: 172, 80
+  size: 22, 34
+  orig: 22, 34
+  offset: 0, 0
+  index: -1
+l_hand_1
+  rotate: false
+  xy: 233, 6
+  size: 30, 39
+  orig: 31, 39
+  offset: 1, 0
+  index: -1
+l_hand_2
+  rotate: true
+  xy: 285, 44
+  size: 30, 36
+  orig: 30, 38
+  offset: 0, 2
+  index: -1
+l_hand_3
+  rotate: true
+  xy: 324, 71
+  size: 30, 38
+  orig: 31, 39
+  offset: 1, 0
+  index: -1
+l_hand_4
+  rotate: false
+  xy: 196, 9
+  size: 35, 36
+  orig: 35, 36
+  offset: 0, 0
+  index: -1
+l_hand_5
+  rotate: true
+  xy: 364, 71
+  size: 30, 32
+  orig: 30, 33
+  offset: 0, 0
+  index: -1
+l_hand_5_1
+  rotate: true
+  xy: 359, 13
+  size: 22, 30
+  orig: 22, 30
+  offset: 0, 0
+  index: -1
+muffler_Back
+  rotate: true
+  xy: 109, 105
+  size: 73, 16
+  orig: 74, 17
+  offset: 0, 0
+  index: -1
+muffler_dowm_2
+  rotate: true
+  xy: 265, 12
+  size: 34, 15
+  orig: 34, 15
+  offset: 0, 0
+  index: -1
+muffler_up
+  rotate: true
+  xy: 87, 12
+  size: 83, 20
+  orig: 83, 21
+  offset: 0, 1
+  index: -1
+noon_hood2
+  rotate: false
+  xy: 196, 163
+  size: 85, 30
+  orig: 86, 30
+  offset: 0, 0
+  index: -1
+noon_hood_1
+  rotate: false
+  xy: 196, 86
+  size: 51, 21
+  orig: 52, 22
+  offset: 0, 0
+  index: -1
+nose
+  rotate: false
+  xy: 189, 41
+  size: 5, 4
+  orig: 10, 6
+  offset: 1, 2
+  index: -1
+r_arm
+  rotate: true
+  xy: 360, 49
+  size: 20, 36
+  orig: 21, 36
+  offset: 1, 0
+  index: -1
+sword
+  rotate: false
+  xy: 281, 76
+  size: 41, 27
+  orig: 42, 28
+  offset: 0, 0
+  index: -1
+sword_a_1
+  rotate: false
+  xy: 196, 109
+  size: 54, 52
+  orig: 55, 53
+  offset: 0, 0
+  index: -1
+sword_a_1_b
+  rotate: false
+  xy: 281, 105
+  size: 52, 52
+  orig: 53, 53
+  offset: 0, 0
+  index: -1
+sword_grip
+  rotate: true
+  xy: 398, 35
+  size: 30, 29
+  orig: 31, 33
+  offset: 0, 3
+  index: -1
+tail
+  rotate: true
+  xy: 399, 205
+  size: 63, 27
+  orig: 64, 28
+  offset: 0, 0
+  index: -1
+whiskers_L
+  rotate: false
+  xy: 317, 2
+  size: 17, 12
+  orig: 19, 12
+  offset: 1, 0
+  index: -1
+whiskers_L_2
+  rotate: false
+  xy: 349, 2
+  size: 22, 9
+  orig: 22, 9
+  offset: 0, 0
+  index: -1
+whiskers_R
+  rotate: true
+  xy: 347, 18
+  size: 18, 10
+  orig: 19, 10
+  offset: 0, 0
+  index: -1
+whiskers_R_2
+  rotate: false
+  xy: 373, 2
+  size: 18, 9
+  orig: 19, 9
+  offset: 0, 0
+  index: -1
