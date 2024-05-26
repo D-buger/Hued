@@ -37,6 +37,7 @@ public class InventoryCompartment : MonoBehaviour, IPointerClickHandler
 
         item = null;
         imageComponent.sprite = default;
+        imageComponent.color = new Color(0, 0, 0, 0);
     }
 
     public void OnPointerClick(PointerEventData eventData)

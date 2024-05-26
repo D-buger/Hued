@@ -21,10 +21,16 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     private GameObject equippableItemCompartmentParent;
     [SerializeField]
     private ExpendableItem[] expendables;
+    [Space(10), Header("equppable items compartments")]
     [SerializeField]
     private float xSwipeValue = 200;
     [SerializeField]
-    private float swipeDurationTime = 1;
+    private float swipeDurationTime = 0.2f;
+    [Space(10), Header("expendable items compartments")]
+    [SerializeField]
+    private float sizeUpScaleValue = 1.2f;
+    [SerializeField]
+    private float sizeChangeDurationTime = 0.2f;
 
     private List<ExpendableItem> expendableItems = new List<ExpendableItem>();
     private List<EquippableItem> equippableItems = new List<EquippableItem>();
@@ -35,11 +41,14 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
     private InventoryCompartment[] equippableItemCompartments;
 
     private RectTransform equippableItemParentRect;
+    private RectTransform[] expendableItemRects;
 
     private Explanation explanation;
     public Explanation Explanation => explanation;
 
     private Coroutine swipeCoroutine;
+    private Coroutine[] sizeChangeCoroutines;
+
     private Vector3 equippableItemParentOriPosition;
 
     private int equippableItemIndex = 0;
@@ -54,6 +63,12 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
         explanation = GetComponentInChildren<Explanation>(true);
         equippableItemParentRect = equippableItemCompartmentParent.GetComponent<RectTransform>();
         equippableItemParentOriPosition = equippableItemParentRect.position;
+        expendableItemRects = new RectTransform[expendableItemCompartments.Length];
+        for (int i = 0; i < expendableItemCompartments.Length; i++)
+        {
+            expendableItemRects[i] = expendableItemCompartments[i].transform.parent.GetComponent<RectTransform>();
+        }
+        sizeChangeCoroutines = new Coroutine[expendableItemRects.Length];
         Explanation.Clear();
 
         expendableItems.AddRange(expendables);
@@ -64,6 +79,13 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
         InputManager.Instance.InventoryEvent?.AddListener(() => SetActiveInventory(true));
         InputManager.Instance.ExitEvent?.AddListener(() => SetActiveInventory(false));
         InputManager.Instance.UseItemEvent?.AddListener(UseItem);
+
+        expendableItemEquipCompartment.Clear();
+        for(int i =0; i < equippableItemEquipCompartments.Length; i++)
+        {
+            equippableItemEquipCompartments[i].Clear();
+        }
+
         SetExpendableItem();
         gameObject.SetActive(false);
     }
@@ -158,11 +180,6 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
         explanation.SetExplanation(item);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        Explanation.Clear();
-    }
-
     public void UseItem()
     {
         if (expendableItemEquipCompartment.HasItem())
@@ -202,5 +219,44 @@ public class Inventory : MonoBehaviour, IPointerClickHandler
         }
         equippableItemParentRect.position = endVector;
         swipeCoroutine = null;
+    }
+
+    public void ChangeScaleExpendableItemCompartments(int index)
+    {
+        for (int i = 0; i < sizeChangeCoroutines.Length; i++)
+        {
+            if (sizeChangeCoroutines[i] is not null)
+            {
+                StopCoroutine(sizeChangeCoroutines[i]);
+                sizeChangeCoroutines[i] = null;
+            }
+
+            sizeChangeCoroutines[i] = StartCoroutine(ChangeScaleCompartmentsRoutine(i, index == i));
+        }
+    }
+
+    private IEnumerator ChangeScaleCompartmentsRoutine(int index, bool sizeUp)
+    {
+        Vector3 startSize = expendableItemRects[index].localScale;
+        Vector3 endSize = sizeUp ? new Vector3(sizeUpScaleValue, sizeUpScaleValue, 1) : new Vector3(1, 1, 1);
+        float elapsedTime = 0;
+        while (true)
+        {
+            elapsedTime += Time.unscaledDeltaTime / sizeChangeDurationTime;
+
+            expendableItemRects[index].localScale = Vector3.Lerp(startSize, endSize, elapsedTime);
+
+            if (elapsedTime > 1)
+            {
+                break;
+            }
+            yield return null;
+        }
+        expendableItemRects[index].localScale = endSize;
+        sizeChangeCoroutines[index] = null;
+    }
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Explanation.Clear();
     }
 }
