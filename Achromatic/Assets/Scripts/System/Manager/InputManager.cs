@@ -6,6 +6,7 @@ using UnityEngine.Events;
 
 public class InputManager : SingletonBehavior<InputManager>
 {
+    const KeyCode EXIT = KeyCode.Escape;
     const KeyCode JUMP = KeyCode.Space;
     const KeyCode LEFT = KeyCode.A;
     const KeyCode RIGHT = KeyCode.D;
@@ -14,7 +15,11 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode DASH = KeyCode.Mouse1;
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
+    const KeyCode INVENTORY = KeyCode.I;
+    const KeyCode USE_ITEM = KeyCode.Alpha1;
 
+    [HideInInspector]
+    public UnityEvent ExitEvent;
     [HideInInspector]
     public UnityEvent JumpEvent;
     [HideInInspector]
@@ -28,7 +33,9 @@ public class InputManager : SingletonBehavior<InputManager>
     [HideInInspector]
     public UnityEvent FilterEvent;
     [HideInInspector]
-    public UnityEvent DownJumpEvent;
+    public UnityEvent InventoryEvent;
+    [HideInInspector]
+    public UnityEvent UseItemEvent;
 
     [SerializeField]
     private float jumpBufferTime = 0.1f;
@@ -50,6 +57,11 @@ public class InputManager : SingletonBehavior<InputManager>
     {
         MouseVec = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         prevGetJumpTime += Time.deltaTime;
+
+        if (Input.GetKey(EXIT))
+        {
+            ExitEvent?.Invoke();
+        }
 
         if (!CanInput)
         {
@@ -77,11 +89,7 @@ public class InputManager : SingletonBehavior<InputManager>
             LightAttackEvent?.Invoke(MouseVec);
         }
 
-        if (Input.GetKey(LOOK_DOWN) && Input.GetKey(JUMP))
-        {
-            DownJumpEvent?.Invoke();
-        }
-        else if (Input.GetKey(JUMP))
+        if (Input.GetKey(JUMP))
         {
             prevGetJumpTime = 0;
             JumpEvent?.Invoke();
@@ -90,24 +98,35 @@ public class InputManager : SingletonBehavior<InputManager>
         {
             JumpEvent?.Invoke();
         }
+        
 
         if(Input.GetKey(DASH))
         {
             DashEvent?.Invoke(MouseVec);
         }
+
         if (Input.GetKey(FILTER))
         {
             FilterEvent?.Invoke();
+        }
+
+        if (Input.GetKey(INVENTORY))
+        {
+            InventoryEvent?.Invoke();
         }
 
         if (Input.GetKey(LOOK_DOWN))
         {
             LookEvent?.Invoke(-1);
         }
-        if (Input.GetKey(LOOK_UP))
+        else if (Input.GetKey(LOOK_UP))
         {
             LookEvent?.Invoke(1);
         }
 
+        if (Input.GetKeyDown(USE_ITEM))
+        {
+            UseItemEvent?.Invoke();
+        }
     }
 }

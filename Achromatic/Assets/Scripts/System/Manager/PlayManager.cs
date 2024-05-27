@@ -57,6 +57,9 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private Player player;
     public Player GetPlayer => player;
 
+    private Inventory inventory;
+    public Inventory GetInventory => inventory;
+
     private float filterGauge = 100;
     private float filterCooldown = 0;
 
@@ -93,6 +96,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
         colorObjectManager = GameObject.FindGameObjectWithTag(COLOR_OBJECT_PARENT_TAG).GetComponent<ColorObjectManager>();
         
         player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
+        inventory = GameObject.FindObjectOfType<Inventory>();
 
         volumeProfile.activationColor.Override(activateColor);
         volumeProfile.FilterColor.Override(activateColor);
