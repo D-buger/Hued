@@ -27,9 +27,7 @@ public class PlayerRunState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-        //Debug.Log("Player State : Run");
-
-        player.AnimatorComp.SetBool("isRunning", true);
+        //TODO : Run Animation
     }
     public override void OnStateUpdate()
     {
@@ -46,7 +44,7 @@ public class PlayerRunState : PlayerBaseState
     {
         player.RigidbodyComp.velocity = new Vector2(0, player.RigidbodyComp.velocity.y);
 
-        player.AnimatorComp.SetBool("isRunning", false);
+        //TODO : Idle Animation
 
         player.ControlParticles(ePlayerState.RUN, false);
     }

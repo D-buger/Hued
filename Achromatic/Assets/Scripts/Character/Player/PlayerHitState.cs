@@ -10,7 +10,7 @@ public class PlayerHitState : PlayerBaseState
     private Color hitChangeColor = Color.black;
     public PlayerHitState(Player player) : base(player)
     {
-        originalRendererColor = player.RendererComp.color;
+        originalRendererColor = player.RendererComp.material.color;
     }
 
     public override void OnStateEnter()
@@ -38,9 +38,9 @@ public class PlayerHitState : PlayerBaseState
         player.CanChangeState = false;
         player.IsInvincibility = true;
 
-        player.AnimatorComp.SetTrigger("hitTrigger");
+        //TODO : Hit Animation
         player.ControlParticles(ePlayerState.HIT, true);
-        player.RendererComp.color = hitChangeColor;
+        player.RendererComp.material.color = hitChangeColor;
 
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
         PlayManager.Instance.cameraManager.ShakeCamera(reboundTime);
@@ -54,7 +54,7 @@ public class PlayerHitState : PlayerBaseState
             else
             {
                 elapsedTime += Time.deltaTime;
-                player.RendererComp.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
+                player.RendererComp.material.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
 
                 yield return null;
             }
@@ -64,7 +64,7 @@ public class PlayerHitState : PlayerBaseState
         if (!ReferenceEquals(player.RendererComp, null))
         {
             player.ControlParticles(ePlayerState.HIT, false);
-            player.RendererComp.color = originalRendererColor;
+            player.RendererComp.material.color = originalRendererColor;
         }
 
         player.CanChangeState = true;

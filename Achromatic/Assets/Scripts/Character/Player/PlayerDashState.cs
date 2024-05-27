@@ -73,14 +73,14 @@ public class PlayerDashState : PlayerBaseState
 
         player.RigidbodyComp.velocity = dashPos.normalized * player.GetPlayerStat.dashPower;
 
-        player.AnimatorComp.SetTrigger("dashTrigger");
+        //TODO : Dash Start Trigger
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashingTime);
         TogglePhysics(true);
 
         player.ControlParticles(ePlayerState.DASH, false);
-        player.AnimatorComp.SetTrigger("dashEndTrigger");
+        //TODO : Dash End Trigger
         isParry = player.ParryCondition;
         if (isParry)
         {
@@ -114,7 +114,7 @@ public class PlayerDashState : PlayerBaseState
         player.IsInvincibility = true;
 
         Time.timeScale = player.GetPlayerStat.parryProduceTimescale;
-        player.AnimatorComp.SetTrigger("parryTrigger");
+        //TODO : Parry Animation
         player.ControlParticles(ePlayerState.DASH ,true, 1);
         yield return Yields.WaitSeconds(player.GetPlayerStat.parryProduceTime);
         Time.timeScale = 1f;
@@ -144,7 +144,7 @@ public class PlayerDashState : PlayerBaseState
 
         player.RigidbodyComp.velocity = dashPos.normalized * player.GetPlayerStat.parryDashPower;
 
-        player.AnimatorComp.SetTrigger("dashTrigger");
+        //TODO : Dash Animation
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.parryDashTime);

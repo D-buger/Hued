@@ -41,7 +41,7 @@ public class PlayerJumpState : PlayerBaseState
         float airHangedTime = -1;
         float oriGravityValue = player.RigidbodyComp.gravityScale;
         bool passedAirHangTime = false;
-        player.AnimatorComp.SetTrigger("jumpTrigger");
+        //TODO : Jump Animation
         player.RigidbodyComp.AddForce(Vector2.up * player.GetPlayerStat.jumpPower, ForceMode2D.Impulse);
         while (true)
         {

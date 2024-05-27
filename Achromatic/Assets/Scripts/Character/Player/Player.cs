@@ -1,10 +1,9 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using Spine;
+using Spine.Unity;
 
 public enum ePlayerState : int
 {
@@ -23,17 +22,8 @@ public class Player : MonoBehaviour, IAttack
 {
     public Rigidbody2D RigidbodyComp { get; private set; }
     public BoxCollider2D ColliderComp { get; private set; }
-    public SpriteRenderer RendererComp { get; private set; }
-    public Animator AnimatorComp { get; private set; }
-
-    private List<ParticleSystem> effectList = new List<ParticleSystem>();
-
-    private ParticleSystem parryEffect;
-    private ParticleSystem dashEffect;
-    private ParticleSystem runningEffect;
-    private ParticleSystem attackHitEffect;
-    private ParticleSystem hitEffect;
-
+    public MeshRenderer RendererComp { get; private set; }
+    //public Animator AnimatorComp { get; private set; }
     public CameraFollowObject CameraObject { get; set; }
 
     [SerializeField]
@@ -70,13 +60,22 @@ public class Player : MonoBehaviour, IAttack
             }
         }
     }
+
+    private List<ParticleSystem> effectList = new List<ParticleSystem>();
+
+    private ParticleSystem parryEffect;
+    private ParticleSystem dashEffect;
+    private ParticleSystem runningEffect;
+    private ParticleSystem attackHitEffect;
+    private ParticleSystem hitEffect;
+
+    private Dictionary<ePlayerState, PlayerBaseState> playerStates;
+    private PlayerFSM playerFSM;
+
     [HideInInspector]
     public UnityEvent<int, int> PlayerCurrentHPEvent;
     [HideInInspector]
     public UnityEvent<int, int> PlayerMaxHPEvent;
-
-    private Dictionary<ePlayerState, PlayerBaseState> playerStates;
-    private PlayerFSM playerFSM;
 
     public bool CanChangeState { get; set; } = true;
     public bool IsDash { get; set; } = false;
@@ -94,15 +93,16 @@ public class Player : MonoBehaviour, IAttack
     public LayerMask GroundLayer { get; private set; }
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
-    
+
+    private SkeletonAnimation skeletonAnimation;
     private void Awake()
     {
         playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
 
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<BoxCollider2D>();
-        RendererComp = GetComponent<SpriteRenderer>();
-        AnimatorComp = GetComponent<Animator>();
+        RendererComp = GetComponent<MeshRenderer>();
+        skeletonAnimation = GetComponent<SkeletonAnimation>();
         CameraObject = FindObjectOfType<CameraFollowObject>();
 
         GameObject effects = transform.GetChild(1).gameObject;
@@ -155,6 +155,8 @@ public class Player : MonoBehaviour, IAttack
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 
         UISystem.Instance?.hpSliderEvent?.Invoke(CurrentHP);
+
+        skeletonAnimation.AnimationState.SetAnimation(0, "move/run", true);
     }
 
     private void Update()
@@ -165,7 +167,6 @@ public class Player : MonoBehaviour, IAttack
 
         RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
         OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
-        AnimatorComp.SetBool("onGround", OnGround);
         footOffGroundTime = OnGround ? 0 : footOffGroundTime + Time.deltaTime;
 
         if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold

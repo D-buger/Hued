@@ -37,7 +37,7 @@ public class PlayerAttackState : PlayerBaseState
     {
         if (canAttack)
         {
-            player.AnimatorComp.SetTrigger("attackTrigger");
+            //TODO : Attack animation
             attackCoroutine = CoroutineHandler.StartCoroutine(AttackSequence());
         }
         player.ChangePrevState();
