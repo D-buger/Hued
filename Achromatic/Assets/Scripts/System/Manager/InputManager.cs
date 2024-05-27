@@ -23,6 +23,8 @@ public class InputManager : SingletonBehavior<InputManager>
     [HideInInspector]
     public UnityEvent JumpEvent;
     [HideInInspector]
+    public UnityEvent DownJumpEvent;
+    [HideInInspector]
     public UnityEvent<int> MoveEvent;
     [HideInInspector]
     public UnityEvent<int> LookEvent;
@@ -122,6 +124,11 @@ public class InputManager : SingletonBehavior<InputManager>
         else if (Input.GetKey(LOOK_UP))
         {
             LookEvent?.Invoke(1);
+        }
+
+        if (Input.GetKey(LOOK_DOWN) && Input.GetKey(JUMP))
+        {
+            DownJumpEvent?.Invoke();
         }
 
         if (Input.GetKeyDown(USE_ITEM))
