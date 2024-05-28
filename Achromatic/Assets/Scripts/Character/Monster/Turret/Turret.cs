@@ -21,7 +21,6 @@ public class Turret : MonoBehaviour
         {
             StartCoroutine(TurretAttack());
         }
-        Debug.Log(distanceToPlayer);
     }
 
     private IEnumerator TurretAttack()

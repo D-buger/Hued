@@ -125,6 +125,10 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         {
             Attack();
         }
+        if (distanceToMonsterStartPos >= stat.enemyRoamingRange && canAttack)
+        {
+            StartCoroutine(CheckWaitTime());
+        }
         ///<summary>  넣을지 말지 미확정 ///</summary>
         /*if (isChase)
         {

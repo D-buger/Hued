@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44b8a88bd5c346e459a3030629dea4e2, type: 3}
-  m_Name: TurretStats
+  m_Script: {fileID: 11500000, guid: 13f29fb973c82d8448b1118c3211ad09, type: 3}
+  m_Name: SpiderMonsterStats 12
   m_EditorClassIdentifier: 
   monsterHP: 5
-  enemyColor: 1
-  senseCircle: 8
+  enemyColor: 0
+  senseCircle: 5
   moveSpeed: 1
   runSpeed: 2
   attackDamage: 1
@@ -27,11 +27,21 @@ MonoBehaviour:
   waitStateDelay: 1
   deadDelay: 1.33
   attackDelay: 1.33
-  projectileAngleByHeight: 0.22
-  projectileZAngleByHeight: 180
+  projectileAnglebyHeight: 0.22
   enemyRoamingRange: 7
   discoveryDuration: 1
-  turretAttackDuration: 2
-  turretAttackSpeed: 300
-  turretAttackDamage: 2
-  turretAttackDelay: 2
+  meleeAttackRange: 1
+  attackRange: 0.8
+  rangedAttackDamage: 1
+  rangedAttackSpeed: 1
+  rangedAttackRange: 2
+  specialAttackReboundPower: 1
+  specialAttackSpeed: 1
+  earthAttackSpeed: 1
+  earthAttackDamage: 1
+  earthAttackDuration: 0.1
+  earthAttackJump: 10
+  earthAttackDelay: 0.3
+  specialAttackPercent: 60
+  rangedAttackPercent: 50
+  rushGroundAttackRange: 1

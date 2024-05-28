@@ -146,6 +146,14 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             StartCoroutine(CheckPlayer(startAntPosition));
         }
+        if (canAttack && distanceToMonsterStartPos >= stat.enemyRoamingRange && !state.HasFlag(EMonsterState.isWait))
+        {
+            SetState(EMonsterState.isWait, true);
+            SetState(EMonsterState.isBattle, false);
+            SetState(EMonsterState.isPlayerBetween, false);
+            CheckStateChange();
+            Debug.Log("¹ßµ¿");
+        }
     }
     private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
     {

@@ -34,7 +34,7 @@ MonoBehaviour:
   meleeAttackRange: 3
   attackRange: 0.8
   rangedAttackDamage: 1
-  rangedAttackSpeed: 250
+  rangedAttackSpeed: 500
   rangedAttackRange: 5
   specialAttackReboundPower: 1
   specialAttackSpeed: 3
