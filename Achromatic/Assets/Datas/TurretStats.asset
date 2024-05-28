@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterHP: 5
   enemyColor: 1
-  senseCircle: 10
+  senseCircle: 8
   moveSpeed: 1
   runSpeed: 2
   attackDamage: 1
