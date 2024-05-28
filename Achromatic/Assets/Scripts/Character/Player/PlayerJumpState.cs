@@ -23,9 +23,9 @@ public class PlayerJumpState : PlayerBaseState
     public override void OnStateEnter()
     {
         if (canJump && (player.OnGround 
-            || (player.footOffGroundTime < player.GetPlayerStat.koyoteTime && player.footOffGroundTime > 0)))
+            || (player.FootOffGroundTime < player.GetPlayerStat.koyoteTime && player.FootOffGroundTime > 0)))
         {
-            player.footOffGroundTime = -1;
+            player.FootOffGroundTime = -1;
             jumpCoroutine = CoroutineHandler.StartCoroutine(JumpSequence());
         }
         player.ChangePrevState();

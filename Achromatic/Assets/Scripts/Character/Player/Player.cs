@@ -168,7 +168,7 @@ public class Player : MonoBehaviour, IAttack
 
         RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
         OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
-        footOffGroundTime = OnGround ? 0 : footOffGroundTime + Time.deltaTime;
+        FootOffGroundTime = OnGround ? 0 : FootOffGroundTime + Time.deltaTime;
         randTrigger = OnGround ? randTrigger : true;
         if (randTrigger && OnGround)
         {
