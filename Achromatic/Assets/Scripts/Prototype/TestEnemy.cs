@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestEnemy : MonoBehaviour, IAttack, IParry
+public class TestEnemy : MonoBehaviour, IAttack
 {
     private Rigidbody2D rigid;
     private SpriteRenderer renderer;
@@ -52,7 +52,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         currentHP = stat.MonsterHP;
         originLayer = gameObject.layer;
         colorVisibleLayer = LayerMask.NameToLayer("ColorEnemy");
-        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor, this);
+        meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();
@@ -109,7 +109,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         anim.SetTrigger("attackTrigger");
         if (!isMeleeMonster)
         {
-            Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
+            /*Projectile attack = Instantiate(rangedAttack.gameObject).GetComponent<Projectile>();
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
                 attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized, 
@@ -119,7 +119,7 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
             {
                 attack.Shot(gameObject, transform.position, new Vector2(horizontalValue, verticalValue).normalized,
                    projectileRange, projectileSpeed, stat.attackDamage, true, eActivableColor.RED);
-            }
+            }*/
         }
         else
         {
@@ -129,11 +129,11 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
 
             if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
             {
-                meleeAttack?.AttackAble(-value, stat.attackDamage);
+                meleeAttack?.AttackEnable(-value, stat.attackDamage, stat.attackDamage);
             }
             else
             {
-                meleeAttack?.AttackAble(-value, stat.attackDamage);
+                meleeAttack?.AttackEnable(-value, stat.attackDamage, stat.attackDamage);
             }
         }
         yield return Yields.WaitSeconds(stat.attackTime);
@@ -143,35 +143,35 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
         canAttack = true;
     }
 
-    public void AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 attackDir)
     {
 
     }
 
     // 임시 테스트 코드
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck)
     {
-        if (!isHeavyAttack)
-        {
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                currentHP -= criticalDamage;
-                rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-            }
-            else
-            {
-                currentHP -= damage;
-                rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
-            }
-        }
-        else
-        {
-            if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
-            {
-                currentHP -= damage;
-                rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
-            }
-        }
+        //if (!isHeavyAttack)
+        //{
+        //    if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
+        //    {
+        //        currentHP -= criticalDamage;
+        //        rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+        //    }
+        //    else
+        //    {
+        //        currentHP -= damage;
+        //        rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
+        //    }
+        //}
+        //else
+        //{
+        //    if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
+        //    {
+        //        currentHP -= damage;
+        //        rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+        //    }
+        //}
         CheckDead();
     }
 
@@ -247,8 +247,8 @@ public class TestEnemy : MonoBehaviour, IAttack, IParry
     {
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage,
-                    transform.position - collision.transform.position, false, stat.contactDamage);
+            collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage, 
+                    transform.position - collision.transform.position);
         }
     }
 }

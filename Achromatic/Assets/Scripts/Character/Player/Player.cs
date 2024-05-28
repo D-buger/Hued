@@ -1,25 +1,11 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using Spine;
+using Spine.Unity;
 
-/// <summary>
-/// 
-/// isRunning
-/// isGroggy
-/// onGround
-/// 
-/// dashTrigger
-/// attackTrigger
-/// parryTrigger
-/// hitTrigger
-/// jumpTrigger
-/// 
-/// </summary>
-
-
-public enum ePlayerState : int
+public enum EPlayerState : int
 {
     IDLE,
     RUN,
@@ -36,8 +22,44 @@ public class Player : MonoBehaviour, IAttack
 {
     public Rigidbody2D RigidbodyComp { get; private set; }
     public BoxCollider2D ColliderComp { get; private set; }
-    public SpriteRenderer RendererComp { get; private set; }
-    public Animator AnimatorComp { get; private set; }
+    public MeshRenderer RendererComp { get; private set; }
+    public SkeletonAnimation AnimationComp { get; private set; }
+    public CameraFollowObject CameraObject { get; set; }
+
+    [SerializeField]
+    private PlayerStatus stat;
+    public PlayerStatus GetPlayerStat => stat;
+    public int MaxHP
+    {
+        get
+        {
+            return stat.maxHP;
+        }
+        set
+        {
+            stat.maxHP = value % 2 == 0 ? value : ++value;
+            PlayerMaxHPEvent?.Invoke(stat.maxHP, stat.currentHP);
+        }
+    }
+    public int CurrentHP
+    {
+        get
+        {
+            return stat.currentHP;
+        }
+        set
+        {
+            stat.currentHP = Mathf.Min(value, stat.maxHP);
+            if (stat.currentHP <= 0)
+            {
+                Dead();
+            }
+            else
+            {
+                PlayerCurrentHPEvent?.Invoke(stat.maxHP, stat.currentHP);
+            }
+        }
+    }
 
     private List<ParticleSystem> effectList = new List<ParticleSystem>();
 
@@ -47,35 +69,14 @@ public class Player : MonoBehaviour, IAttack
     private ParticleSystem attackHitEffect;
     private ParticleSystem hitEffect;
 
-    public CameraFollowObject CameraObject { get; set; }
+    private Dictionary<EPlayerState, PlayerBaseState> playerStates;
 
-    [SerializeField]
-    private PlayerStatus stat;
-    public PlayerStatus GetPlayerStat => stat;
-
-    public int currentHP
-    {
-        get
-        {
-            return stat.currentHP;
-        }
-        set
-        {
-            stat.currentHP = Mathf.Min(value, stat.playerHP);
-            if (stat.currentHP < 0)
-            {
-                Dead();
-            }
-            
-        }
-    }
-    public void FillPlayerHPMax()
-    {
-        currentHP = stat.playerHP;
-    }
-
-    private Dictionary<ePlayerState, PlayerBaseState> playerStates;
     private PlayerFSM playerFSM;
+
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerCurrentHPEvent;
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerMaxHPEvent;
 
     public bool CanChangeState { get; set; } = true;
     public bool IsDash { get; set; } = false;
@@ -87,21 +88,23 @@ public class Player : MonoBehaviour, IAttack
     public bool IsCriticalAttack{ get; set; } = false;
     public bool OnGround { get; private set; }
     public bool PlayerFaceRight { get; set; } = true;
+    public float FootOffGroundTime { get; set; } = 0f;
 
+    public Collision2D ParryDashCollision { get; set; }
     public LayerMask GroundLayer { get; private set; }
+
+    private bool randTrigger = false;
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
 
-    public Collision2D ParryDashCollision { get; set;}
-    
     private void Awake()
     {
-        playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
+        playerStates = new Dictionary<EPlayerState, PlayerBaseState>();
 
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<BoxCollider2D>();
-        RendererComp = GetComponent<SpriteRenderer>();
-        AnimatorComp = GetComponent<Animator>();
+        RendererComp = GetComponent<MeshRenderer>();
+        AnimationComp = GetComponentInChildren<SkeletonAnimation>();
         CameraObject = FindObjectOfType<CameraFollowObject>();
 
         GameObject effects = transform.GetChild(1).gameObject;
@@ -121,7 +124,6 @@ public class Player : MonoBehaviour, IAttack
         {
             effectList[i].Stop();
         }
-
     }
 
     void Start()
@@ -136,24 +138,27 @@ public class Player : MonoBehaviour, IAttack
         PlayerHitState hit = new PlayerHitState(this);
         PlayerDeadState dead = new PlayerDeadState(this);
 
-        playerStates.Add(ePlayerState.IDLE, idle);
-        playerStates.Add(ePlayerState.RUN, run);
-        playerStates.Add(ePlayerState.ATTACK, attack);
-        playerStates.Add(ePlayerState.ATTACK_REBOUND, afterAttack);
-        playerStates.Add(ePlayerState.JUMP, jump);
-        playerStates.Add(ePlayerState.DASH, dash);
-        playerStates.Add(ePlayerState.GROGGY, groggy);
-        playerStates.Add(ePlayerState.HIT, hit);
-        playerStates.Add(ePlayerState.DEAD, dead);
+        playerStates.Add(EPlayerState.IDLE, idle);
+        playerStates.Add(EPlayerState.RUN, run);
+        playerStates.Add(EPlayerState.ATTACK, attack);
+        playerStates.Add(EPlayerState.ATTACK_REBOUND, afterAttack);
+        playerStates.Add(EPlayerState.JUMP, jump);
+        playerStates.Add(EPlayerState.DASH, dash);
+        playerStates.Add(EPlayerState.GROGGY, groggy);
+        playerStates.Add(EPlayerState.HIT, hit);
+        playerStates.Add(EPlayerState.DEAD, dead);
 
-        playerFSM = new PlayerFSM(playerStates[ePlayerState.IDLE]);
-        stat.currentHP = stat.playerHP;
+        playerFSM = new PlayerFSM(playerStates[EPlayerState.IDLE]);
+        MaxHP = stat.playerHP;
+        CurrentHP = stat.playerHP;
 
-        GroundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("ColorObject"));
+        GroundLayer = LayerMask.GetMask("Platform") | LayerMask.GetMask("Object") | LayerMask.GetMask("ColorObject");
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 
-        UISystem.Instance?.hpSliderEvent?.Invoke(currentHP);
+        UISystem.Instance?.hpSliderEvent?.Invoke(CurrentHP);
+
+        AnimationComp.AnimationState.SetAnimation(5, PlayerAnimationNameCaching.SWORD_ONOFF_ANIMATION[0], true);
     }
 
     private void Update()
@@ -163,16 +168,15 @@ public class Player : MonoBehaviour, IAttack
         Turn();
 
         RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
-        if (raycastHit.collider != null)
+        OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
+        FootOffGroundTime = OnGround ? 0 : FootOffGroundTime + Time.deltaTime;
+        randTrigger = OnGround ? randTrigger : true;
+        if (randTrigger && OnGround)
         {
-            OnGround = true;
-            AnimatorComp.SetBool("onGround", true);
+            randTrigger = false;
+            AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.RANDING_ANIMATION, false);
         }
-        else
-        {
-            OnGround = false;
-            AnimatorComp.SetBool("onGround", false);
-        }
+
         if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold
             && !CameraManager.Instance.IsLerpingYDamping
             && !CameraManager.Instance.LerpedFromPlayerFalling)
@@ -194,14 +198,10 @@ public class Player : MonoBehaviour, IAttack
     {
         playerFSM.FixedUpdateState();
     }
-    public void ChangePrevState()
+    public void FillPlayerHPMax()
     {
-        playerFSM.ChangePrevState();
+        CurrentHP = stat.playerHP;
     }
-    public void ChangeState(ePlayerState state)
-    {
-        playerFSM.ChangeState(playerStates[state]);
-    } 
 
     private void Turn()
     {
@@ -216,14 +216,22 @@ public class Player : MonoBehaviour, IAttack
             CameraObject.CallTurn();
         }
     }
-    public void ControlParticles(ePlayerState state, bool onoff, int index = 0)
+    public void ChangePrevState()
+    {
+        ChangeState(playerFSM.GetPrevState() == playerStates[EPlayerState.RUN] ? EPlayerState.RUN : EPlayerState.IDLE);
+    }
+    public void ChangeState(EPlayerState state)
+    {
+        playerFSM.ChangeState(playerStates[state]);
+    }
+    public void ControlParticles(EPlayerState state, bool onoff, int index = 0)
     {
         switch (state)
         {
-            case ePlayerState.ATTACK_REBOUND:
+            case EPlayerState.ATTACK_REBOUND:
                 EffectPlayOrStop(attackHitEffect, onoff);
                 break;
-            case ePlayerState.DASH:
+            case EPlayerState.DASH:
                 if(index == 0)
                 {
                     EffectPlayOrStop(dashEffect ,onoff);
@@ -233,10 +241,10 @@ public class Player : MonoBehaviour, IAttack
                     EffectPlayOrStop(parryEffect, onoff);
                 }
                 break;
-            case ePlayerState.RUN:
+            case EPlayerState.RUN:
                 EffectPlayOrStop(runningEffect, onoff);
                 break;
-            case ePlayerState.HIT:
+            case EPlayerState.HIT:
                 EffectPlayOrStop(hitEffect, onoff);
                 break;
             default:
@@ -247,32 +255,39 @@ public class Player : MonoBehaviour, IAttack
 
     private void EffectPlayOrStop(ParticleSystem particle, bool onoff)
     {
-        if (onoff && !particle.isPlaying)
+        if (particle != null)
         {
-            particle.Play();
-        }
-        else if (!onoff)
-        {
-            particle.Stop();
+            if (onoff && !particle.isPlaying)
+            {
+                particle.Play();
+            }
+            else if (!onoff)
+            {
+                particle.Stop();
+            }
         }
     }
 
-    public void AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 attackDir)
     {
-        PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[ePlayerState.ATTACK_REBOUND];
-        ChangeState(ePlayerState.ATTACK_REBOUND);
-        afterAttackState.AfterAttack(attackDir);
+        PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[EPlayerState.ATTACK_REBOUND];
+        ChangeState(EPlayerState.ATTACK_REBOUND);
+        afterAttackState.OnPostAttack(attackDir);
     }
 
 
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
         if(IsDash || IsParryDash)
         {
+            if (!ReferenceEquals(parryCheck, null))
+            {
+                ParryCondition = parryCheck.CanParryAttack() ? true : ParryCondition;
+            }
             return;
         }
-        PlayerHitState hitState = (PlayerHitState)playerStates[ePlayerState.HIT];
-        ChangeState(ePlayerState.HIT);
+        PlayerHitState hitState = (PlayerHitState)playerStates[EPlayerState.HIT];
+        ChangeState(EPlayerState.HIT);
         hitState.Hit(damage, attackDir.normalized);
     }
 
@@ -289,8 +304,8 @@ public class Player : MonoBehaviour, IAttack
             if (IsDash || IsParryDash)
             {
                 int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<Monster>()?.Hit(damage, 
-                    collision.transform.position - transform.position, false, damage);
+                collision.gameObject.GetComponent<Monster>()?.Hit(damage, damage,
+                    collision.transform.position - transform.position);
             }
         }
     }
@@ -316,18 +331,11 @@ public class Player : MonoBehaviour, IAttack
     {
         if (IsDash && collision.CompareTag(PlayManager.ATTACK_TAG))
         {
-            Attack attack = collision.GetComponent<Attack>();
-            Projectile projectile = collision.GetComponent<Projectile>();
-            if (attack != null && attack.isCanParryAttack(PlayManager.PLAYER_TAG))
+            IParryConditionCheck checkParry = collision.GetComponent<IParryConditionCheck>();
+            if (checkParry != null && checkParry.CanParryAttack())
             {
                 ParryCondition = true;
             }
-            else if(projectile != null && projectile.IsParryAllow)
-            {
-                ParryCondition = true;
-            }
-
         }
-
     }
 }

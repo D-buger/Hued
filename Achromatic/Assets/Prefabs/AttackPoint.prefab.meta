@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: f3330c1e99359254d9fb867238513864
+<<<<<<<< HEAD:Achromatic/Assets/Prefabs/AttackPoint.prefab.meta
+guid: 6bf674612717f0a4590bf940e5347ebb
+========
+guid: 52c166fdfca673a45845aff75117c0b6
+>>>>>>>> 9d2fbe9d091f8639665819c29cc8340a19b72b40:Achromatic/Assets/Prefabs/EarthAttackPool 1.prefab.meta
 PrefabImporter:
   externalObjects: {}
   userData: 

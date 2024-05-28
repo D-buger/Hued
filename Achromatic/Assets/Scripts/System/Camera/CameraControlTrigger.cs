@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using Cinemachine;
 
-public enum ePanDirection
+public enum EPanDirection
 {
     UP,
     DOWN,
@@ -12,7 +12,7 @@ public enum ePanDirection
     RIGHT
 }
 
-public enum eTwoDirection
+public enum ETwoDirection
 {
     HORIZONTAL,
     VERTICAL
@@ -23,7 +23,13 @@ public class CameraControlTrigger : MonoBehaviour
     public CustomInspectorCameraObjects customInspectorObjects;
 
     private Collider2D coll;
-
+    private void OnValidate()
+    {
+        if (customInspectorObjects.playerMoveEndPos == null)
+        {
+            customInspectorObjects.playerMoveEndPos = new Vector2[2] {transform.position, transform.position};
+        }
+    }
     private void Awake()
     {
         coll = GetComponent<Collider2D>();
@@ -33,6 +39,14 @@ public class CameraControlTrigger : MonoBehaviour
     {
         if (collision.CompareTag(PlayManager.PLAYER_TAG))
         {
+            Vector2 exitDirection = (coll.bounds.center - collision.transform.position).normalized;
+
+            if (customInspectorObjects.swapBounds && customInspectorObjects.boundLineLD != null && customInspectorObjects.boundLineRU != null)
+            {
+                CameraManager.Instance.SwitchBoundLine(customInspectorObjects.boundLineLD, customInspectorObjects.boundLineRU, 
+                    customInspectorObjects.playerMoveEndPos, customInspectorObjects.boundMoveCurve, exitDirection, customInspectorObjects.boundDirection);
+            }
+
             if (customInspectorObjects.panCameraOnContact)
             {
                 CameraManager.Instance.PanCameraOnContact(customInspectorObjects.panDistance, customInspectorObjects.panTime, customInspectorObjects.panDirection, false);
@@ -51,9 +65,10 @@ public class CameraControlTrigger : MonoBehaviour
         {
             Vector2 exitDirection = (collision.transform.position - coll.bounds.center).normalized;
 
-            if (customInspectorObjects.swapBounds && customInspectorObjects.BoundLineLD != null && customInspectorObjects.BoundLineRU != null)
+            if (customInspectorObjects.swapBounds && customInspectorObjects.boundLineLD != null && customInspectorObjects.boundLineRU != null)
             {
-                CameraManager.Instance.SwitchBoundLine(customInspectorObjects.BoundLineLD, customInspectorObjects.BoundLineRU, exitDirection, customInspectorObjects.boundDirection);
+                CameraManager.Instance.SwitchBoundLine(customInspectorObjects.boundLineLD, customInspectorObjects.boundLineRU, 
+                    customInspectorObjects.playerMoveEndPos, customInspectorObjects.boundMoveCurve, exitDirection, customInspectorObjects.boundDirection);
             }
 
             if (customInspectorObjects.panCameraOnContact)
@@ -76,15 +91,17 @@ public class CustomInspectorCameraObjects
     public bool panCameraOnContact = false;
     public bool lockXorY = false;
 
-    [HideInInspector] public Collider2D BoundLineLD;
-    [HideInInspector] public Collider2D BoundLineRU;
-    [HideInInspector] public eTwoDirection boundDirection;
+    [HideInInspector] public Collider2D boundLineLD;
+    [HideInInspector] public Collider2D boundLineRU;
+    [HideInInspector] public ETwoDirection boundDirection;
+    [HideInInspector] public AnimationCurve boundMoveCurve = new AnimationCurve();
+    [HideInInspector] public Vector2[] playerMoveEndPos;
 
-    [HideInInspector] public ePanDirection panDirection;
+    [HideInInspector] public EPanDirection panDirection;
     [HideInInspector] public float panDistance = 3f;
     [HideInInspector] public float panTime = 0.35f;
 
-    [HideInInspector] public eTwoDirection lockPosition;
+    [HideInInspector] public ETwoDirection lockPosition;
 }
 
 #if UNITY_EDITOR
@@ -92,9 +109,44 @@ public class CustomInspectorCameraObjects
 public class MyScriptEditor : Editor
 {
     CameraControlTrigger cameraControlTrigger;
+    private bool isChangeSelf = true;
     private void OnEnable()
     {
         cameraControlTrigger = (CameraControlTrigger)target;
+    }
+    private void OnSceneGUI()
+    {
+        //Tools.current = Tool.None;
+        var component = target as CameraControlTrigger;
+
+        if (component.customInspectorObjects.swapBounds)
+        {
+            if (!isChangeSelf)
+            {
+                component.customInspectorObjects.playerMoveEndPos[0] = Handles.PositionHandle(component.customInspectorObjects.playerMoveEndPos[0], Quaternion.identity);
+                component.customInspectorObjects.playerMoveEndPos[1] = Handles.PositionHandle(component.customInspectorObjects.playerMoveEndPos[1], Quaternion.identity);
+            }
+            else
+            {
+                component.transform.position = Handles.PositionHandle(component.transform.position, component.transform.rotation);
+            }
+
+            Handles.BeginGUI();
+
+            if (isChangeSelf)
+            {
+                if (GUILayout.Button("옵션 Transform 변경", GUILayout.Width(200)))
+                {
+                    isChangeSelf = !isChangeSelf;
+                }
+            }
+            else
+            {
+                isChangeSelf = GUILayout.Button("Transform 변경", GUILayout.Width(200));
+            }
+
+            Handles.EndGUI();
+        }
     }
     public override void OnInspectorGUI()
     {
@@ -102,19 +154,22 @@ public class MyScriptEditor : Editor
 
         if (cameraControlTrigger.customInspectorObjects.swapBounds)
         {
-            cameraControlTrigger.customInspectorObjects.BoundLineLD = EditorGUILayout.ObjectField("Left/Down BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.BoundLineLD,
+            cameraControlTrigger.customInspectorObjects.boundLineLD = EditorGUILayout.ObjectField("Left/Down BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.boundLineLD,
                 typeof(Collider2D), true) as Collider2D;
 
-            cameraControlTrigger.customInspectorObjects.BoundLineRU = EditorGUILayout.ObjectField("Right/Up BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.BoundLineRU,
+            cameraControlTrigger.customInspectorObjects.boundLineRU = EditorGUILayout.ObjectField("Right/Up BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.boundLineRU,
                 typeof(Collider2D), true) as Collider2D;
 
-            cameraControlTrigger.customInspectorObjects.boundDirection = (eTwoDirection)EditorGUILayout.EnumPopup("Move Direction",
+            cameraControlTrigger.customInspectorObjects.boundDirection = (ETwoDirection)EditorGUILayout.EnumPopup("Move Direction",
                 cameraControlTrigger.customInspectorObjects.boundDirection);
+
+            cameraControlTrigger.customInspectorObjects.boundMoveCurve = EditorGUILayout.CurveField("Move Style", cameraControlTrigger.customInspectorObjects.boundMoveCurve);
+
         }
 
         if (cameraControlTrigger.customInspectorObjects.panCameraOnContact)
         {
-            cameraControlTrigger.customInspectorObjects.panDirection = (ePanDirection)EditorGUILayout.EnumPopup("Camera Pan Direction",
+            cameraControlTrigger.customInspectorObjects.panDirection = (EPanDirection)EditorGUILayout.EnumPopup("Camera Pan Direction",
                 cameraControlTrigger.customInspectorObjects.panDirection);
 
             cameraControlTrigger.customInspectorObjects.panDistance = EditorGUILayout.FloatField("Pan Distance", cameraControlTrigger.customInspectorObjects.panDistance);
@@ -123,7 +178,7 @@ public class MyScriptEditor : Editor
 
         if (cameraControlTrigger.customInspectorObjects.lockXorY)
         {
-            cameraControlTrigger.customInspectorObjects.lockPosition = (eTwoDirection)EditorGUILayout.EnumPopup("Lock Position",
+            cameraControlTrigger.customInspectorObjects.lockPosition = (ETwoDirection)EditorGUILayout.EnumPopup("Lock Position",
                 cameraControlTrigger.customInspectorObjects.lockPosition);
         }
 
@@ -133,4 +188,5 @@ public class MyScriptEditor : Editor
         }
     }
 }
+
 #endif

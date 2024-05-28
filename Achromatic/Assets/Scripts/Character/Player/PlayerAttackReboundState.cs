@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerAttackReboundState : PlayerBaseState
 {
-    private Coroutine afterAttackCoroutine;
+    private Coroutine onPostAttackCoroutine;
 
     public PlayerAttackReboundState(Player player) : base(player)
     {
@@ -19,25 +19,25 @@ public class PlayerAttackReboundState : PlayerBaseState
 
     }
 
-    public void AfterAttack(Vector2 attackDir)
+    public void OnPostAttack(Vector2 attackDir)
     {
         if (!player.IsDash && !player.IsParryDash)
         {
-            afterAttackCoroutine = CoroutineHandler.StartCoroutine(AttackReboundSequence(attackDir.normalized, player.GetPlayerStat.attackReboundPower, player.GetPlayerStat.attackReboundTime, 0.05f));
+            onPostAttackCoroutine = CoroutineHandler.StartCoroutine(OnPostAttackSequence(attackDir.normalized, player.GetPlayerStat.attackReboundPower, player.GetPlayerStat.attackReboundTime, 0.05f));
         }
     }
 
-    IEnumerator AttackReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
+    IEnumerator OnPostAttackSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
     {
         player.CanChangeState = false;
         player.RigidbodyComp.velocity = Vector2.zero;
-        player.ControlParticles(ePlayerState.ATTACK_REBOUND, true);
+        player.ControlParticles(EPlayerState.ATTACK_REBOUND, true);
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
+        PlayManager.Instance.cameraManager.ShakeCamera(reboundTime);
         yield return Yields.WaitSeconds(reboundTime);
         player.CanChangeState = true;
         player.ChangePrevState();
-        player.ControlParticles(ePlayerState.ATTACK_REBOUND, false);
+        player.ControlParticles(EPlayerState.ATTACK_REBOUND, false);
 
     }
 

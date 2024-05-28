@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -15,15 +16,26 @@ public class PlayerDashState : PlayerBaseState
     private bool isParry = false;
 
     private Vector2 dashDirection;
-    public PlayerDashState(Player player) : base(player) 
+
+    private float originGravityScale;
+    private float originLiniearDrag;
+    private float originMass;
+
+    private float dashAnimationTimeScale = 0.5f;
+    private int dashAnimationLayer = 1;
+    public PlayerDashState(Player player) : base(player)
     {
+        originGravityScale = player.RigidbodyComp.gravityScale;
+        originLiniearDrag = player.RigidbodyComp.drag;
+        originMass = player.RigidbodyComp.mass;
+
         InputManager.Instance.DashEvent.AddListener((Vector2 dir) =>
         {
             if ( player.CanChangeState && (canDash || canParryDash))
             {
                 dashDirection = dir;
 
-                player.ChangeState(ePlayerState.DASH);
+                player.ChangeState(EPlayerState.DASH);
             }
         });
     }
@@ -40,7 +52,7 @@ public class PlayerDashState : PlayerBaseState
         }
         else
         {
-            player.ChangeState(ePlayerState.IDLE);
+            player.ChangePrevState();
         }
     }
 
@@ -56,30 +68,22 @@ public class PlayerDashState : PlayerBaseState
         canDash = false;
         canParryDash = false;
 
-        float originGravityScale = player.RigidbodyComp.gravityScale;
-        float originLiniearDrag = player.RigidbodyComp.drag;
-        float originMass = player.RigidbodyComp.mass;
-        player.RigidbodyComp.gravityScale = 0f;
-        player.RigidbodyComp.drag = 0;
-        player.RigidbodyComp.mass = 0;
-        player.ControlParticles(ePlayerState.DASH, true);
+        TogglePhysics(false);
+        player.ControlParticles(EPlayerState.DASH, true);
 
         dashPos.x = dashPos.x - player.transform.position.x;
         dashPos.y = dashPos.y - player.transform.position.y;
 
         player.RigidbodyComp.velocity = dashPos.normalized * player.GetPlayerStat.dashPower;
 
-        player.AnimatorComp.SetTrigger("dashTrigger");
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
+        CheckDirectionAndPlayAnimation(Mathf.Atan2(dashPos.y, dashPos.x) * Mathf.Rad2Deg);
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashingTime);
-        player.RigidbodyComp.velocity = Vector2.zero;
-        player.RigidbodyComp.gravityScale = originGravityScale;
-        player.RigidbodyComp.drag = originLiniearDrag;
-        player.RigidbodyComp.mass = originMass;
+        TogglePhysics(true);
 
-        player.ControlParticles(ePlayerState.DASH, false);
-        player.AnimatorComp.SetTrigger("dashEndTrigger");
+        player.ControlParticles(EPlayerState.DASH, false);
+        player.AnimationComp.AnimationState.SetEmptyAnimation(dashAnimationLayer, 0);
         isParry = player.ParryCondition;
         if (isParry)
         {
@@ -89,11 +93,23 @@ public class PlayerDashState : PlayerBaseState
         player.IsDash = false;
 
         player.CanChangeState = true;
-        player.ChangeState(ePlayerState.IDLE);
+        player.ChangeState(EPlayerState.IDLE);
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
 
-        yield return Yields.WaitSeconds(player.GetPlayerStat.dashCooldown - player.GetPlayerStat.dashAfterDelay);
+        float elapsedTime = 0;
+        while (true)
+        {
+            elapsedTime += Time.deltaTime;
+
+            UISystem.Instance.dashCooldownEvent.Invoke(elapsedTime / player.GetPlayerStat.dashCooldown);
+            if (elapsedTime > player.GetPlayerStat.dashCooldown)
+            {
+                break;
+            }
+            yield return null;
+        }
+        yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canDash = true;
     }
     IEnumerator ParrySequence()
@@ -101,11 +117,12 @@ public class PlayerDashState : PlayerBaseState
         player.IsInvincibility = true;
 
         Time.timeScale = player.GetPlayerStat.parryProduceTimescale;
-        player.AnimatorComp.SetTrigger("parryTrigger");
-        player.ControlParticles(ePlayerState.DASH ,true, 1);
+        player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.PARRY_ANIMATION, false);
+        player.AnimationComp.AnimationState.AddEmptyAnimation(dashAnimationLayer, 0, 0);
+        player.ControlParticles(EPlayerState.DASH ,true, 1);
         yield return Yields.WaitSeconds(player.GetPlayerStat.parryProduceTime);
         Time.timeScale = 1f;
-        player.ControlParticles(ePlayerState.DASH, false, 1);
+        player.ControlParticles(EPlayerState.DASH, false, 1);
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.invincibilityAfterParry);
         player.IsInvincibility = false;
@@ -121,29 +138,21 @@ public class PlayerDashState : PlayerBaseState
         canDashAfterParry = false;
         player.IsCriticalAttack = true;
 
-        float originGravityScale = player.RigidbodyComp.gravityScale;
-        float originLiniearDrag = player.RigidbodyComp.drag;
-        float originMass = player.RigidbodyComp.mass;
-        player.ColliderComp.forceReceiveLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        player.ColliderComp.forceSendLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        player.RigidbodyComp.gravityScale = 0f;
-        player.RigidbodyComp.drag = 0;
-        player.RigidbodyComp.mass = 0;
-        player.ControlParticles(ePlayerState.DASH, true);
+        TogglePhysics(false);
+        player.ColliderComp.forceReceiveLayers &= ~PlayManager.Instance.EnemyMask;
+        player.ColliderComp.forceSendLayers &= ~PlayManager.Instance.EnemyMask;
+        player.ControlParticles(EPlayerState.DASH, true);
 
         dashPos.x = dashPos.x - player.transform.position.x;
         dashPos.y = dashPos.y - player.transform.position.y;
 
         player.RigidbodyComp.velocity = dashPos.normalized * player.GetPlayerStat.parryDashPower;
 
-        player.AnimatorComp.SetTrigger("dashTrigger");
+        CheckDirectionAndPlayAnimation(Mathf.Atan2(dashPos.y, dashPos.x) * Mathf.Rad2Deg);
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.parryDashTime);
-        player.RigidbodyComp.velocity = Vector2.zero;
-        player.RigidbodyComp.gravityScale = originGravityScale;
-        player.RigidbodyComp.drag = originLiniearDrag;
-        player.RigidbodyComp.mass = originMass;
+        TogglePhysics(true);
 
         if (null != player.ParryDashCollision)
         {
@@ -160,19 +169,57 @@ public class PlayerDashState : PlayerBaseState
             }
             player.ParryDashCollision = null;
         }
-        player.ColliderComp.forceReceiveLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        player.ColliderComp.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        player.AnimationComp.AnimationState.SetEmptyAnimation(dashAnimationLayer, 0);
+        player.ColliderComp.forceReceiveLayers |= LayerMask.GetMask(PlayManager.ENEMY_TAG);
+        player.ColliderComp.forceSendLayers |= LayerMask.GetMask(PlayManager.ENEMY_TAG);
 
-        player.ControlParticles(ePlayerState.DASH, false);
+        player.ControlParticles(EPlayerState.DASH, false);
         player.IsParryDash = false;
 
         player.CanChangeState = true;
-        player.ChangeState(ePlayerState.IDLE);
+        player.ChangeState(EPlayerState.IDLE);
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
         canDashAfterParry = true;
     }
 
+    private void TogglePhysics(bool onoff)
+    {
+        if (onoff)
+        {
+            player.RigidbodyComp.velocity = Vector2.zero;
+            player.RigidbodyComp.gravityScale = originGravityScale;
+            player.RigidbodyComp.drag = originLiniearDrag;
+            player.RigidbodyComp.mass = originMass;
+        }
+        else
+        {
+            player.RigidbodyComp.gravityScale = 0f;
+            player.RigidbodyComp.drag = 0;
+            player.RigidbodyComp.mass = 0;
+        }
+    }
+    private void CheckDirectionAndPlayAnimation(float angle)
+    {
+        angle += 180;
+        if (angle > 135 && angle <= 225) // right
+        {
+            player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.DASH_ANIMATION[0], false).TimeScale = dashAnimationTimeScale;
+        }
+        else if (angle > 225 && angle <= 315) // up
+        {
+            player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.DASH_ANIMATION[1], false).TimeScale = dashAnimationTimeScale;
+        }
+        else if (angle > 315 && angle <= 360 ||
+            angle > 0 && angle <= 45) // left
+        {
+            player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.DASH_ANIMATION[0], false).TimeScale = dashAnimationTimeScale;
+        }
+        else if (angle > 45 && angle <= 135) // down
+        {
+            player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.DASH_ANIMATION[2], false).TimeScale = dashAnimationTimeScale;
+        }
+    }
 
     public override void OnStateExit()
     {

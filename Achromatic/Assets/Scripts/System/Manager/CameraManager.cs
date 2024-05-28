@@ -20,7 +20,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
     [SerializeField]
     private float fallPanAmount = 0.25f;
     [SerializeField]
-    private float fallYPanTime = 0.35f;
+    private float fallYPanDuration = 0.35f;
     public float fallSpeedYDampingChangeThreshold = -3f;
 
     [Header("Change Room"), Space(10)]
@@ -28,6 +28,8 @@ public class CameraManager : SingletonBehavior<CameraManager>
     private float changeFadeTime = 0.5f;
     [SerializeField]
     private float changeDelayTime = 0.5f;
+    [SerializeField]
+    private float playerAutoMoveTime = 1f;
 
     public bool IsLerpingYDamping { get; private set; }
     public bool LerpedFromPlayerFalling { get; set; }
@@ -44,13 +46,15 @@ public class CameraManager : SingletonBehavior<CameraManager>
     private float normYPanAmount;
     private Vector2 startingTrackedObjectOffset;
 
+    private float deadZoneSoftZoneLimit = 2;
+
     private bool isShake = false;
     private bool isChangeFOV = false;
 
     private GameObject parent;
 
-    private CinemachineVirtualCamera cinemachine;
-    private CinemachineBasicMultiChannelPerlin cinemachineNoise;
+    private CinemachineVirtualCamera cinemachine; 
+    private CinemachineImpulseSource cinemachineNoise;
     private CinemachineVirtualCamera currentCamera;
     private CinemachineFramingTransposer framingTransposer;
     private CinemachineConfiner2D confiner;
@@ -67,7 +71,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 currentCamera = allVirtualCameras[i];
 
                 framingTransposer = currentCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-                cinemachineNoise = currentCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+                cinemachineNoise = currentCamera.GetComponent<CinemachineImpulseSource>();
                 confiner = currentCamera.GetComponent<CinemachineConfiner2D>();
                 cameraFade = currentCamera.GetComponent<CinemachineStoryboard>();
             }
@@ -98,28 +102,24 @@ public class CameraManager : SingletonBehavior<CameraManager>
     }
 
     #region Shake Camera
-    public void ShakeCamera(float shakeTime)
+    public void ShakeCamera(float shakeTime, bool isShakeByCustom = false)
     {
         if (!isShake)
         {
-            StartCoroutine(ShakeSequence(shakeTime));
+            StartCoroutine(ShakeSequence(shakeTime, isShakeByCustom));
         }
     }
-    IEnumerator ShakeSequence(float shakeTime)
+    IEnumerator ShakeSequence(float shakeTime, bool isShakeByCustom)
     {
         isShake = true;
-        while (shakeTime > 0)
-        {
-            cinemachineNoise.m_AmplitudeGain = shakeAmplitude;
-            cinemachineNoise.m_FrequencyGain = shakeFrequency;
-
-            shakeTime -= Time.deltaTime;
-            yield return null;
-        }
-        cinemachineNoise.m_AmplitudeGain = 0f;
-        cinemachineNoise.m_FrequencyGain = 0f;
-        transform.rotation = Quaternion.Euler(0, 0, 0);
+        cinemachineNoise.m_ImpulseDefinition.m_ImpulseType = 
+            !isShakeByCustom ? CinemachineImpulseDefinition.ImpulseTypes.Uniform : CinemachineImpulseDefinition.ImpulseTypes.Legacy;
+        cinemachineNoise.m_ImpulseDefinition.m_TimeEnvelope.m_SustainTime = shakeTime;
+        cinemachineNoise.m_ImpulseDefinition.m_AmplitudeGain = shakeAmplitude;
+        cinemachineNoise.m_ImpulseDefinition.m_FrequencyGain = shakeFrequency;
+        cinemachineNoise.GenerateImpulse();
         isShake = false;
+        yield return null;
     }
     #endregion
 
@@ -147,11 +147,11 @@ public class CameraManager : SingletonBehavior<CameraManager>
         }
 
         float elapsedTime = 0f;
-        while(elapsedTime < fallYPanTime)
+        while(elapsedTime < fallYPanDuration)
         {
             elapsedTime += Time.deltaTime;
 
-            float lerpedPanAmount = Mathf.Lerp(startDampAmount, endDampAmount, (elapsedTime / fallYPanTime));
+            float lerpedPanAmount = Mathf.Lerp(startDampAmount, endDampAmount, (elapsedTime / fallYPanDuration));
             framingTransposer.m_YDamping = lerpedPanAmount;
 
             yield return null;
@@ -184,12 +184,12 @@ public class CameraManager : SingletonBehavior<CameraManager>
     #endregion
 
     #region Pan Camera
-    public void PanCameraOnContact(float panDistance, float panTime, ePanDirection panDirection, bool panToStartingPos)
+    public void PanCameraOnContact(float panDistance, float panTime, EPanDirection panDirection, bool panToStartingPos)
     {
         panCameraCorountine = StartCoroutine(PanCamera(panDistance, panTime, panDirection, panToStartingPos));
     }
 
-    private IEnumerator PanCamera(float panDistance, float panTime, ePanDirection panDirection, bool panToStartingPos)
+    private IEnumerator PanCamera(float panDistance, float panTime, EPanDirection panDirection, bool panToStartingPos)
     {
         Vector2 endPos = Vector2.zero;
         Vector2 startPos = Vector2.zero;
@@ -198,16 +198,16 @@ public class CameraManager : SingletonBehavior<CameraManager>
         {
             switch (panDirection)
             {
-                case ePanDirection.UP:
+                case EPanDirection.UP:
                     endPos = Vector2.up;    
                     break;
-                case ePanDirection.DOWN:
+                case EPanDirection.DOWN:
                     endPos = Vector2.down;
                     break;
-                case ePanDirection.LEFT:
+                case EPanDirection.LEFT:
                     endPos = Vector2.right;
                     break;
-                case ePanDirection.RIGHT:
+                case EPanDirection.RIGHT:
                     endPos = Vector2.left;
                     break;
                 default:
@@ -240,45 +240,84 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
     #region Fade
 
-    public void SwitchBoundLine(Collider2D collLD, Collider2D collRU, Vector2 exitDirection, eTwoDirection dir)
+    public void SwitchBoundLine(Collider2D collLD, Collider2D collRU, Vector2[] playerEndPos, AnimationCurve autoMoveStyle, Vector2 exitDirection, ETwoDirection dir)
     {
         Collider2D oldColl = default;
         Collider2D newColl = default;
+        Vector2 playerAutoMovePos = Vector2.zero;
+        bool moveToUp = false;
 
         switch (dir)
         {
-            case eTwoDirection.HORIZONTAL:
+            case ETwoDirection.HORIZONTAL:
                 if(exitDirection.x > 0)
                 {
                     oldColl = collLD;
                     newColl = collRU;
+                    playerAutoMovePos = playerEndPos[0].x > playerEndPos[1].x ? playerEndPos[0] : playerEndPos[1];
                 }
                 else
                 {
                     oldColl = collRU;
                     newColl = collLD;
+                    playerAutoMovePos = playerEndPos[0].x < playerEndPos[1].x ? playerEndPos[0] : playerEndPos[1];
                 }
                 break;
-            case eTwoDirection.VERTICAL:
+            case ETwoDirection.VERTICAL:
                 if(exitDirection.y < 0)
                 {
                     oldColl = collRU;
                     newColl = collLD;
+                    playerAutoMovePos = playerEndPos[0].y < playerEndPos[1].y ? playerEndPos[0] : playerEndPos[1];
                 }
                 else
                 {
                     oldColl = collLD;
                     newColl = collRU;
+                    playerAutoMovePos = playerEndPos[0].y > playerEndPos[1].y ? playerEndPos[0] : playerEndPos[1];
+                    moveToUp = true;
                 }
                 break;
             default:
+                Debug.Assert(false);
                 break;
         }
         fadeCameraCoroutine = StartCoroutine(FadeSequence(changeFadeTime, changeDelayTime, 
             () =>
             {
                 confiner.m_BoundingShape2D = newColl;
+                StartCoroutine(PlayerAutoMoveSequence(playerAutoMovePos, moveToUp ? autoMoveStyle : null));
             }));
+    }
+    IEnumerator PlayerAutoMoveSequence(Vector2 movePos, AnimationCurve moveStyle = null)
+    {
+        InputManager.Instance.CanInput = false;
+        Vector2 playerOriPosition = PlayManager.Instance.GetPlayer.transform.position;
+        Vector2 endVector = playerOriPosition;
+        float elapsedTime = 0;
+        while (true)
+        {
+            elapsedTime += Time.deltaTime / changeFadeTime;
+
+            endVector.x = Mathf.Lerp(playerOriPosition.x, movePos.x, elapsedTime);
+            if (moveStyle != null)
+            {
+                endVector.y = playerOriPosition.y + ((movePos.y - playerOriPosition.y) * moveStyle.Evaluate(elapsedTime));
+            }
+            else
+            {
+                endVector.y = Mathf.Lerp(playerOriPosition.y, movePos.y, elapsedTime);
+            }
+
+            PlayManager.Instance.GetPlayer.transform.position = endVector;
+
+            if (elapsedTime > 1)
+            {
+                break;
+            }
+            yield return null;
+        }
+        InputManager.Instance.CanInput = true;
     }
 
     public void CameraFade(float fadeTime, float fadeDelay, UnityAction action)
@@ -290,32 +329,29 @@ public class CameraManager : SingletonBehavior<CameraManager>
     {
         InputManager.Instance.CanInput = false;
 
-        float i = 0;
+        float elapsedTime = 0;
         float lerp = 0;
 
         while (true)
         {
-            i += Time.deltaTime / fadeTime;
-            lerp = Mathf.Lerp(0, 1, i);
-            cameraFade.m_Alpha = lerp;
-            if (i > 1)
+            elapsedTime += Time.deltaTime / fadeTime;
+            cameraFade.m_Alpha = elapsedTime;
+            if (elapsedTime > 1)
             {
                 break;
             }
 
             yield return null;
         }
-        i = 0;
-        lerp = 1;
+        elapsedTime = 0;
         action?.Invoke();
         yield return Yields.WaitSeconds(fadeDelay);
         InputManager.Instance.CanInput = true;
         while (true)
         {
-            i += Time.deltaTime / fadeTime;
-            lerp = Mathf.Lerp(1, 0, i);
+            elapsedTime += Time.deltaTime / fadeTime;
             cameraFade.m_Alpha = lerp;
-            if (i > 1)
+            if (elapsedTime > 1)
             {
                 break;
             }
@@ -328,17 +364,17 @@ public class CameraManager : SingletonBehavior<CameraManager>
     #endregion
 
     #region Lock Position
-    public void LockPosition(eTwoDirection lockDir, bool isLock)
+    public void LockPosition(ETwoDirection lockDir, bool isLock)
     {
         switch(lockDir)
         {
-            case eTwoDirection.HORIZONTAL:
+            case ETwoDirection.HORIZONTAL:
                 if (isLock)
                 {
                     deadZoneWidth = framingTransposer.m_DeadZoneWidth;
                     softZoneWidth = framingTransposer.m_SoftZoneWidth;
-                    framingTransposer.m_DeadZoneWidth = 2;
-                    framingTransposer.m_SoftZoneWidth = 2;
+                    framingTransposer.m_DeadZoneWidth = deadZoneSoftZoneLimit;
+                    framingTransposer.m_SoftZoneWidth = deadZoneSoftZoneLimit;
                 }
                 else
                 {
@@ -346,13 +382,13 @@ public class CameraManager : SingletonBehavior<CameraManager>
                     framingTransposer.m_SoftZoneWidth = softZoneWidth;
                 }
                 break;
-            case eTwoDirection.VERTICAL:
+            case ETwoDirection.VERTICAL:
                 if (isLock)
                 {
                     deadZoneHeight = framingTransposer.m_DeadZoneHeight;
                     softZoneHeight = framingTransposer.m_SoftZoneHeight;
-                    framingTransposer.m_DeadZoneHeight = 2;
-                    framingTransposer.m_SoftZoneHeight = 2;
+                    framingTransposer.m_DeadZoneHeight = deadZoneSoftZoneLimit;
+                    framingTransposer.m_SoftZoneHeight = deadZoneSoftZoneLimit;
                 }
                 else
                 {

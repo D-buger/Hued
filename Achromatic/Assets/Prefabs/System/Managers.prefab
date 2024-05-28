@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5462545886198939100}
   - component: {fileID: 3576984265398549775}
   - component: {fileID: 7469853638090151738}
+  - component: {fileID: 6513457903761913884}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -51,7 +52,7 @@ MonoBehaviour:
   MoveEvent:
     m_PersistentCalls:
       m_Calls: []
-  SitEvent:
+  LookEvent:
     m_PersistentCalls:
       m_Calls: []
   DashEvent:
@@ -60,9 +61,13 @@ MonoBehaviour:
   LightAttackEvent:
     m_PersistentCalls:
       m_Calls: []
-  HeavyAttackEvent:
+  FilterEvent:
     m_PersistentCalls:
       m_Calls: []
+  DownJumpEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  jumpBufferTime: 0.1
 --- !u!114 &7469853638090151738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,4 +80,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 333b131e16113d9458f12f14abbc0aa0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  filterInputCooldown: 1
+  filterPercentPerSec: 10
+  filterRecoveryPersec: 15
+  filterCoolRecoveryPerSec: 10
   cameraManager: {fileID: 0}
+  FilterColorAttackEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  ActivationColorEvent:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &6513457903761913884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4853712015748426014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 493c0bbab92f66a4bb44835ce330f091, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  getColorEvent:
+    m_PersistentCalls:
+      m_Calls: []

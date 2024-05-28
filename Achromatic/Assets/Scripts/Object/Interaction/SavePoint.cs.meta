@@ -1,5 +1,9 @@
 fileFormatVersion: 2
-guid: ae9a101f2181b6844aaa88b7d16f2c95
+<<<<<<<< HEAD:Achromatic/Assets/Scripts/Object/Interaction/SavePoint.cs.meta
+guid: 6be402c42c4214041b620d8652179680
+========
+guid: 20dc20ee0da999d4794d74421cdda819
+>>>>>>>> main:Achromatic/Assets/Scripts/Character/Player/PlayerAnimationNameCaching.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2

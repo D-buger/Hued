@@ -1,10 +1,11 @@
+using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.TerrainUtils;
 
-public class Projectile : MonoBehaviour
+public class Projectile : MonoBehaviour, IParryConditionCheck
 {
     private Rigidbody2D rigid;
     private SpriteRenderer renderer;
@@ -13,9 +14,6 @@ public class Projectile : MonoBehaviour
     private float moveSpeed = 1f;
     private float moveRange = 5f;
     private int damage = 1;
-
-    private bool isHeavyAttack = true;
-    public bool IsParryAllow => (!isHeavyAttack);
 
     private GameObject attackFrom;
     private Vector2 fromVector;
@@ -31,43 +29,20 @@ public class Projectile : MonoBehaviour
     }
 
 
-    /*private void Update()
+    public virtual void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, float shotAngle, eActivableColor color)
     {
-        if (isShooting)
-        {
-            if(Vector2.Distance(fromVector, new Vector2(transform.position.x, transform.position.y)) > moveRange)
-            {
-                Destroy(gameObject);
-            }
-        }
-    }*/
-
-    public void CheckIsHeavyAttack(eActivableColor color)
-    {
-        if (color == enemyColor)
-        {
-            isHeavyAttack = false;
-            renderer.color = Color.white;
-        }
-        else
-        {
-            isHeavyAttack = true;
-            renderer.color = Color.black;
-        }
-    }
-
-    public void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, bool isHeavy, eActivableColor color)
-    {
+        float shotDir = shotAngle + 180;
         attackFrom = shotFrom;
         transform.position = from;
         moveDirection = dir;
         moveSpeed = speed;
-        isHeavyAttack = isHeavy;
         damage = dmg;
         moveRange = range;
         fromVector = shotFrom.transform.position;
         enemyColor = color;
+        transform.rotation = Quaternion.Euler(1, 1, shotDir);
         rigid.AddForce(moveDirection * moveSpeed);
+        gameObject.SetActive(true);
     }
 
     public void Parried(GameObject shotFrom, Vector2 dir, int dmg)
@@ -79,18 +54,33 @@ public class Projectile : MonoBehaviour
             damage = dmg;
             fromVector = shotFrom.transform.position;
             isParried = true;
-            isHeavyAttack = true;
             rigid.velocity = Vector2.zero;
             rigid.AddForce(moveDirection * moveSpeed);
         }
     }
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    public void ReturnToPool()
     {
-        if (!collision.gameObject.Equals(attackFrom) && !collision.CompareTag(PlayManager.ATTACK_TAG) && collision.CompareTag(PlayManager.PLAYER_TAG))
+        gameObject.SetActive(false);
+    }
+    public void ReturnStartRoutine(float delayTime)
+    {
+        StartCoroutine(TimeToReturnObject(delayTime));
+    }
+    public IEnumerator TimeToReturnObject(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ReturnToPool();
+    }
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag(PlayManager.PLAYER_TAG))
         {
-            collision.GetComponent<IAttack>()?.Hit(damage, moveDirection, isHeavyAttack);
-            Destroy(gameObject);
+            collision.GetComponent<IAttack>()?.Hit(damage, damage, -moveDirection, this);
+            ReturnToPool();
         }
+    }
+    public bool CanParryAttack()
+    {
+        return PlayManager.Instance.ContainsActivationColors(enemyColor);
     }
 }

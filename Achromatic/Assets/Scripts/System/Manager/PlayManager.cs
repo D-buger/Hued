@@ -19,13 +19,13 @@ public class PlayManager : SingletonBehavior<PlayManager>
     public static readonly string ATTACK_TAG = "Attack";
     public static readonly string ENEMY_TAG = "Enemy";
     public static readonly string COLOR_OBJECT_PARENT_TAG = "ColorObjects";
+    public static readonly string FLOOR_TAG = "Floor";
 
     private const int FILTER_MAX_GAUGE = 100;
 
-    public LayerMask EnemyMask => (1 << LayerMask.NameToLayer(ENEMY_TAG)) | (1 << LayerMask.NameToLayer("ColorEnemy"));
-
-    [HideInInspector]
-    public CameraManager cameraManager;
+    public LayerMask EnemyMask => LayerMask.GetMask(ENEMY_TAG) | LayerMask.GetMask("ColorEnemy");
+    public LayerMask PlayerMask => LayerMask.GetMask(PLAYER_TAG);
+    public LayerMask PlatformMask => LayerMask.GetMask("Platform") | LayerMask.GetMask("Object") | LayerMask.GetMask("ColorObject");
 
     [SerializeField]
     private float filterInputCooldown = 1f;
@@ -36,6 +36,14 @@ public class PlayManager : SingletonBehavior<PlayManager>
     [SerializeField]
     private float filterCoolRecoveryPerSec = 10.0f;
 
+    [HideInInspector]
+    public CameraManager cameraManager;
+
+    [HideInInspector]
+    public UnityEvent<eActivableColor> FilterColorAttackEvent;
+    [HideInInspector]
+    public UnityEvent<eActivableColor> ActivationColorEvent;
+
     private Grayscale volumeProfile;
     private Color activateColor = Color.black;
     private eActivableColor haveColor = eActivableColor.NONE;
@@ -44,13 +52,13 @@ public class PlayManager : SingletonBehavior<PlayManager>
     private ColorObjectManager colorObjectManager;
     private List<eActivableColor> activationColors = new List<eActivableColor>();
 
-    public UnityEvent<eActivableColor> FilterColorAttackEvent;
-    public UnityEvent<eActivableColor> ActivationColorEvent;
-
     public bool ContainsActivationColors(eActivableColor color) => activationColors.Contains(color) || (haveColor == color && isFilterOn);
 
     private Player player;
     public Player GetPlayer => player;
+
+    private Inventory inventory;
+    public Inventory GetInventory => inventory;
 
     private float filterGauge = 100;
     public void FillFillterGaugeFull()
@@ -92,6 +100,7 @@ public class PlayManager : SingletonBehavior<PlayManager>
         colorObjectManager = GameObject.FindGameObjectWithTag(COLOR_OBJECT_PARENT_TAG).GetComponent<ColorObjectManager>();
         
         player = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Player>();
+        inventory = GameObject.FindObjectOfType<Inventory>();
 
         volumeProfile.activationColor.Override(activateColor);
         volumeProfile.FilterColor.Override(activateColor);

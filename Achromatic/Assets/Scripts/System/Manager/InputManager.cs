@@ -6,6 +6,7 @@ using UnityEngine.Events;
 
 public class InputManager : SingletonBehavior<InputManager>
 {
+    const KeyCode EXIT = KeyCode.Escape;
     const KeyCode JUMP = KeyCode.Space;
     const KeyCode LEFT = KeyCode.A;
     const KeyCode RIGHT = KeyCode.D;
@@ -15,20 +16,43 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode LIGHT_ATTACK = KeyCode.Mouse0;
     const KeyCode FILTER = KeyCode.F;
     const KeyCode INTERECTION = KeyCode.E;
+    const KeyCode INVENTORY = KeyCode.I;
+    const KeyCode USE_ITEM = KeyCode.Alpha1;
 
+    [HideInInspector]
+    public UnityEvent ExitEvent;
+    [HideInInspector]
     public UnityEvent JumpEvent;
+    [HideInInspector]
+    public UnityEvent DownJumpEvent;
+    [HideInInspector]
     public UnityEvent<int> MoveEvent;
+    [HideInInspector]
     public UnityEvent<int> LookEvent;
+    [HideInInspector]
     public UnityEvent<Vector2> DashEvent;
+    [HideInInspector]
     public UnityEvent<Vector2> LightAttackEvent;
+    [HideInInspector]
     public UnityEvent FilterEvent;
+    [HideInInspector]
     public UnityEvent InterectionEvent;
+    [HideInInspector]
+    public UnityEvent InventoryEvent;
+    [HideInInspector]
+    public UnityEvent UseItemEvent;
 
-    private Camera mainCamera;
+    [SerializeField]
+    private float jumpBufferTime = 0.1f;
+
     public Vector2 MouseVec { get; private set; }
     public int ArrowVec { get; private set; }
 
     public bool CanInput { get; set; } = true;
+
+    private Camera mainCamera;
+    private float prevGetJumpTime = 0f;
+
     protected override void OnAwake()
     {
         mainCamera = Camera.main;
@@ -37,6 +61,12 @@ public class InputManager : SingletonBehavior<InputManager>
     void Update()
     {
         MouseVec = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        prevGetJumpTime += Time.deltaTime;
+
+        if (Input.GetKey(EXIT))
+        {
+            ExitEvent?.Invoke();
+        }
 
         if (!CanInput)
         {
@@ -66,22 +96,35 @@ public class InputManager : SingletonBehavior<InputManager>
 
         if (Input.GetKey(JUMP))
         {
+            prevGetJumpTime = 0;
             JumpEvent?.Invoke();
         }
+        else if(prevGetJumpTime < jumpBufferTime)
+        {
+            JumpEvent?.Invoke();
+        }
+        
+
         if(Input.GetKey(DASH))
         {
             DashEvent?.Invoke(MouseVec);
         }
+
         if (Input.GetKey(FILTER))
         {
             FilterEvent?.Invoke();
+        }
+
+        if (Input.GetKey(INVENTORY))
+        {
+            InventoryEvent?.Invoke();
         }
 
         if (Input.GetKey(LOOK_DOWN))
         {
             LookEvent?.Invoke(-1);
         }
-        if (Input.GetKey(LOOK_UP))
+        else if (Input.GetKey(LOOK_UP))
         {
             LookEvent?.Invoke(1);
         }
@@ -89,6 +132,16 @@ public class InputManager : SingletonBehavior<InputManager>
         if (Input.GetKeyDown(INTERECTION))
         {
             InterectionEvent?.Invoke();
+        }
+
+        if (Input.GetKey(LOOK_DOWN) && Input.GetKey(JUMP))
+        {
+            DownJumpEvent?.Invoke();
+        }
+
+        if (Input.GetKeyDown(USE_ITEM))
+        {
+            UseItemEvent?.Invoke();
         }
     }
 }

@@ -18,6 +18,12 @@ public class ColorObject : MonoBehaviour
     {
         effector = GetComponent<PlatformEffector2D>();
         coll = GetComponent<Collider2D>();
+
+        if(coll == null)
+        {
+            effector = transform.parent.GetComponent<PlatformEffector2D>();
+            coll = transform.parent.GetComponent<Collider2D>();
+        }
     }
 
     private void Start()
