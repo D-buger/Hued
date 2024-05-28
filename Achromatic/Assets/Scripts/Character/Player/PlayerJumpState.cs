@@ -14,7 +14,7 @@ public class PlayerJumpState : PlayerBaseState
         {
             if (player.CanChangeState)
             {
-                player.ChangeState(ePlayerState.JUMP);
+                player.ChangeState(EPlayerState.JUMP);
             }
             
         });

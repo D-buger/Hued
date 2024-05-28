@@ -11,7 +11,7 @@ public class MovingCrystal : MonoBehaviour, IParryConditionCheck
     [SerializeField]
     private float changedSpeedByBossHp = 1f;
     [SerializeField]
-    private eTwoDirection moveDirection;
+    private ETwoDirection moveDirection;
     [SerializeField]
     private float eachCrystalDistance = 5;
     [SerializeField]
@@ -42,10 +42,10 @@ public class MovingCrystal : MonoBehaviour, IParryConditionCheck
     {
         originalPosition = transform.position;
         moveEndPosition = transform.position;
-        moveEndPosition += moveDirection == eTwoDirection.HORIZONTAL ?
+        moveEndPosition += moveDirection == ETwoDirection.HORIZONTAL ?
             new Vector2(maxMoveDistance, 0) : new Vector2(0, maxMoveDistance);
         anotherCrystalPosition = transform.position;
-        anotherCrystalPosition += moveDirection == eTwoDirection.HORIZONTAL ?
+        anotherCrystalPosition += moveDirection == ETwoDirection.HORIZONTAL ?
             new Vector2(0, eachCrystalDistance) : new Vector2(eachCrystalDistance, 0);
 
         GameObject anotherCrystal = new GameObject("AnotherCrystal");
@@ -73,9 +73,9 @@ public class MovingCrystal : MonoBehaviour, IParryConditionCheck
 
     private void MoveCrystal()
     {
-        if ((moveDirection == eTwoDirection.HORIZONTAL &&
+        if ((moveDirection == ETwoDirection.HORIZONTAL &&
             (transform.position.x > moveEndPosition.x || transform.position.x < originalPosition.x))
-            || (moveDirection == eTwoDirection.VERTICAL &&
+            || (moveDirection == ETwoDirection.VERTICAL &&
             (transform.position.y > moveEndPosition.y || transform.position.y < originalPosition.y)))
         {
             direction *= -1;
@@ -83,7 +83,7 @@ public class MovingCrystal : MonoBehaviour, IParryConditionCheck
 
         if (isMove)
         {
-            transform.position += (moveDirection == eTwoDirection.HORIZONTAL ?
+            transform.position += (moveDirection == ETwoDirection.HORIZONTAL ?
                 new Vector3(Time.deltaTime, 0) : new Vector3(0, Time.deltaTime)) * direction * currentSpeed;
         }
     }
@@ -143,7 +143,7 @@ public class MovingCrystal : MonoBehaviour, IParryConditionCheck
         gizmoStartPosition = Application.isPlaying ? originalPosition : transform.position;
         gizmoEndPosition = gizmoStartPosition;
 
-        if (moveDirection == eTwoDirection.HORIZONTAL)
+        if (moveDirection == ETwoDirection.HORIZONTAL)
         {
             gizmoEndPosition.x += maxMoveDistance;
         }

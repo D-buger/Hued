@@ -35,7 +35,7 @@ public class PlayerDashState : PlayerBaseState
             {
                 dashDirection = dir;
 
-                player.ChangeState(ePlayerState.DASH);
+                player.ChangeState(EPlayerState.DASH);
             }
         });
     }
@@ -69,7 +69,7 @@ public class PlayerDashState : PlayerBaseState
         canParryDash = false;
 
         TogglePhysics(false);
-        player.ControlParticles(ePlayerState.DASH, true);
+        player.ControlParticles(EPlayerState.DASH, true);
 
         dashPos.x = dashPos.x - player.transform.position.x;
         dashPos.y = dashPos.y - player.transform.position.y;
@@ -82,7 +82,7 @@ public class PlayerDashState : PlayerBaseState
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashingTime);
         TogglePhysics(true);
 
-        player.ControlParticles(ePlayerState.DASH, false);
+        player.ControlParticles(EPlayerState.DASH, false);
         player.AnimationComp.AnimationState.SetEmptyAnimation(dashAnimationLayer, 0);
         isParry = player.ParryCondition;
         if (isParry)
@@ -93,7 +93,7 @@ public class PlayerDashState : PlayerBaseState
         player.IsDash = false;
 
         player.CanChangeState = true;
-        player.ChangeState(ePlayerState.IDLE);
+        player.ChangeState(EPlayerState.IDLE);
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
 
@@ -119,10 +119,10 @@ public class PlayerDashState : PlayerBaseState
         Time.timeScale = player.GetPlayerStat.parryProduceTimescale;
         player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.PARRY_ANIMATION, false);
         player.AnimationComp.AnimationState.AddEmptyAnimation(dashAnimationLayer, 0, 0);
-        player.ControlParticles(ePlayerState.DASH ,true, 1);
+        player.ControlParticles(EPlayerState.DASH ,true, 1);
         yield return Yields.WaitSeconds(player.GetPlayerStat.parryProduceTime);
         Time.timeScale = 1f;
-        player.ControlParticles(ePlayerState.DASH, false, 1);
+        player.ControlParticles(EPlayerState.DASH, false, 1);
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.invincibilityAfterParry);
         player.IsInvincibility = false;
@@ -141,7 +141,7 @@ public class PlayerDashState : PlayerBaseState
         TogglePhysics(false);
         player.ColliderComp.forceReceiveLayers &= ~PlayManager.Instance.EnemyMask;
         player.ColliderComp.forceSendLayers &= ~PlayManager.Instance.EnemyMask;
-        player.ControlParticles(ePlayerState.DASH, true);
+        player.ControlParticles(EPlayerState.DASH, true);
 
         dashPos.x = dashPos.x - player.transform.position.x;
         dashPos.y = dashPos.y - player.transform.position.y;
@@ -173,11 +173,11 @@ public class PlayerDashState : PlayerBaseState
         player.ColliderComp.forceReceiveLayers |= LayerMask.GetMask(PlayManager.ENEMY_TAG);
         player.ColliderComp.forceSendLayers |= LayerMask.GetMask(PlayManager.ENEMY_TAG);
 
-        player.ControlParticles(ePlayerState.DASH, false);
+        player.ControlParticles(EPlayerState.DASH, false);
         player.IsParryDash = false;
 
         player.CanChangeState = true;
-        player.ChangeState(ePlayerState.IDLE);
+        player.ChangeState(EPlayerState.IDLE);
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
         canDashAfterParry = true;

@@ -26,7 +26,7 @@ public class ShoutingPattern : BossPattern
         isPostHitDownBehaviour = false;
         isPatternEnd = false;
         InputManager.Instance.CanInput = false;
-        PlayManager.Instance.GetPlayer.ChangeState(ePlayerState.IDLE);
+        PlayManager.Instance.GetPlayer.ChangeState(EPlayerState.IDLE);
         PlayManager.Instance.cameraManager.ShakeCamera(confusionDebuffDuration, true);
     }
     public override void OnUpdate()

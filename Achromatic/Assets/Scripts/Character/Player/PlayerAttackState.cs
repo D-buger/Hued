@@ -31,7 +31,7 @@ public class PlayerAttackState : PlayerBaseState
 
             if (player.CanChangeState)
             {
-                player.ChangeState(ePlayerState.ATTACK);
+                player.ChangeState(EPlayerState.ATTACK);
             }
         });
     }

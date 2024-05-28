@@ -31,13 +31,13 @@ public class PlayerAttackReboundState : PlayerBaseState
     {
         player.CanChangeState = false;
         player.RigidbodyComp.velocity = Vector2.zero;
-        player.ControlParticles(ePlayerState.ATTACK_REBOUND, true);
+        player.ControlParticles(EPlayerState.ATTACK_REBOUND, true);
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
         PlayManager.Instance.cameraManager.ShakeCamera(reboundTime);
         yield return Yields.WaitSeconds(reboundTime);
         player.CanChangeState = true;
         player.ChangePrevState();
-        player.ControlParticles(ePlayerState.ATTACK_REBOUND, false);
+        player.ControlParticles(EPlayerState.ATTACK_REBOUND, false);
 
     }
 

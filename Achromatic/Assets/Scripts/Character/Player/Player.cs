@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using Spine;
 using Spine.Unity;
 
-public enum ePlayerState : int
+public enum EPlayerState : int
 {
     IDLE,
     RUN,
@@ -69,7 +69,7 @@ public class Player : MonoBehaviour, IAttack
     private ParticleSystem attackHitEffect;
     private ParticleSystem hitEffect;
 
-    private Dictionary<ePlayerState, PlayerBaseState> playerStates;
+    private Dictionary<EPlayerState, PlayerBaseState> playerStates;
     private PlayerFSM playerFSM;
 
     [HideInInspector]
@@ -98,7 +98,7 @@ public class Player : MonoBehaviour, IAttack
 
     private void Awake()
     {
-        playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
+        playerStates = new Dictionary<EPlayerState, PlayerBaseState>();
 
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<BoxCollider2D>();
@@ -137,17 +137,17 @@ public class Player : MonoBehaviour, IAttack
         PlayerHitState hit = new PlayerHitState(this);
         PlayerDeadState dead = new PlayerDeadState(this);
 
-        playerStates.Add(ePlayerState.IDLE, idle);
-        playerStates.Add(ePlayerState.RUN, run);
-        playerStates.Add(ePlayerState.ATTACK, attack);
-        playerStates.Add(ePlayerState.ATTACK_REBOUND, afterAttack);
-        playerStates.Add(ePlayerState.JUMP, jump);
-        playerStates.Add(ePlayerState.DASH, dash);
-        playerStates.Add(ePlayerState.GROGGY, groggy);
-        playerStates.Add(ePlayerState.HIT, hit);
-        playerStates.Add(ePlayerState.DEAD, dead);
+        playerStates.Add(EPlayerState.IDLE, idle);
+        playerStates.Add(EPlayerState.RUN, run);
+        playerStates.Add(EPlayerState.ATTACK, attack);
+        playerStates.Add(EPlayerState.ATTACK_REBOUND, afterAttack);
+        playerStates.Add(EPlayerState.JUMP, jump);
+        playerStates.Add(EPlayerState.DASH, dash);
+        playerStates.Add(EPlayerState.GROGGY, groggy);
+        playerStates.Add(EPlayerState.HIT, hit);
+        playerStates.Add(EPlayerState.DEAD, dead);
 
-        playerFSM = new PlayerFSM(playerStates[ePlayerState.IDLE]);
+        playerFSM = new PlayerFSM(playerStates[EPlayerState.IDLE]);
         MaxHP = stat.playerHP;
         CurrentHP = stat.playerHP;
 
@@ -213,20 +213,20 @@ public class Player : MonoBehaviour, IAttack
     }
     public void ChangePrevState()
     {
-        ChangeState(playerFSM.GetPrevState() == playerStates[ePlayerState.RUN] ? ePlayerState.RUN : ePlayerState.IDLE);
+        ChangeState(playerFSM.GetPrevState() == playerStates[EPlayerState.RUN] ? EPlayerState.RUN : EPlayerState.IDLE);
     }
-    public void ChangeState(ePlayerState state)
+    public void ChangeState(EPlayerState state)
     {
         playerFSM.ChangeState(playerStates[state]);
     }
-    public void ControlParticles(ePlayerState state, bool onoff, int index = 0)
+    public void ControlParticles(EPlayerState state, bool onoff, int index = 0)
     {
         switch (state)
         {
-            case ePlayerState.ATTACK_REBOUND:
+            case EPlayerState.ATTACK_REBOUND:
                 EffectPlayOrStop(attackHitEffect, onoff);
                 break;
-            case ePlayerState.DASH:
+            case EPlayerState.DASH:
                 if(index == 0)
                 {
                     EffectPlayOrStop(dashEffect ,onoff);
@@ -236,10 +236,10 @@ public class Player : MonoBehaviour, IAttack
                     EffectPlayOrStop(parryEffect, onoff);
                 }
                 break;
-            case ePlayerState.RUN:
+            case EPlayerState.RUN:
                 EffectPlayOrStop(runningEffect, onoff);
                 break;
-            case ePlayerState.HIT:
+            case EPlayerState.HIT:
                 EffectPlayOrStop(hitEffect, onoff);
                 break;
             default:
@@ -265,8 +265,8 @@ public class Player : MonoBehaviour, IAttack
 
     public void OnPostAttack(Vector2 attackDir)
     {
-        PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[ePlayerState.ATTACK_REBOUND];
-        ChangeState(ePlayerState.ATTACK_REBOUND);
+        PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[EPlayerState.ATTACK_REBOUND];
+        ChangeState(EPlayerState.ATTACK_REBOUND);
         afterAttackState.OnPostAttack(attackDir);
     }
 
@@ -281,8 +281,8 @@ public class Player : MonoBehaviour, IAttack
             }
             return;
         }
-        PlayerHitState hitState = (PlayerHitState)playerStates[ePlayerState.HIT];
-        ChangeState(ePlayerState.HIT);
+        PlayerHitState hitState = (PlayerHitState)playerStates[EPlayerState.HIT];
+        ChangeState(EPlayerState.HIT);
         hitState.Hit(damage, attackDir.normalized);
     }
 

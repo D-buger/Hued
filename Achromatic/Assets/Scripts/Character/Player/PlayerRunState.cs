@@ -17,11 +17,11 @@ public class PlayerRunState : PlayerBaseState
 
             if (moveDir != 0 && !player.IsDash && !player.IsParryDash && player.CanChangeState)
             {
-                player.ChangeState(ePlayerState.RUN);
+                player.ChangeState(EPlayerState.RUN);
             }
             else
             {
-                player.ChangeState(ePlayerState.IDLE);
+                player.ChangeState(EPlayerState.IDLE);
             }
         });
     }
@@ -38,7 +38,7 @@ public class PlayerRunState : PlayerBaseState
         {
             player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.RUN_ANIMATION, true);
         }
-        player.ControlParticles(ePlayerState.RUN, player.OnGround);
+        player.ControlParticles(EPlayerState.RUN, player.OnGround);
     }
     public override void OnStateFixedUpdate()
     {
@@ -50,6 +50,6 @@ public class PlayerRunState : PlayerBaseState
 
         player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.IDLE_ANIMATION, true);
 
-        player.ControlParticles(ePlayerState.RUN, false);
+        player.ControlParticles(EPlayerState.RUN, false);
     }
 }

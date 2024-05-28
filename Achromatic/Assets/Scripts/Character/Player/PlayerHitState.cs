@@ -41,7 +41,7 @@ public class PlayerHitState : PlayerBaseState
         player.IsInvincibility = true;
 
         player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.HIT_ANIMATIONS[Random.Range(0, PlayerAnimationNameCaching.HIT_ANIMATIONS.Length)], false).TimeScale = hitAnimationTimescale;
-        player.ControlParticles(ePlayerState.HIT, true);
+        player.ControlParticles(EPlayerState.HIT, true);
         //player.RendererComp.material.color = hitChangeColor;
 
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
@@ -65,12 +65,12 @@ public class PlayerHitState : PlayerBaseState
         yield return Yields.WaitSeconds(player.GetPlayerStat.hitBehaviourLimitTime);
         if (!ReferenceEquals(player.RendererComp, null))
         {
-            player.ControlParticles(ePlayerState.HIT, false);
+            player.ControlParticles(EPlayerState.HIT, false);
             //player.RendererComp.material.color = originalRendererColor;
         }
 
         player.CanChangeState = true;
-        player.ChangeState(ePlayerState.IDLE);
+        player.ChangeState(EPlayerState.IDLE);
 
         yield return Yields.WaitSeconds(Mathf.Max(0, Mathf.Abs(player.GetPlayerStat.hitInvincibilityTime - player.GetPlayerStat.hitBehaviourLimitTime)));
         player.IsInvincibility = false;
