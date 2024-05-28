@@ -87,7 +87,7 @@ public class Player : MonoBehaviour, IAttack
     public bool IsCriticalAttack{ get; set; } = false;
     public bool OnGround { get; private set; }
     public bool PlayerFaceRight { get; set; } = true;
-    public float footOffGroundTime { get; set; } = 0f;
+    public float FootOffGroundTime { get; set; } = 0f;
 
     public Collision2D ParryDashCollision { get; set; }
     public LayerMask GroundLayer { get; private set; }
