@@ -90,6 +90,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
+        monsterStartPos = transform.position;
         runPosition = stat.enemyRoamingRange;
 
         monsterRunleftPosition.y = transform.position.y;
@@ -118,6 +119,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Update()
     {
+        distanceToMonsterStartPos = Vector2.Distance(transform.position, monsterStartPos);
         StartCoroutine(CheckPlayer(startSpiderPosition));
         if (canAttack && IsStateActive(EMonsterState.isBattle))
         {

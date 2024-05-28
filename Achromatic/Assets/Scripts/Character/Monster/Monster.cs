@@ -3,12 +3,13 @@ using UnityEngine;
 
 public abstract class Monster : MonoBehaviour, IAttack
 {
-    private MonsterStat stat;
+    private MonsterStat baseStat;
     protected int currentHP;
 
     protected Vector2 monsterRunleftPosition;
     protected Vector2 monsterRunRightPosition;
     protected Vector2 monsterPosition;
+    protected Vector2 monsterStartPos;
     protected float distanceToPlayer;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
@@ -18,6 +19,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     protected float elapsedTime = 0;
     private float arrivalThreshold = 1f;
     protected float distanceToStartPos = 0;
+    protected float distanceToMonsterStartPos;
     protected int DeadMass = 100;
     protected int originalMass = 6;
     protected bool isDead = false;
@@ -65,7 +67,7 @@ public abstract class Monster : MonoBehaviour, IAttack
     public virtual IEnumerator CheckWaitTime()
     {
         elapsedTime += Time.deltaTime;
-        if (elapsedTime >= stat.waitStateDelay && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        if (elapsedTime >= baseStat.waitStateDelay && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
             elapsedTime = 0f;
             SetState(EMonsterState.isWait, true);
@@ -83,16 +85,16 @@ public abstract class Monster : MonoBehaviour, IAttack
         }
         float horizontalValue = PlayerPos.x - transform.position.x;
         transform.localScale = (horizontalValue >= 0) ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
-        if (distanceToPlayer <= stat.senseCircle && !IsStateActive(EMonsterState.isBattle))
+        if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
         {
             SetState(EMonsterState.isBattle, true);
             SetState(EMonsterState.isWait, false);
             SetState(EMonsterState.isPlayerBetween, false);
             CheckStateChange();
         }
-        else if (distanceToPlayer > stat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
-            transform.position = Vector2.MoveTowards(transform.position, PlayerPos, stat.moveSpeed * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
         }
     }
     public abstract void Attack();

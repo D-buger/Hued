@@ -28,7 +28,7 @@ MonoBehaviour:
   deadDelay: 1.33
   attackDelay: 1.33
   projectileAngleByHeight: 0.22
-  projectileZAngleByHeight: 200
+  projectileZAngleByHeight: 160
   enemyRoamingRange: 8
   discoveryDuration: 1
   slashAttackDamage: 1
@@ -46,8 +46,8 @@ MonoBehaviour:
   middleStabAttackDelay: 2
   counterDurationTime: 2
   counterAttackRange: 1
-  counterAttackDurationTime: 0
+  counterAttackDurationTime: 0.3
   counterAttackDamage: 2
   counterAttackSpeed: 6
-  stabAttackPercent: 33
-  slashAttackPercent: 33
+  stabAttackPercent: 0
+  slashAttackPercent: 100

@@ -26,8 +26,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private FlyAntMonsterStat stat;
     [SerializeField]
     private JObject jsonObject;
-
-    private Vector2 monsterStartPos;
     private Vector2 targetPos;
     private Vector2 battlePos;
     public Vector2 startFlyAntPosition;
@@ -93,7 +91,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
-        monsterStartPos = new Vector2(transform.position.x, transform.position.y);
+        monsterStartPos = transform.position;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
         runPosition = stat.enemyRoamingRange;
@@ -108,7 +106,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         monsterPosition = monsterRunRightPosition;
         startFlyAntPosition = new Vector2(transform.position.x, transform.position.y);
 
-
         originLayer = LayerMask.GetMask("Enemy");
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
 
@@ -119,6 +116,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Update()
     {
+        distanceToMonsterStartPos = Vector2.Distance(transform.position, monsterStartPos);
         StartCoroutine(CheckPlayer(startFlyAntPosition));
         if (IsStateActive(EMonsterState.isBattle))
         {
@@ -132,6 +130,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         {
             StartCoroutine(Rush());
         }
+        Debug.Log(distanceToMonsterStartPos);
     }
     private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
     {
@@ -272,7 +271,6 @@ private void IsActiveColor(eActivableColor color)
         if (checkRandomAttackType < 50)
         {
             StartCoroutine(RushAttack(zAngle)); // 돌진 공격
-            Debug.Log("돌진 공격");
         }
         else
         {
@@ -316,12 +314,10 @@ private void IsActiveColor(eActivableColor color)
             SetAttackState(EMonsterAttackState.isBadyAttack, true);
             isDoubleBadyAttack = true;
             isReturnStop = true;
-            Debug.Log("연속 돌진");
         }
         else
         {
             SetAttackState(EMonsterAttackState.isBadyAttack, true);
-            Debug.Log("일반 돌진이 선택됨");
         }
         CheckAttackStateChange();
         stat.contactDamage = dmagepool;
@@ -359,7 +355,6 @@ private void IsActiveColor(eActivableColor color)
     }
     private void ReturnMonster()
     {
-        Debug.Log("리턴");
         animState = EAnimState.IDLE;
         SetCurrentAnimation(animState);
         transform.position = Vector2.MoveTowards(transform.position, battlePos, stat.rushAttackSpeed * Time.deltaTime);
