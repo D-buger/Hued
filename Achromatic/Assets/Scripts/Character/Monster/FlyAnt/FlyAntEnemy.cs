@@ -130,7 +130,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         {
             StartCoroutine(Rush());
         }
-        Debug.Log(distanceToMonsterStartPos);
     }
     private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
     {
@@ -244,9 +243,15 @@ private void IsActiveColor(eActivableColor color)
             SetAttackState(EMonsterAttackState.isFirstAttack, false);
         }
 
-        if (canAttack && !attackState.HasFlag(EMonsterAttackState.IsAttack))
+        if (canAttack && !attackState.HasFlag(EMonsterAttackState.IsAttack) && distanceToPlayer <= stat.enemyRoamingRange)
         {
             StartCoroutine(AttackSequence(PlayerPos));
+        }
+        else if (canAttack && !attackState.HasFlag(EMonsterAttackState.IsAttack))
+        {
+            SetState(EMonsterState.isBattle, false);
+            SetState(EMonsterState.isWait, true);
+            CheckStateChange();
         }
     }
     private IEnumerator AttackSequence(Vector2 attackAngle)
@@ -265,7 +270,7 @@ private void IsActiveColor(eActivableColor color)
         }
         animState = EAnimState.DETECTION;
         SetCurrentAnimation(animState);
-        yield return Yields.WaitSeconds(1.33f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
+        yield return Yields.WaitSeconds(1.33f);
         float zAngle = 0;
         int checkRandomAttackType = 40;//UnityEngine.Random.Range(1, 101);
         if (checkRandomAttackType < 50)
@@ -274,7 +279,7 @@ private void IsActiveColor(eActivableColor color)
         }
         else
         {
-            StabThrowAttack(); // 창 던지기 공격
+            SpearThrowAttack(); // 창 던지기 공격
             Debug.Log("창 던지기");
         }
 
@@ -288,17 +293,19 @@ private void IsActiveColor(eActivableColor color)
         Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
         animState = EAnimState.CHARGEREADY;
         SetCurrentAnimation(animState);
-        yield return Yields.WaitSeconds(1.5f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
+        yield return Yields.WaitSeconds(stat.rushReadyAnimaionDuration);
+
         targetPos = new(PlayerPos.x, PlayerPos.y);
         int checkRandomAttackType = 60;//UnityEngine.Random.Range(1, 101);
         int dmagepool = stat.contactDamage;
         yield return Yields.WaitSeconds(stat.flyAntAttackDelay);
+
         stat.contactDamage = stat.rushAttackDamage;
         animState = EAnimState.CHARGE;
         SetCurrentAnimation(animState);
-        yield return Yields.WaitSeconds(0.3f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
+        yield return Yields.WaitSeconds((float)jsonObject["animations"]["FA/chage/charge"]["events"][0]["time"]);
+
         zAngle = (Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
-        Debug.Log(zAngle);
         if (attackDirection.x <= 0)
         {
             transform.localScale = new Vector2(1, 1);
@@ -331,6 +338,7 @@ private void IsActiveColor(eActivableColor color)
             if (isDoubleBadyAttack)
             {
                 targetPos = new(PlayerPos.x, PlayerPos.y);
+                isDoubleBadyAttack = false;
                 SetAttackState(EMonsterAttackState.isBadyAttack, true);
                 if (attackDirection.x <= 0)
                 {
@@ -343,11 +351,17 @@ private void IsActiveColor(eActivableColor color)
                     transform.rotation = Quaternion.Euler(1, 1, -30);
                 }
                 yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
+                animState = EAnimState.CHARGEFINISH;
+                SetCurrentAnimation(animState);
                 isDoubleBadyAttack = false;
+                yield return Yields.WaitSeconds(1.167f); //FIX 매직넘버
             }
             else
             {
                 SetAttackState(EMonsterAttackState.isBadyAttack, false);
+                animState = EAnimState.CHARGEFINISH;
+                SetCurrentAnimation(animState);
+                yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
                 SetAttackState(EMonsterAttackState.isReturnEnemy, true);
                 isReturnStop = false;
             }
@@ -365,7 +379,7 @@ private void IsActiveColor(eActivableColor color)
             canAttack = true;
         }
     }
-    private void StabThrowAttack()
+    private void SpearThrowAttack()
     {
         Vector2 dir = new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y);
         float ZAngle = (Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);

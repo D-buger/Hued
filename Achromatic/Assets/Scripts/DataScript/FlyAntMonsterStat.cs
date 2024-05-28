@@ -10,6 +10,8 @@ public class FlyAntMonsterStat : MonsterStat
     public float rushAttackSpeed = 1.0f;
     [Tooltip("돌진 데미지")]
     public int rushAttackDamage = 5;
+    [Tooltip("돌진 준비 애니메이션 시간")]
+    public float rushReadyAnimaionDuration = 1.5f;
     [Tooltip("연속 돌진이 딜레이되는 시간")]
     public float rushAttackDelay = 1.0f;
     [Tooltip("연속 돌진까지 걸리는 시간")]
