@@ -16,7 +16,7 @@ MonoBehaviour:
   currentHP: 10
   playerHP: 10
   moveSpeed: 7
-  jumpPower: 20
+  jumpPower: 25
   jumpCooldown: 1.2
   koyoteTime: 0.15
   airHangTime: 0.1
