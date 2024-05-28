@@ -394,9 +394,9 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
             yield return Yields.WaitSeconds(stat.attackTime);
             currentState &= ~EMonsterAttackState.ISATTACK;
+            yield return Yields.WaitSeconds(stat.attackCooldown);
             animState = EAnimState.BATTLEIDLE;
             SetCurrentAnimation(animState);
-            yield return Yields.WaitSeconds(stat.attackCooldown);
             canAttack = true;
         }
     }
