@@ -8,9 +8,11 @@ public class PlayerHitState : PlayerBaseState
 
     private Color originalRendererColor;
     private Color hitChangeColor = Color.black;
+
+    private float hitAnimationTimescale = 0.5f;
     public PlayerHitState(Player player) : base(player)
     {
-        originalRendererColor = player.RendererComp.material.color;
+        //originalRendererColor = player.RendererComp.material.color;
     }
 
     public override void OnStateEnter()
@@ -38,9 +40,9 @@ public class PlayerHitState : PlayerBaseState
         player.CanChangeState = false;
         player.IsInvincibility = true;
 
-        //TODO : Hit Animation
+        player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.HIT_ANIMATIONS[Random.Range(0, PlayerAnimationNameCaching.HIT_ANIMATIONS.Length)], false).TimeScale = hitAnimationTimescale;
         player.ControlParticles(ePlayerState.HIT, true);
-        player.RendererComp.material.color = hitChangeColor;
+        //player.RendererComp.material.color = hitChangeColor;
 
         player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
         PlayManager.Instance.cameraManager.ShakeCamera(reboundTime);
@@ -54,7 +56,7 @@ public class PlayerHitState : PlayerBaseState
             else
             {
                 elapsedTime += Time.deltaTime;
-                player.RendererComp.material.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
+                //player.RendererComp.material.color = Vector4.Lerp(hitChangeColor, originalRendererColor, elapsedTime / reboundTime);
 
                 yield return null;
             }
@@ -64,7 +66,7 @@ public class PlayerHitState : PlayerBaseState
         if (!ReferenceEquals(player.RendererComp, null))
         {
             player.ControlParticles(ePlayerState.HIT, false);
-            player.RendererComp.material.color = originalRendererColor;
+            //player.RendererComp.material.color = originalRendererColor;
         }
 
         player.CanChangeState = true;

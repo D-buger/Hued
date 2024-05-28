@@ -24,8 +24,41 @@ MonoBehaviour:
     multiplyMaterials: []
     screenMaterials: []
   skeletonDataModifiers: []
-  fromAnimation: []
-  toAnimation: []
-  duration: []
+  fromAnimation:
+  - move/randing
+  - battle/attack/slash/slash_bottom
+  - battle/attack/slash/slash_side_1
+  - battle/attack/slash/slash_side_2
+  - battle/attack/slash/slash_top
+  - dash/dash/dash_down
+  - dash/dash/dash_left
+  - dash/dash/dash_up
+  - dash/dash/dash_up
+  - dash/dash/dash_left
+  - dash/dash/dash_down
+  toAnimation:
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - idle
+  - idle
+  - idle
+  duration:
+  - 0.1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   defaultMix: 0.2
   controller: {fileID: 0}

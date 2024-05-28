@@ -23,7 +23,7 @@ public class Player : MonoBehaviour, IAttack
     public Rigidbody2D RigidbodyComp { get; private set; }
     public BoxCollider2D ColliderComp { get; private set; }
     public MeshRenderer RendererComp { get; private set; }
-    //public Animator AnimatorComp { get; private set; }
+    public SkeletonAnimation AnimationComp { get; private set; }
     public CameraFollowObject CameraObject { get; set; }
 
     [SerializeField]
@@ -86,15 +86,16 @@ public class Player : MonoBehaviour, IAttack
     public bool ParryCondition { get; set; } = false;
     public bool IsCriticalAttack{ get; set; } = false;
     public bool OnGround { get; private set; }
-    public float footOffGroundTime { get; set; } = 0f;
     public bool PlayerFaceRight { get; set; } = true;
+    public float footOffGroundTime { get; set; } = 0f;
 
     public Collision2D ParryDashCollision { get; set; }
     public LayerMask GroundLayer { get; private set; }
+
+    private bool randTrigger = false;
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
 
-    private SkeletonAnimation skeletonAnimation;
     private void Awake()
     {
         playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
@@ -102,7 +103,7 @@ public class Player : MonoBehaviour, IAttack
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<BoxCollider2D>();
         RendererComp = GetComponent<MeshRenderer>();
-        skeletonAnimation = GetComponent<SkeletonAnimation>();
+        AnimationComp = GetComponentInChildren<SkeletonAnimation>();
         CameraObject = FindObjectOfType<CameraFollowObject>();
 
         GameObject effects = transform.GetChild(1).gameObject;
@@ -156,7 +157,7 @@ public class Player : MonoBehaviour, IAttack
 
         UISystem.Instance?.hpSliderEvent?.Invoke(CurrentHP);
 
-        skeletonAnimation.AnimationState.SetAnimation(0, "move/run", true);
+        AnimationComp.AnimationState.SetAnimation(5, PlayerAnimationNameCaching.SWORD_ONOFF_ANIMATION[0], true);
     }
 
     private void Update()
@@ -168,6 +169,12 @@ public class Player : MonoBehaviour, IAttack
         RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
         OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
         footOffGroundTime = OnGround ? 0 : footOffGroundTime + Time.deltaTime;
+        randTrigger = OnGround ? randTrigger : true;
+        if (randTrigger && OnGround)
+        {
+            randTrigger = false;
+            AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.RANDING_ANIMATION, false);
+        }
 
         if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold
             && !CameraManager.Instance.IsLerpingYDamping

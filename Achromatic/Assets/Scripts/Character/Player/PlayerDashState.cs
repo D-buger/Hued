@@ -17,9 +17,12 @@ public class PlayerDashState : PlayerBaseState
 
     private Vector2 dashDirection;
 
-    float originGravityScale;
-    float originLiniearDrag;
-    float originMass;
+    private float originGravityScale;
+    private float originLiniearDrag;
+    private float originMass;
+
+    private float dashAnimationTimeScale = 0.5f;
+    private int dashAnimationLayer = 1;
     public PlayerDashState(Player player) : base(player)
     {
         originGravityScale = player.RigidbodyComp.gravityScale;
@@ -73,14 +76,14 @@ public class PlayerDashState : PlayerBaseState
 
         player.RigidbodyComp.velocity = dashPos.normalized * player.GetPlayerStat.dashPower;
 
-        //TODO : Dash Start Trigger
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
+        CheckDirectionAndPlayAnimation(Mathf.Atan2(dashPos.y, dashPos.x) * Mathf.Rad2Deg);
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashingTime);
         TogglePhysics(true);
 
         player.ControlParticles(ePlayerState.DASH, false);
-        //TODO : Dash End Trigger
+        player.AnimationComp.AnimationState.SetEmptyAnimation(dashAnimationLayer, 0);
         isParry = player.ParryCondition;
         if (isParry)
         {
@@ -114,7 +117,8 @@ public class PlayerDashState : PlayerBaseState
         player.IsInvincibility = true;
 
         Time.timeScale = player.GetPlayerStat.parryProduceTimescale;
-        //TODO : Parry Animation
+        player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.PARRY_ANIMATION, false);
+        player.AnimationComp.AnimationState.AddEmptyAnimation(dashAnimationLayer, 0, 0);
         player.ControlParticles(ePlayerState.DASH ,true, 1);
         yield return Yields.WaitSeconds(player.GetPlayerStat.parryProduceTime);
         Time.timeScale = 1f;
@@ -144,7 +148,7 @@ public class PlayerDashState : PlayerBaseState
 
         player.RigidbodyComp.velocity = dashPos.normalized * player.GetPlayerStat.parryDashPower;
 
-        //TODO : Dash Animation
+        CheckDirectionAndPlayAnimation(Mathf.Atan2(dashPos.y, dashPos.x) * Mathf.Rad2Deg);
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.parryDashTime);
@@ -165,8 +169,9 @@ public class PlayerDashState : PlayerBaseState
             }
             player.ParryDashCollision = null;
         }
-        player.ColliderComp.forceReceiveLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        player.ColliderComp.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
+        player.AnimationComp.AnimationState.SetEmptyAnimation(dashAnimationLayer, 0);
+        player.ColliderComp.forceReceiveLayers |= LayerMask.GetMask(PlayManager.ENEMY_TAG);
+        player.ColliderComp.forceSendLayers |= LayerMask.GetMask(PlayManager.ENEMY_TAG);
 
         player.ControlParticles(ePlayerState.DASH, false);
         player.IsParryDash = false;
@@ -192,6 +197,27 @@ public class PlayerDashState : PlayerBaseState
             player.RigidbodyComp.gravityScale = 0f;
             player.RigidbodyComp.drag = 0;
             player.RigidbodyComp.mass = 0;
+        }
+    }
+    private void CheckDirectionAndPlayAnimation(float angle)
+    {
+        angle += 180;
+        if (angle > 135 && angle <= 225) // right
+        {
+            player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.DASH_ANIMATION[0], false).TimeScale = dashAnimationTimeScale;
+        }
+        else if (angle > 225 && angle <= 315) // up
+        {
+            player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.DASH_ANIMATION[1], false).TimeScale = dashAnimationTimeScale;
+        }
+        else if (angle > 315 && angle <= 360 ||
+            angle > 0 && angle <= 45) // left
+        {
+            player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.DASH_ANIMATION[0], false).TimeScale = dashAnimationTimeScale;
+        }
+        else if (angle > 45 && angle <= 135) // down
+        {
+            player.AnimationComp.AnimationState.SetAnimation(dashAnimationLayer, PlayerAnimationNameCaching.DASH_ANIMATION[2], false).TimeScale = dashAnimationTimeScale;
         }
     }
 

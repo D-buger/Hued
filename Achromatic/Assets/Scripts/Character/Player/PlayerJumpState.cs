@@ -41,7 +41,7 @@ public class PlayerJumpState : PlayerBaseState
         float airHangedTime = -1;
         float oriGravityValue = player.RigidbodyComp.gravityScale;
         bool passedAirHangTime = false;
-        //TODO : Jump Animation
+        player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.JUMP_ANIMATION[0], false);
         player.RigidbodyComp.AddForce(Vector2.up * player.GetPlayerStat.jumpPower, ForceMode2D.Impulse);
         while (true)
         {
@@ -49,6 +49,7 @@ public class PlayerJumpState : PlayerBaseState
 
             if (!passedAirHangTime)
             {
+                player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.JUMP_ANIMATION[1], false);
                 if (player.RigidbodyComp.velocity.y <= 0 && airHangedTime < 0)
                 {
                     airHangedTime = elapsedTime;

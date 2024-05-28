@@ -1,3 +1,4 @@
+using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -14,7 +15,9 @@ public class PlayerAttackState : PlayerBaseState
 
     private Vector2 attackAngle;
     private bool canAttack = true;
-
+    private bool sideAttackFormChangeTrigger = false;
+    private float attackSideAnimationTimeScale = 1.5f;
+    private int attackAnimationLayer = 2;
     public PlayerAttackState(Player player, GameObject atkPnt) : base(player) 
     {
         attackPoint = atkPnt;
@@ -37,7 +40,6 @@ public class PlayerAttackState : PlayerBaseState
     {
         if (canAttack)
         {
-            //TODO : Attack animation
             attackCoroutine = CoroutineHandler.StartCoroutine(AttackSequence());
         }
         player.ChangePrevState();
@@ -57,6 +59,7 @@ public class PlayerAttackState : PlayerBaseState
         float VerticalValue = attackAngle.y - player.transform.position.y;
 
         angle = Mathf.Atan2(VerticalValue, horizontalValue) * Mathf.Rad2Deg;
+        CheckDirectionAndPlayAnimation(angle);
         attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
         Vector2 angleVec = new Vector2(attackAngle.x - player.transform.position.x, attackAngle.y - player.transform.position.y);
 
@@ -76,6 +79,31 @@ public class PlayerAttackState : PlayerBaseState
 
         yield return Yields.WaitSeconds(player.GetPlayerStat.attackCooldown);
         canAttack = true;
+    }
+
+    private void CheckDirectionAndPlayAnimation(float angle)
+    {
+        angle += 180;
+        if (angle > 135 && angle <= 225) // right
+        {
+            sideAttackFormChangeTrigger = !sideAttackFormChangeTrigger;
+            player.AnimationComp.AnimationState.SetAnimation(attackAnimationLayer, PlayerAnimationNameCaching.ATTACK_ANIMATION[0, sideAttackFormChangeTrigger ? 0 : 1], false).TimeScale = attackSideAnimationTimeScale;
+        }
+        else if (angle > 225 && angle <= 315) // up
+        {
+            player.AnimationComp.AnimationState.SetAnimation(attackAnimationLayer, PlayerAnimationNameCaching.ATTACK_ANIMATION[1, 0], false);
+        }
+        else if (angle > 315 && angle <= 360 ||
+            angle > 0 && angle <= 45) // left
+        {
+            sideAttackFormChangeTrigger = !sideAttackFormChangeTrigger;
+            player.AnimationComp.AnimationState.SetAnimation(attackAnimationLayer, PlayerAnimationNameCaching.ATTACK_ANIMATION[0, sideAttackFormChangeTrigger ? 0 : 1], false).TimeScale = attackSideAnimationTimeScale;
+        }
+        else if (angle > 45 && angle <= 135) // down
+        {
+            player.AnimationComp.AnimationState.SetAnimation(attackAnimationLayer, PlayerAnimationNameCaching.ATTACK_ANIMATION[2, 0], false);
+        }
+        player.AnimationComp.state.AddEmptyAnimation(attackAnimationLayer, 0, 0f);
     }
 
     public override void OnStateFixedUpdate()
