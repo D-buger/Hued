@@ -1,27 +1,67 @@
+using Newtonsoft.Json.Linq;
+using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using Unity.VisualScripting;
+using UnityEditor.ShaderGraph.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEngine.Rendering.DebugUI;
+using Color = UnityEngine.Color;
 
-public class FlyAntEnemy : Monster
+public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
 {
     private MonsterFSM fsm;
-
     private Rigidbody2D rigid;
     private GameObject attackPoint;
+    private Projectile projectile;
     private Attack meleeAttack;
+
     [SerializeField]
     private GameObject attackTransform;
     [SerializeField]
+    private GameObject rushAttackObject;
+    [SerializeField]
     private FlyAntMonsterStat stat;
-    private Projectile projectile;
-    private Vector2 attackDir;
-    private Vector2 startPos;
-    private float deadDelayTime = 1.3f;
+    [SerializeField]
+    private JObject jsonObject;
+    private Vector2 targetPos;
+    private Vector2 battlePos;
+    public Vector2 startFlyAntPosition;
 
     public UnityEvent<eActivableColor> flyAntColorEvent;
 
+    private LayerMask originLayer;
+    private LayerMask colorVisibleLayer;
+
+    private float deadDelayTime = 1.3f;
+
     private bool isHeavy = false;
+    private bool isDoubleBadyAttack = false;
+    private bool isReturnStop = false;
+
+    public enum EAnimState
+    {
+        DETECTION,
+        IDLE,
+        WALK,
+        CHARGEREADY,
+        CHARGE,
+        CHARGEIDLE,
+        CHARGEFINISH
+    }
+    [Header("Animation")]
+    [SerializeField]
+    private EAnimState animState;
+    [SerializeField]
+    private SkeletonAnimation skeletonAnimation;
+    [SerializeField]
+    private AnimationReferenceAsset[] aniClip;
+    [SerializeField]
+    private TextAsset animationJson;
+    private string currentAnimation;
+
     private enum EMonsterAttackState
     {
         None = 0,
@@ -30,42 +70,135 @@ public class FlyAntEnemy : Monster
         isReturnEnemy = 3 << 0,
         isFirstAttack = 4 << 0,
     }
-    private EMonsterAttackState currentState = EMonsterAttackState.None;
+    [SerializeField]
+    private EMonsterAttackState attackState = EMonsterAttackState.isFirstAttack;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
-    private void CheckIsHeavy(eActivableColor color)
+    private void Awake()
     {
-        if (color == stat.enemyColor)
-        {
-            isHeavy = false;
-        }
-        flyAntColorEvent?.Invoke(color);
+        fsm = GetComponent<MonsterFSM>();
+        rigid = GetComponent<Rigidbody2D>();
+        attackPoint = transform.GetChild(0).gameObject;
+        meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
 
     private void OnEnable()
     {
-        attackDir = (PlayerPos - (Vector2)transform.position).normalized;
-        startPos = new Vector2(transform.position.x, transform.position.y);
+        currentHP = stat.MonsterHP;
+        SetState(EMonsterState.isWait, true);
+        isDead = false;
+        CheckStateChange();
     }
     private void Start()
     {
+        monsterStartPos = transform.position;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
+
+        runPosition = stat.enemyRoamingRange;
+
+        monsterRunleftPosition.y = transform.position.y;
+        monsterRunRightPosition.y = transform.position.y;
+        monsterRunleftPosition.x += transform.position.x + runPosition;
+        monsterRunRightPosition.x += transform.position.x - runPosition;
+
+        PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
+        PlayManager.Instance.UpdateColorthing();
+        monsterPosition = monsterRunRightPosition;
+        startFlyAntPosition = new Vector2(transform.position.x, transform.position.y);
+
+        originLayer = LayerMask.GetMask("Enemy");
+        colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
+
+        if (animationJson is not null)
+        {
+            jsonObject = JObject.Parse(animationJson.text);
+        }
     }
     private void Update()
     {
-        if (currentState.HasFlag(EMonsterAttackState.isBadyAttack))
+        distanceToMonsterStartPos = Vector2.Distance(transform.position, monsterStartPos);
+        StartCoroutine(CheckPlayer(startFlyAntPosition));
+        if (IsStateActive(EMonsterState.isBattle))
         {
-            Rush(attackDir);
+            Attack();
         }
-        if (currentState.HasFlag(EMonsterAttackState.isReturnEnemy))
+        if (attackState.HasFlag(EMonsterAttackState.isReturnEnemy) && !isReturnStop)
         {
             ReturnMonster();
         }
+        if (attackState.HasFlag(EMonsterAttackState.isBadyAttack) && !attackState.HasFlag(EMonsterAttackState.isReturnEnemy))
+        {
+            StartCoroutine(Rush());
+        }
+        Debug.Log(distanceToMonsterStartPos);
     }
+    private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)
+    {
+        if (animClip.name.Equals(currentAnimation))
+        {
+            return;
+        }
+        skeletonAnimation.state.SetAnimation(0, animClip, loop).TimeScale = timeScale;
+        skeletonAnimation.loop = loop;
+        skeletonAnimation.timeScale = timeScale;
+        currentAnimation = animClip.name;
+    }
+    private void SetCurrentAnimation(EAnimState _state)
+    {
+        float timeScale = 1;
+        switch (_state)
+        {
+            case EAnimState.DETECTION:
+                AsyncAnimation(aniClip[(int)EAnimState.DETECTION], false, timeScale);
+                break;
+            case EAnimState.IDLE:
+                AsyncAnimation(aniClip[(int)EAnimState.IDLE], true, timeScale);
+                break;
+            case EAnimState.WALK:
+                AsyncAnimation(aniClip[(int)EAnimState.WALK], true, timeScale);
+                break;
+            case EAnimState.CHARGEREADY:
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGEREADY], false, timeScale);
+                break;
+            case EAnimState.CHARGE:
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGE], false, timeScale);
+                break;
+            case EAnimState.CHARGEIDLE:
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGEIDLE], true, timeScale);
+                break;
+            case EAnimState.CHARGEFINISH:
+                AsyncAnimation(aniClip[(int)EAnimState.CHARGEFINISH], false, timeScale);
+                break;
+        }
+}
+private void IsActiveColor(eActivableColor color)
+    {
+        int newLayer = SOO.Util.LayerMaskToNumber((color == stat.enemyColor) ? colorVisibleLayer : originLayer);
+        newLayer -= 2;
+        gameObject.layer = newLayer;
+    }
+    public override IEnumerator CheckPlayer(Vector2 startMonsterPos)
+    {
+        distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
+        distanceToStartPos = Vector2.Distance(new(startMonsterPos.x, startMonsterPos.y - 5), PlayerPos);
 
+        if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        {
+            SetState(EMonsterState.isBattle, true);
+            SetState(EMonsterState.isWait, false);
+            elapsedTime = 0f;
+            CheckStateChange();
+        }
+        else
+        {
+            StartCoroutine(CheckWaitTime());
+        }
+        yield break;
+    }
     public override void WaitSituation()
     {
         currentHP = stat.MonsterHP;
+        SetAttackState(EMonsterAttackState.isFirstAttack, true);
         SetState(EMonsterState.isBattle, false);
         transform.position = Vector2.MoveTowards(transform.position, monsterPosition, stat.moveSpeed * Time.deltaTime);
         if (monsterPosition == monsterRunleftPosition)
@@ -85,82 +218,151 @@ public class FlyAntEnemy : Monster
             monsterPosition = monsterRunRightPosition;
         }
     }
+    public override IEnumerator CheckWaitTime()
+    {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= stat.waitStateDelay && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        {
+            elapsedTime = 0f;
+            SetState(EMonsterState.isWait, true);
+            SetState(EMonsterState.isPlayerBetween, false);
+            SetState(EMonsterState.isBattle, false);
+            CheckStateChange();
+        }
+        yield break;
+    }
     public override void Attack()
     {
-        if (canAttack && !currentState.HasFlag(EMonsterAttackState.IsAttack))
+        if (isDead)
+        {
+            return;
+        }
+
+        if (attackState.HasFlag(EMonsterAttackState.isFirstAttack))
+        {
+            battlePos = new(transform.position.x, transform.position.y);
+            SetAttackState(EMonsterAttackState.isFirstAttack, false);
+        }
+
+        if (canAttack && !attackState.HasFlag(EMonsterAttackState.IsAttack))
         {
             StartCoroutine(AttackSequence(PlayerPos));
-        }
-        else
-        {
-            Debug.Log("ErrorAttack");
-            return;
         }
     }
     private IEnumerator AttackSequence(Vector2 attackAngle)
     {
-        currentState |= EMonsterAttackState.IsAttack;
+        SetAttackState(EMonsterAttackState.IsAttack, true);
         canAttack = false;
-        float ZAngle = (Mathf.Atan2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y) * Mathf.Rad2Deg);
 
-        Vector2 value = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
-        Vector2 check;
-        if (value.x <= 0)
+        Vector2 monsterMoveDirection = attackAngle - (Vector2)transform.position;
+        if (monsterMoveDirection.x <= 0)
         {
             transform.localScale = new Vector2(1, 1);
-            check = new Vector2(-1f, 0);
         }
         else
         {
             transform.localScale = new Vector2(-1, 1);
-            check = new Vector2(1f, 0);
         }
-
-        if (currentState.HasFlag(EMonsterAttackState.isFirstAttack))
+        animState = EAnimState.DETECTION;
+        SetCurrentAnimation(animState);
+        yield return Yields.WaitSeconds(1.33f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
+        float zAngle = 0;
+        int checkRandomAttackType = 40;//UnityEngine.Random.Range(1, 101);
+        if (checkRandomAttackType < 50)
         {
-            int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
-            if (checkRandomAttackType < 50)
-            {
-                StartCoroutine(BadyAttack(attackDir));
-            }
-            else
-            {
-                StabThrowAttack();
-            }
-        }
-
-        yield return Yields.WaitSeconds(stat.attackCooldown);
-        currentState &= ~EMonsterAttackState.IsAttack;
-        meleeAttack?.AttackDisable();
-    }
-
-    private IEnumerator BadyAttack(Vector2 direction)
-    {
-        int checkRandomAttackType = UnityEngine.Random.Range(1, 100);
-        yield return Yields.WaitSeconds(stat.flyAntAttackDelay);
-        meleeAttack.AttackEnable(direction, stat.badyAttackDamage, stat.badyAttackDamage);
-        if (checkRandomAttackType > stat.doubleBadyAttackPer)
-        {
-            currentState |= EMonsterAttackState.isBadyAttack;
-            yield return Yields.WaitSeconds(stat.flyAntAttackDelay);
-            currentState |= EMonsterAttackState.isBadyAttack;
+            StartCoroutine(RushAttack(zAngle)); // 돌진 공격
         }
         else
         {
-            currentState |= EMonsterAttackState.isBadyAttack;
+            StabThrowAttack(); // 창 던지기 공격
+            Debug.Log("창 던지기");
         }
-        while (canAttack)
+
+        yield return Yields.WaitSeconds(stat.attackCooldown);
+        SetAttackState(EMonsterAttackState.IsAttack, false);
+        meleeAttack?.AttackDisable();
+    }
+
+    private IEnumerator RushAttack(float zAngle)
+    {
+        Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
+        animState = EAnimState.CHARGEREADY;
+        SetCurrentAnimation(animState);
+        yield return Yields.WaitSeconds(1.5f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
+        targetPos = new(PlayerPos.x, PlayerPos.y);
+        int checkRandomAttackType = 60;//UnityEngine.Random.Range(1, 101);
+        int dmagepool = stat.contactDamage;
+        yield return Yields.WaitSeconds(stat.flyAntAttackDelay);
+        stat.contactDamage = stat.rushAttackDamage;
+        animState = EAnimState.CHARGE;
+        SetCurrentAnimation(animState);
+        yield return Yields.WaitSeconds(0.3f); //FIX 현재 FlyAntJson 상태가 이상해서 확인중. 추후 JSON파싱으로 변경
+        zAngle = (Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
+        Debug.Log(zAngle);
+        if (attackDirection.x <= 0)
         {
-            yield return Yields.WaitSeconds(0.1f); // FIX stat에 추가
+            transform.localScale = new Vector2(1, 1);
+            transform.rotation = Quaternion.Euler(1, 1, 40);
+        }
+        else
+        {
+            transform.localScale = new Vector2(-1, 1);
+            transform.rotation = Quaternion.Euler(1, 1, -40);
+        }
+        if (checkRandomAttackType > stat.doubleBadyAttackPercent)
+        {
+            SetAttackState(EMonsterAttackState.isBadyAttack, true);
+            isDoubleBadyAttack = true;
+            isReturnStop = true;
+        }
+        else
+        {
+            SetAttackState(EMonsterAttackState.isBadyAttack, true);
+        }
+        CheckAttackStateChange();
+        stat.contactDamage = dmagepool;
+    }
+    private IEnumerator Rush()
+    {
+        transform.position = Vector2.MoveTowards(transform.position, targetPos, stat.rushAttackSpeed * Time.deltaTime);
+        if (Vector2.Distance(transform.position, targetPos) <= stat.returnPosValue)
+        {
+            Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
+            if (isDoubleBadyAttack)
+            {
+                targetPos = new(PlayerPos.x, PlayerPos.y);
+                SetAttackState(EMonsterAttackState.isBadyAttack, true);
+                if (attackDirection.x <= 0)
+                {
+                    transform.localScale = new Vector2(1, 1);
+                    transform.rotation = Quaternion.Euler(1, 1, 30);
+                }
+                else
+                {
+                    transform.localScale = new Vector2(-1, 1);
+                    transform.rotation = Quaternion.Euler(1, 1, -30);
+                }
+                yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
+                isDoubleBadyAttack = false;
+            }
+            else
+            {
+                SetAttackState(EMonsterAttackState.isBadyAttack, false);
+                SetAttackState(EMonsterAttackState.isReturnEnemy, true);
+                isReturnStop = false;
+            }
         }
     }
-    private void Rush(Vector2 direction)
+    private void ReturnMonster()
     {
-        transform.Translate(direction * stat.badyAttackSpeed * Time.deltaTime);
-        if (distanceToPlayer > stat.returnPosValue)
+        animState = EAnimState.IDLE;
+        SetCurrentAnimation(animState);
+        transform.position = Vector2.MoveTowards(transform.position, battlePos, stat.rushAttackSpeed * Time.deltaTime);
+        transform.rotation = Quaternion.Euler(1, 1, 1);
+        if (Vector2.Distance(transform.position, battlePos) <= stat.returnPosValue)
         {
-            currentState &= ~EMonsterAttackState.isBadyAttack;
-            currentState |= EMonsterAttackState.isReturnEnemy;
+            SetAttackState(EMonsterAttackState.isReturnEnemy, false);
+            canAttack = true;
         }
     }
     private void StabThrowAttack()
@@ -168,30 +370,20 @@ public class FlyAntEnemy : Monster
         Vector2 dir = new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y);
         float ZAngle = (Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(2);
-        if (projectileObj != null)
+        if (projectileObj is not null)
         {
             projectileObj.SetActive(true);
 
             SpearAttack projectile = projectileObj.GetComponent<SpearAttack>();
-            if (projectile != null)
+            if (projectile is not null)
             {
-                projectile.Shot(gameObject, attackTransform.transform.position, new Vector2(dir.x, dir.y).normalized,
-                    stat.stabThrowAttackRange, stat.stabThrowSpeed, stat.stabThrowDamage, ZAngle, eActivableColor.RED);
+                projectile.Shot(gameObject, attackTransform.transform.position, dir.normalized,
+                    stat.spearThrowAttackRange, stat.spearThrowSpeed, stat.spearThrowDamage, ZAngle, eActivableColor.RED);
                 projectileObj.transform.position = transform.position;
 
                 PlayManager.Instance.UpdateColorthing();
-                projectile.ReturnStartRoutine(stat.stabThrowAttackRange);
+                projectile.ReturnStartRoutine(stat.spearThrowAttackRange);
             }
-        }
-    }
-    private void ReturnMonster()
-    {
-        Vector2 returnDir = (startPos - (Vector2)transform.position).normalized;
-        transform.Translate(returnDir * stat.badyAttackSpeed * Time.deltaTime);
-        if (Vector2.Distance(transform.position, startPos) >= stat.returnPosValue)
-        {
-            currentState &= ~EMonsterAttackState.isReturnEnemy;
-            canAttack = true;
         }
     }
 
@@ -216,12 +408,89 @@ public class FlyAntEnemy : Monster
                 break;
             case EMonsterState.isWait:
                 fsm.ChangeState("Idle");
+                animState = EAnimState.IDLE;
+                SetCurrentAnimation(animState);
+                break;
+            default:
+                break;
+        }
+    }
+    private void CheckAttackStateChange()
+    {
+        switch (attackState)
+        {
+            case EMonsterAttackState.isBadyAttack:
+                animState = EAnimState.CHARGEIDLE;
+                SetCurrentAnimation(animState);
                 break;
             default:
                 break;
         }
     }
 
+    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    {
+        if (isDead)
+        {
+            return;
+        }
+        if (PlayManager.Instance.ContainsActivationColors(stat.enemyColor))
+        {
+            currentHP -= colorDamage;
+            rigid.AddForce(attackDir * stat.heavyHitReboundPower, ForceMode2D.Impulse);
+        }
+        else
+        {
+            currentHP -= damage;
+            rigid.AddForce(attackDir * stat.hitReboundPower, ForceMode2D.Impulse);
+        }
+
+        if (!isDead)
+        {
+            CheckDead();
+        }
+    }
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (!isDead)
+        {
+            if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
+            {
+                collision.gameObject.GetComponent<Player>().Hit(stat.contactDamage, stat.contactDamage,
+                        transform.position - collision.transform.position, null);
+            }
+        }
+    }
+    public bool CanParryAttack()
+    {
+        return PlayManager.Instance.ContainsActivationColors(stat.enemyColor);
+    }
+    private void SetAttackState(EMonsterAttackState eState, bool value)
+    {
+        if (value)
+        {
+            attackState |= eState;
+        }
+        else
+        {
+            attackState &= ~eState;
+        }
+    }
+    private void OnDrawmos()
+    {
+        if (stat is not null)
+        {
+            if (stat.senseCircle >= distanceToStartPos)
+            {
+                Gizmos.color = Color.red;
+            }
+            else
+            {
+                Gizmos.color = Color.green;
+            }
+            Gizmos.DrawCube(transform.position + transform.forward, stat.senseCube);
+        }
+    }
     //public override void Respawn(GameObject monsterPos, bool isRespawnMonster)
     //{
     //    throw new System.NotImplementedException();

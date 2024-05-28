@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: FlyAntMonsterStat
   m_EditorClassIdentifier: 
   monsterHP: 5
-  enemyColor: 0
+  enemyColor: 1
   senseCircle: 5
   moveSpeed: 1
+  runSpeed: 2
   attackDamage: 1
   attackTime: 0.3
   attackCooldown: 1
@@ -23,15 +24,23 @@ MonoBehaviour:
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
-  timeToWait: 1
+  waitStateDelay: 1
+  deadDelay: 1.33
+  attackDelay: 1.33
+  projectileAngleByHeight: 0.22
+  projectileZAngleByHeight: 0
+  enemyRoamingRange: 15
+  discoveryDuration: 1
+  senseCube: {x: 2, y: 2, z: 0}
   flyAntAttackDelay: 1
-  badyAttackSpeed: 1
-  badyAttackDamage: 5
-  repeatBadyAttackTime: 1
-  stabThrowSpeed: 50
-  stabThrowDamage: 7
-  stabThrowReturnDamage: 4
-  stabThrowReturnSpeed: 50
-  stabThrowAttackRange: 6
-  doubleBadyAttackPer: 50
+  rushAttackSpeed: 6
+  rushAttackDamage: 5
+  rushAttackDelay: 1
+  doubleRushAttackBetweenDelay: 1
+  spearThrowSpeed: 50
+  spearThrowDamage: 7
+  spearThrowReturnDamage: 4
+  spearThrowReturnSpeed: 50
+  spearThrowAttackRange: 6
+  doubleBadyAttackPercent: 50
   returnPosValue: 0.3

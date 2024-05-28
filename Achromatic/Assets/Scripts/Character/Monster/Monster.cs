@@ -3,20 +3,23 @@ using UnityEngine;
 
 public abstract class Monster : MonoBehaviour, IAttack
 {
-    protected MonsterStat baseStat;
+    private MonsterStat baseStat;
     protected int currentHP;
 
     protected Vector2 monsterRunleftPosition;
     protected Vector2 monsterRunRightPosition;
     protected Vector2 monsterPosition;
+    protected Vector2 monsterStartPos;
     protected float distanceToPlayer;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
+    [HideInInspector]
     public float runPosition;
 
     protected float elapsedTime = 0;
     private float arrivalThreshold = 1f;
     protected float distanceToStartPos = 0;
+    protected float distanceToMonsterStartPos;
     protected int DeadMass = 100;
     protected int originalMass = 6;
     protected bool isDead = false;

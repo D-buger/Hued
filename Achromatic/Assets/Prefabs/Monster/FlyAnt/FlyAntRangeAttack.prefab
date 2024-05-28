@@ -75,7 +75,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1451512267
-  m_SortingLayer: 3
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 6a17c4733afca6a4abf803f26c3ed9fc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -194,4 +194,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stat: {fileID: 11400000, guid: 5c73b307a2101324e9bc3da0a6f9267e, type: 2}
-  flyAntMonster: {fileID: 6030824525999747806, guid: 214aa073035419644bef68168e6fa07f, type: 3}
+  flyAntMonster: {fileID: 2593968587204008439, guid: ca8b6950b2962ac4aab7049aa81502a5, type: 3}
