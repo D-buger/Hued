@@ -45,4 +45,4 @@ MonoBehaviour:
   earthAttackDelay: 0.3
   specialAttackPercent: 60
   rangedAttackPercent: 50
-  rushGroundAttackRange: 20
+  rushGroundAttackRange: 60

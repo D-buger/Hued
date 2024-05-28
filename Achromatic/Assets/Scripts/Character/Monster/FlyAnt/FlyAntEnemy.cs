@@ -361,6 +361,7 @@ private void IsActiveColor(eActivableColor color)
                 SetAttackState(EMonsterAttackState.isBadyAttack, false);
                 animState = EAnimState.CHARGEFINISH;
                 SetCurrentAnimation(animState);
+                transform.rotation = Quaternion.Euler(1, 1, 1);
                 yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
                 SetAttackState(EMonsterAttackState.isReturnEnemy, true);
                 isReturnStop = false;
