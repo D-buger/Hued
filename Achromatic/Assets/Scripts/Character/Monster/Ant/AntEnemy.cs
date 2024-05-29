@@ -112,6 +112,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private void Start()
     {
+        skeletonAnimation.state.SetAnimation(0, "ground_ant/ground_ant_nomal/ground_ant_idle", false);
         runPosition = stat.enemyRoamingRange;
         originalMoveSpeed = stat.moveSpeed;
         originalRunSpeed = stat.runSpeed;

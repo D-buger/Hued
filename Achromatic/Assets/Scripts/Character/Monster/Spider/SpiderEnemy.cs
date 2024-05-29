@@ -90,6 +90,8 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
+        skeletonAnimation.state.SetAnimation(0, "spider_move", false);
+
         monsterStartPos = transform.position;
         runPosition = stat.enemyRoamingRange;
 

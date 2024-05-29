@@ -54,6 +54,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     [Header("Animation")]
     [SerializeField]
     private EAnimState animState;
+
     [SerializeField]
     private SkeletonAnimation skeletonAnimation;
     [SerializeField]
@@ -91,6 +92,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
+        skeletonAnimation.state.SetAnimation(0, "FA/idle", false);
+
         monsterStartPos = transform.position;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
@@ -109,6 +112,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         originLayer = LayerMask.GetMask("Enemy");
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
 
+        SetCurrentAnimation(animState);
         if (animationJson is not null)
         {
             jsonObject = JObject.Parse(animationJson.text);
@@ -354,12 +358,15 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 SetAttackState(EMonsterAttackState.isBadyAttack, true);
                 animState = EAnimState.CHARGEIDLE;
                 SetCurrentAnimation(animState);
+                attackDirection = PlayerPos - (Vector2)transform.position;
                 if (attackDirection.x <= 0)
                 {
+                    transform.localScale = new Vector2(1, 1);
                     transform.rotation = Quaternion.Euler(1, 1, 30);
                 }
                 else
                 {
+                    transform.localScale = new Vector2(-1, 1);
                     transform.rotation = Quaternion.Euler(1, 1, -30);
                 }
                 rigid.gravityScale = 1;
@@ -437,8 +444,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 break;
             case EMonsterState.isWait:
                 fsm.ChangeState("Idle");
-                animState = EAnimState.IDLE;
-                SetCurrentAnimation(animState);
                 break;
             default:
                 break;
