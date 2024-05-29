@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58ba5025e47eaee498ec494316569f79, type: 3}
   m_Name: FlyAntMonsterStat
   m_EditorClassIdentifier: 
-  monsterHP: 5
+  monsterHP: 6
   enemyColor: 1
   senseCircle: 5
   moveSpeed: 1
@@ -20,7 +20,7 @@ MonoBehaviour:
   attackDamage: 1
   attackTime: 0.3
   attackCooldown: 1
-  contactDamage: 1
+  contactDamage: 2
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5

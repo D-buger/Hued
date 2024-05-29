@@ -563,6 +563,26 @@ PrefabInstance:
       propertyPath: m_LinearDrag
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 8285406627207824024, guid: 162e220705acf854cb6dc1113b2a7123, type: 3}
+      propertyPath: animationJson
+      value: 
+      objectReference: {fileID: 4900000, guid: d92f40200f2bf42478c1d63cc9917549, type: 3}
+    - target: {fileID: 8285406627207824024, guid: 162e220705acf854cb6dc1113b2a7123, type: 3}
+      propertyPath: aniClip.Array.size
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8285406627207824024, guid: 162e220705acf854cb6dc1113b2a7123, type: 3}
+      propertyPath: aniClip.Array.data[7]
+      value: 
+      objectReference: {fileID: 11400000, guid: f120016a451b2504684704a09ce8e825, type: 2}
+    - target: {fileID: 8285406627207824024, guid: 162e220705acf854cb6dc1113b2a7123, type: 3}
+      propertyPath: aniClip.Array.data[8]
+      value: 
+      objectReference: {fileID: 11400000, guid: 4640fb9add2902745924a1372374149f, type: 2}
+    - target: {fileID: 8285406627207824024, guid: 162e220705acf854cb6dc1113b2a7123, type: 3}
+      propertyPath: aniClip.Array.data[9]
+      value: 
+      objectReference: {fileID: 11400000, guid: 1bbad2f9edf339943a0c48247935b10d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

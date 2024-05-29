@@ -123,6 +123,10 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     {
         distanceToMonsterStartPos = Vector2.Distance(transform.position, monsterStartPos);
         StartCoroutine(CheckPlayer(startSpiderPosition));
+        if (isDead)
+        {
+            return;
+        }    
         if (canAttack && IsStateActive(EMonsterState.isBattle))
         {
             Attack();
