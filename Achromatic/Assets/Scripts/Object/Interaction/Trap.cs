@@ -50,12 +50,11 @@ public class Trap : MonoBehaviour
                         smallDistanceIndex = i;
                     }
                 }
-                Debug.Log(collision.gameObject.name);
                 CameraManager.Instance.CameraFade(cameraFadeTime, 0,
                     () =>
                     {
-                        Debug.Log(collision.gameObject.name);
-                        collision.gameObject.transform.position = goBackPosition[smallDistanceIndex];
+                        PlayManager.Instance.GetPlayer.transform.position = goBackPosition[smallDistanceIndex];
+                        
                     });
             }
         }
@@ -66,7 +65,7 @@ public class Trap : MonoBehaviour
         if (collision.gameObject.CompareTag(PlayManager.PLAYER_TAG))
         {
              Vector2 attackDir = collision.transform.position - collision.transform.position;
-                collision.gameObject.GetComponent<IAttack>().Hit(damage, attackDir.normalized, true);
+                collision.gameObject.GetComponent<IAttack>().Hit(damage, damage, attackDir.normalized);
             
         }
     }

@@ -1,8 +1,13 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Achromatic/Assets/Scripts/Object/Interaction.meta
+guid: a5d665ce54b7d684a9f6755bf36c5d21
+folderAsset: yes
+DefaultImporter:
+========
 guid: 9203dba94529f1a4ea0ddb6f580c75da
 NativeFormatImporter:
+>>>>>>>> 23a5118948a428ba39794d50dedc7d56be6c7724:Achromatic/Assets/Shaders/Material/m_Test.mat.meta
   externalObjects: {}
-  mainObjectFileID: 2100000
   userData: 
   assetBundleName: 
   assetBundleVariant: 

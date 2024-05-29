@@ -13,16 +13,19 @@ public class BreakableObject : MonoBehaviour
     private ParticleSystem particle;
 
     private bool isBreak = false;
+
     private void Awake()
     {
         renderer = GetComponent<SpriteRenderer>();
         coll = GetComponent<Collider2D>();
         particle = GetComponent<ParticleSystem>();
     }
+
     private void Start()
     {
         originSprite = renderer.sprite;
     }
+
     private void BreakAction()
     {
         isBreak = true;
@@ -33,7 +36,7 @@ public class BreakableObject : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag(PlayManager.ATTACK_TAG) && string.Equals(collision.GetComponent<Attack>()?.AttackOwner, PlayManager.PLAYER_TAG))
+        if (collision.CompareTag(PlayManager.ATTACK_TAG) && collision.GetComponent<Attack>()?.IsPlayerAttack())
         {
             BreakAction();
         }

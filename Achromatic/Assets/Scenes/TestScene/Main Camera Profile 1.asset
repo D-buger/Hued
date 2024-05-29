@@ -1,5 +1,30 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3731008111884975413
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bddf78728f2a6145a8c95af6b628248, type: 3}
+  m_Name: Grayscale
+  m_EditorClassIdentifier: 
+  active: 1
+  isEnable:
+    m_OverrideState: 1
+    m_Value: 1
+  activationColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  playerPosition:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &-895390623345757790
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -19,6 +44,12 @@ MonoBehaviour:
   activationColor:
     m_OverrideState: 1
     m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 0
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  playerPosition:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33,8 +64,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   components:
   - {fileID: 1014078872144944382}
-  - {fileID: -895390623345757790}
   - {fileID: 7344709290346334352}
+  - {fileID: 5605161528689771527}
 --- !u!114 &1014078872144944382
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -63,6 +94,81 @@ MonoBehaviour:
   rounded:
     m_OverrideState: 1
     m_Value: 0
+--- !u!114 &3077343175576615479
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bddf78728f2a6145a8c95af6b628248, type: 3}
+  m_Name: Grayscale
+  m_EditorClassIdentifier: 
+  active: 1
+  isEnable:
+    m_OverrideState: 1
+    m_Value: 1
+  activationColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  playerPosition:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &4302423410209187743
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bddf78728f2a6145a8c95af6b628248, type: 3}
+  m_Name: Grayscale
+  m_EditorClassIdentifier: 
+  active: 1
+  isEnable:
+    m_OverrideState: 1
+    m_Value: 1
+  activationColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 0
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  playerPosition:
+    m_OverrideState: 0
+    m_Value: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &5605161528689771527
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bddf78728f2a6145a8c95af6b628248, type: 3}
+  m_Name: Grayscale
+  m_EditorClassIdentifier: 
+  active: 1
+  isEnable:
+    m_OverrideState: 1
+    m_Value: 1
+  activationColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  playerPosition:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &7344709290346334352
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -110,3 +216,28 @@ MonoBehaviour:
   dirtIntensity:
     m_OverrideState: 0
     m_Value: 0
+--- !u!114 &7596603195663350034
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bddf78728f2a6145a8c95af6b628248, type: 3}
+  m_Name: Grayscale
+  m_EditorClassIdentifier: 
+  active: 1
+  isEnable:
+    m_OverrideState: 1
+    m_Value: 1
+  activationColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  FilterColor:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 1}
+  playerPosition:
+    m_OverrideState: 1
+    m_Value: {x: 0, y: 0, z: 0, w: 0}

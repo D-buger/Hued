@@ -1,45 +1,128 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public interface IMove
+public abstract class Monster : MonoBehaviour, IAttack
 {
-    void WaitMove(MonsterStat stat, Vector2 sartPos, Vector2 endPos);
-    void BettleMove(MonsterStat stat, Vector2 playerPos, Vector2 distancePos);
-}
-public class Monster : MonoBehaviour, IAttack
-{
-    private SpriteRenderer render;
-    private Animator anim;
-    private Collider2D col;
+    protected MonsterStat baseStat;
+    protected int currentHP;
 
-    bool isDead = false;
+    protected Vector2 monsterRunleftPosition;
+    protected Vector2 monsterRunRightPosition;
+    protected Vector2 monsterPosition;
+    protected float distanceToPlayer;
+    private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
-    public void AfterAttack(Vector2 attackDir)
+    public float runPosition;
+
+    protected float elapsedTime = 0;
+    private float arrivalThreshold = 1f;
+    protected float distanceToStartPos = 0;
+    protected int DeadMass = 100;
+    protected int originalMass = 6;
+    protected bool isDead = false;
+
+    [System.Flags]
+    public enum EMonsterState
     {
-        throw new System.NotImplementedException();
+        isWait = 1 << 0,
+        isPlayerBetween = 1 << 1,
+        isBattle = 1 << 2
     }
+    public EMonsterState state = EMonsterState.isWait;
+    [HideInInspector]
+    protected bool canAttack = true;
+    protected bool isRespawnMonster = true;
 
-    public void CheckDead(bool Dead, bool isAnim, int MonsterHP)
+    public abstract void CheckStateChange();
+    public bool IsStateActive(EMonsterState eState)
     {
-        if (anim != null)
+        return (state & eState) != 0;
+    }
+    public virtual IEnumerator CheckPlayer(Vector2 startMonsterPos)
+    {
+        distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
+        distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
+        if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
-            isAnim = true;
+            SetState(EMonsterState.isPlayerBetween, true);
+            SetState(EMonsterState.isWait, false);
+            elapsedTime = 0f;
+            CheckStateChange();
         }
-        if (MonsterHP <= 0)
+        else
         {
-            Dead = true;
+            StartCoroutine(CheckWaitTime());
+        }
+        yield break;
+    }
+    public abstract void WaitSituation();
+    public bool HasArrived(Vector2 currentPosition, Vector2 targetPosition)
+    {
+        return Vector2.Distance(currentPosition, targetPosition) <= arrivalThreshold;
+    }
+
+    public virtual IEnumerator CheckWaitTime()
+    {
+        elapsedTime += Time.deltaTime;
+        if (elapsedTime >= baseStat.waitStateDelay && !IsStateActive(EMonsterState.isWait) && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        {
+            elapsedTime = 0f;
+            SetState(EMonsterState.isWait, true);
+            SetState(EMonsterState.isPlayerBetween, false);
+            SetState(EMonsterState.isBattle, false);
+            CheckStateChange();
+        }
+        yield break;
+    }
+    public virtual void MoveToPlayer()
+    {
+        if (ReferenceEquals(PlayerPos, null))
+        {
+            return;
+        }
+        float horizontalValue = PlayerPos.x - transform.position.x;
+        transform.localScale = (horizontalValue >= 0) ? new Vector3(-1, 1, 1) : new Vector3(1, 1, 1);
+        if (distanceToPlayer <= baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle))
+        {
+            SetState(EMonsterState.isBattle, true);
+            SetState(EMonsterState.isWait, false);
+            SetState(EMonsterState.isPlayerBetween, false);
+            CheckStateChange();
+        }
+        else if (distanceToPlayer > baseStat.senseCircle && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, PlayerPos, baseStat.moveSpeed * Time.deltaTime);
         }
     }
-
-    public void Dead()
+    public abstract void Attack();
+    public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
-        anim.SetTrigger("deathTrigger");
-        gameObject.SetActive(false);
+
+    }
+    public virtual void CheckDead()
+    {
+        if (currentHP <= 0 && !isDead)
+        {
+            isDead = true;
+            Dead();
+        }
+    }
+    public abstract void Dead();
+    public void SetState(EMonsterState eState, bool value)
+    {
+        if (value)
+        {
+            state |= eState;
+        }
+        else
+        {
+            state &= ~eState;
+        }
+    }
+    public void OnPostAttack(Vector2 vec)
+    {
+
     }
 
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage = 0)
-    {
-        throw new System.NotImplementedException();
-    }
+    //public abstract void Respawn(GameObject monsterPos, bool isRespawnMonster);
 }

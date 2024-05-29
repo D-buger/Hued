@@ -1,58 +1,47 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using Spine;
+using Spine.Unity;
 
-/// <summary>
-/// 
-/// isRunning
-/// isGroggy
-/// onGround
-/// 
-/// dashTrigger
-/// attackTrigger
-/// parryTrigger
-/// hitTrigger
-/// jumpTrigger
-/// 
-/// </summary>
-
-
-enum ePlayerState : int
+public enum EPlayerState : int
 {
-    IDLE = 0,
-    RUNNING = 1,
-    JUMPING = 2,
-    DASH = 4,
-    GROGGY = 8,
-    HIT = 16,
-    ATTACK = 32
+    IDLE,
+    RUN,
+    JUMP,
+    DASH,
+    GROGGY,
+    HIT ,
+    ATTACK,
+    ATTACK_REBOUND,
+    DEAD
 }
 
 public class Player : MonoBehaviour, IAttack
 {
-    private Rigidbody2D rigid;
-    private BoxCollider2D coll;
-    private SpriteRenderer renderer;
-    private Animator ani;
-
-    private List<ParticleSystem> effectList = new List<ParticleSystem>();
-
-    private ParticleSystem parryEffect;
-    private ParticleSystem DashTrail;
-    private ParticleSystem runningEffect;
-    private ParticleSystem attackHitEffect;
-    private ParticleSystem jumpEffect;
-
-    private GameObject attackPoint;
-    private Attack attack;
-
+    public Rigidbody2D RigidbodyComp { get; private set; }
+    public BoxCollider2D ColliderComp { get; private set; }
+    public MeshRenderer RendererComp { get; private set; }
+    public SkeletonAnimation AnimationComp { get; private set; }
     public CameraFollowObject CameraObject { get; set; }
 
     [SerializeField]
     private PlayerStatus stat;
-    public PlayerStatus GetPlayerStat() => stat;
-
-    private int currentHP
+    public PlayerStatus GetPlayerStat => stat;
+    public int MaxHP
+    {
+        get
+        {
+            return stat.maxHP;
+        }
+        set
+        {
+            stat.maxHP = value % 2 == 0 ? value : ++value;
+            PlayerMaxHPEvent?.Invoke(stat.maxHP, stat.currentHP);
+        }
+    }
+    public int CurrentHP
     {
         get
         {
@@ -60,62 +49,75 @@ public class Player : MonoBehaviour, IAttack
         }
         set
         {
-            stat.currentHP = value;
-            if (stat.currentHP < 0)
+            stat.currentHP = Mathf.Min(value, stat.maxHP);
+            if (stat.currentHP <= 0)
             {
                 Dead();
             }
-            
+            else
+            {
+                PlayerCurrentHPEvent?.Invoke(stat.maxHP, stat.currentHP);
+            }
         }
-    } 
+    }
 
-    private bool isJump = false;
-    private bool canJump = true;
-    private bool isAttack = false;
-    private bool canAttack = true;
-    private bool isCriticalAttack = false;
-    private bool isAttackRebound = false;
-    private bool isDash = false;
-    private bool isParryDash = false;
-    private bool canDash = true;
-    private bool canParryDash = true;
-    private bool parryCondition = false;
-    private bool isParry = false;
-    private bool isInvincibility = false;
-    private bool isHit = false;
-    private bool onGround = false;
+    private List<ParticleSystem> effectList = new List<ParticleSystem>();
 
-    private float horizontalMove = 0;
-    private bool playerFaceRight = true;
-    private ePlayerState state;
+    private ParticleSystem parryEffect;
+    private ParticleSystem dashEffect;
+    private ParticleSystem runningEffect;
+    private ParticleSystem attackHitEffect;
+    private ParticleSystem hitEffect;
 
-    private LayerMask groundLayer;
+    private Dictionary<EPlayerState, PlayerBaseState> playerStates;
+    private PlayerFSM playerFSM;
+
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerCurrentHPEvent;
+    [HideInInspector]
+    public UnityEvent<int, int> PlayerMaxHPEvent;
+
+    public bool CanChangeState { get; set; } = true;
+    public bool IsDash { get; set; } = false;
+    public bool IsParryDash { get; set; } = false;
+
+    public bool IsInvincibility { get; set; } = false;
+
+    public bool ParryCondition { get; set; } = false;
+    public bool IsCriticalAttack{ get; set; } = false;
+    public bool OnGround { get; private set; }
+    public bool PlayerFaceRight { get; set; } = true;
+    public float FootOffGroundTime { get; set; } = 0f;
+
+    public Collision2D ParryDashCollision { get; set; }
+    public LayerMask GroundLayer { get; private set; }
+
+    private bool randTrigger = false;
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
 
-    private Collision2D parryDashCollision;
     private void Awake()
     {
-        rigid = GetComponent<Rigidbody2D>();
-        coll = GetComponent<BoxCollider2D>();
-        renderer = GetComponent<SpriteRenderer>();
-        ani = GetComponent<Animator>();
+        playerStates = new Dictionary<EPlayerState, PlayerBaseState>();
 
+        RigidbodyComp = GetComponent<Rigidbody2D>();
+        ColliderComp = GetComponent<BoxCollider2D>();
+        RendererComp = GetComponent<MeshRenderer>();
+        AnimationComp = GetComponentInChildren<SkeletonAnimation>();
         CameraObject = FindObjectOfType<CameraFollowObject>();
-
-        attackPoint = transform.GetChild(0).gameObject;
-        attack = transform.GetChild(0).GetChild(0).GetComponent<Attack>();
 
         GameObject effects = transform.GetChild(1).gameObject;
         parryEffect = effects.transform.GetChild(0).GetComponent<ParticleSystem>();
-        DashTrail = effects.transform.GetChild(1).GetComponent<ParticleSystem>();
+        dashEffect = effects.transform.GetChild(1).GetComponent<ParticleSystem>();
         runningEffect = effects.transform.GetChild(2).GetComponent<ParticleSystem>();
-        attackHitEffect = attackPoint.GetComponentInChildren<ParticleSystem>();
+        attackHitEffect = transform.GetChild(0).GetComponentInChildren<ParticleSystem>();
+        hitEffect = effects.transform.GetChild(3).GetComponent<ParticleSystem>();
 
         effectList.Add(parryEffect);
-        effectList.Add(DashTrail);
+        effectList.Add(dashEffect);
         effectList.Add(runningEffect);
         effectList.Add(attackHitEffect);
+        effectList.Add(hitEffect);
 
         for (int i = 0; i < effects.transform.childCount; i++)
         {
@@ -125,43 +127,63 @@ public class Player : MonoBehaviour, IAttack
 
     void Start()
     {
-        InputManager.Instance.MoveEvent.AddListener(Move);
-        InputManager.Instance.JumpEvent.AddListener(Jump);
-        InputManager.Instance.DashEvent.AddListener(Dash);
-        InputManager.Instance.LightAttackEvent.AddListener(LightAttack);
+        PlayerIdleState idle = new PlayerIdleState(this);
+        PlayerRunState run = new PlayerRunState(this);
+        PlayerAttackState attack = new PlayerAttackState(this, transform.GetChild(0).gameObject);
+        PlayerAttackReboundState afterAttack = new PlayerAttackReboundState(this);
+        PlayerJumpState jump = new PlayerJumpState(this);
+        PlayerDashState dash = new PlayerDashState(this);
+        PlayerGroggyState groggy = new PlayerGroggyState(this);
+        PlayerHitState hit = new PlayerHitState(this);
+        PlayerDeadState dead = new PlayerDeadState(this);
 
-        attack.SetAttack(PlayManager.PLAYER_TAG, this);
+        playerStates.Add(EPlayerState.IDLE, idle);
+        playerStates.Add(EPlayerState.RUN, run);
+        playerStates.Add(EPlayerState.ATTACK, attack);
+        playerStates.Add(EPlayerState.ATTACK_REBOUND, afterAttack);
+        playerStates.Add(EPlayerState.JUMP, jump);
+        playerStates.Add(EPlayerState.DASH, dash);
+        playerStates.Add(EPlayerState.GROGGY, groggy);
+        playerStates.Add(EPlayerState.HIT, hit);
+        playerStates.Add(EPlayerState.DEAD, dead);
 
-        stat.currentHP = stat.playerHP;
+        playerFSM = new PlayerFSM(playerStates[EPlayerState.IDLE]);
+        MaxHP = stat.playerHP;
+        CurrentHP = stat.playerHP;
 
-        groundLayer = (1 << LayerMask.NameToLayer("Platform")) | (1 << LayerMask.NameToLayer("Object")) | (1 << LayerMask.NameToLayer("ColorObject"));
+        GroundLayer = LayerMask.GetMask("Platform") | LayerMask.GetMask("Object") | LayerMask.GetMask("ColorObject");
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
+
+        UISystem.Instance?.hpSliderEvent?.Invoke(CurrentHP);
+
+        AnimationComp.AnimationState.SetAnimation(5, PlayerAnimationNameCaching.SWORD_ONOFF_ANIMATION[0], true);
     }
 
     private void Update()
     {
+        playerFSM.UpdateState();
+
         Turn();
 
-        RaycastHit2D raycastHit = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, bottomOffset, groundLayer);
-        if (raycastHit.collider != null)
+        RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
+        OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
+        FootOffGroundTime = OnGround ? 0 : FootOffGroundTime + Time.deltaTime;
+        randTrigger = OnGround ? randTrigger : true;
+        if (randTrigger && OnGround)
         {
-            onGround = true;
-            ani.SetBool("onGround", true);
+            randTrigger = false;
+            AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.RANDING_ANIMATION, false);
         }
-        else
-        {
-            onGround = false;
-            ani.SetBool("onGround", false);
-        }
-        if (rigid.velocity.y < fallSpeedYDampingChangeThreshold
+
+        if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold
             && !CameraManager.Instance.IsLerpingYDamping
             && !CameraManager.Instance.LerpedFromPlayerFalling)
         {
             CameraManager.Instance.LerpedFromPlayerFalling = true;
             CameraManager.Instance.LerpYDamping(true);
         }
-        if(rigid.velocity.y >= 0f && 
+        if(RigidbodyComp.velocity.y >= 0f && 
             !CameraManager.Instance.IsLerpingYDamping
             && CameraManager.Instance.LerpedFromPlayerFalling)
         {
@@ -173,359 +195,142 @@ public class Player : MonoBehaviour, IAttack
 
     private void FixedUpdate()
     {
-        if (isDash || isParryDash || isAttackRebound || isHit)
-        {
-            return;
-        }
-
-        rigid.velocity = new Vector2(horizontalMove, rigid.velocity.y);
+        playerFSM.FixedUpdateState();
     }
 
-    void Turn()
+    private void Turn()
     {
-        if (playerFaceRight && transform.rotation.y == 0)
+        if (PlayerFaceRight && transform.rotation.y == 0)
         {
             transform.rotation = Quaternion.Euler(0, 180, 0);
             CameraObject.CallTurn();
         }
-        else if (!playerFaceRight && (transform.rotation.y == -1))
+        else if (!PlayerFaceRight && (transform.rotation.y == -1))
         {
             transform.rotation = Quaternion.Euler(0, 0, 0);
             CameraObject.CallTurn();
         }
     }
-
-    void Move(float dir)
+    public void ChangePrevState()
     {
-        if (isDash || isParryDash || isAttackRebound || isHit) 
+        ChangeState(playerFSM.GetPrevState() == playerStates[EPlayerState.RUN] ? EPlayerState.RUN : EPlayerState.IDLE);
+    }
+    public void ChangeState(EPlayerState state)
+    {
+        playerFSM.ChangeState(playerStates[state]);
+    }
+    public void ControlParticles(EPlayerState state, bool onoff, int index = 0)
+    {
+        switch (state)
         {
-            return;
-        }
-
-        ani.SetBool("isRunning", dir != 0 ? true : false);
-        if (dir != 0)
-        {
-            playerFaceRight = dir > 0 ? true : false;
-        }
-        horizontalMove = dir * stat.moveSpeed;
-
-        if (!onGround || dir == 0)
-        {
-            runningEffect.Stop();
-            
-        }
-        else if(dir != 0 && !runningEffect.isPlaying && onGround && !isDash && !isParryDash && !isJump)
-        {
-            runningEffect.Play();
+            case EPlayerState.ATTACK_REBOUND:
+                EffectPlayOrStop(attackHitEffect, onoff);
+                break;
+            case EPlayerState.DASH:
+                if(index == 0)
+                {
+                    EffectPlayOrStop(dashEffect ,onoff);
+                }
+                else
+                {
+                    EffectPlayOrStop(parryEffect, onoff);
+                }
+                break;
+            case EPlayerState.RUN:
+                EffectPlayOrStop(runningEffect, onoff);
+                break;
+            case EPlayerState.HIT:
+                EffectPlayOrStop(hitEffect, onoff);
+                break;
+            default:
+                break;
         }
         
     }
 
-    void Jump()
+    private void EffectPlayOrStop(ParticleSystem particle, bool onoff)
     {
-        if (canJump && onGround && !isDash && !isParryDash && !isHit)
+        if (particle != null)
         {
-            StartCoroutine(JumpSequence());
-        }
-    }
-    IEnumerator JumpSequence()
-    {
-        canJump = false;
-        isJump = true;
-        ani.SetTrigger("jumpTrigger");
-        rigid.AddForce(Vector2.up * stat.jumpPower, ForceMode2D.Impulse);
-        isJump = false;
-        yield return Yields.WaitSeconds(stat.jumpCooldown);
-        canJump = true;
-    }
-
-    void Dash(Vector2 mousePos)
-    {
-        if (!isDash && !isParryDash && canAttack && !isHit)
-        {
-            if (isParry && canParryDash)
+            if (onoff && !particle.isPlaying)
             {
-                StartCoroutine(ParryDashSequence(mousePos));
+                particle.Play();
             }
-            else if(canDash)
+            else if (!onoff)
             {
-                StartCoroutine(DashSequence(mousePos));
+                particle.Stop();
             }
         }
     }
 
-    IEnumerator DashSequence(Vector2 dashPos)
+    public void OnPostAttack(Vector2 attackDir)
     {
-        isDash = true;
-        canDash = false;
-        canParryDash = false;
-
-        float originGravityScale = rigid.gravityScale;
-        float originLiniearDrag = rigid.drag;
-        float originMass = rigid.mass;
-        rigid.gravityScale = 0f;
-        rigid.drag = 0;
-        rigid.mass = 0;
-        DashTrail.Clear();
-        DashTrail.Play();
-
-        dashPos.x = dashPos.x - transform.position.x;
-        dashPos.y = dashPos.y - transform.position.y;
-
-        rigid.velocity = dashPos.normalized * stat.dashPower;
-
-        ani.SetTrigger("dashTrigger");
-        playerFaceRight = dashPos.x > 0 ? true : false;
-
-        yield return Yields.WaitSeconds(stat.dashingTime);
-        rigid.velocity = Vector2.zero;
-        rigid.gravityScale = originGravityScale;
-        rigid.drag = originLiniearDrag;
-        rigid.mass = originMass;
-        isDash = false;
-
-        isParry = parryCondition;
-        DashTrail.Stop();
-        ani.SetTrigger("dashEndTrigger");
-        if (isParry)
-        {
-            StartCoroutine(ParrySequence());
-        }
-        parryCondition = false;
-
-        yield return Yields.WaitSeconds(stat.dashAfterDelay);
-        canParryDash = true;
-
-        yield return Yields.WaitSeconds(stat.dashCooldown - stat.dashAfterDelay);
-        canDash = true;
+        PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[EPlayerState.ATTACK_REBOUND];
+        ChangeState(EPlayerState.ATTACK_REBOUND);
+        afterAttackState.OnPostAttack(attackDir);
     }
 
-    IEnumerator ParryDashSequence(Vector2 dashPos)
+
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
-        isParry = false;
-        isParryDash = true;
-        canParryDash = false;
-        isCriticalAttack = true;
-
-        float originGravityScale = rigid.gravityScale;
-        float originLiniearDrag = rigid.drag;
-        float originMass = rigid.mass;
-        coll.forceReceiveLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        coll.forceSendLayers &= ~(1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        rigid.gravityScale = 0f;
-        rigid.drag = 0;
-        rigid.mass = 0;
-        DashTrail.Clear();
-        DashTrail.Play();
-
-        dashPos.x = dashPos.x - transform.position.x;
-        dashPos.y = dashPos.y - transform.position.y;
-
-        rigid.velocity = dashPos.normalized * stat.parryDashPower;
-
-        ani.SetTrigger("dashTrigger");
-        playerFaceRight = dashPos.x > 0 ? true : false;
-
-        yield return Yields.WaitSeconds(stat.parryDashTime);
-        rigid.velocity = Vector2.zero;
-        rigid.gravityScale = originGravityScale;
-        rigid.drag = originLiniearDrag;
-        rigid.mass = originMass;
-
-        if (null != parryDashCollision)
+        if(IsDash || IsParryDash)
         {
-            float horDistance = transform.position.x - parryDashCollision.collider.bounds.center.x;
-            if(horDistance < 0)
+            if (!ReferenceEquals(parryCheck, null))
             {
-                transform.position = new Vector3(parryDashCollision.collider.bounds.min.x - stat.parryDashDistance, 
-                    transform.position.y, transform.position.z);
+                ParryCondition = parryCheck.CanParryAttack() ? true : ParryCondition;
             }
-            else
-            {
-                transform.position = new Vector3(parryDashCollision.collider.bounds.max.x + stat.parryDashDistance,
-                    transform.position.y, transform.position.z);
-            }
-            parryDashCollision = null;
-        }
-        coll.forceReceiveLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-        coll.forceSendLayers |= (1 << LayerMask.NameToLayer(PlayManager.ENEMY_TAG));
-
-        isParryDash = false;
-        DashTrail.Stop();
-
-        yield return Yields.WaitSeconds(stat.dashAfterDelay);
-        canParryDash = true;
-    }
-
-    IEnumerator ParrySequence()
-    {
-        Color originColor = renderer.color;
-        renderer.color = Color.gray;
-
-        isInvincibility = true;
-
-        Time.timeScale = stat.parryProduceTimescale;
-        ani.SetTrigger("parryTrigger");
-        parryEffect.Play();
-        yield return Yields.WaitSeconds(stat.parryProduceTime);
-        Time.timeScale = 1f;
-        parryEffect.Stop();
-
-        yield return Yields.WaitSeconds(stat.invincibilityAfterParry);
-        isInvincibility = false;
-
-        do {
-            yield return null;
-        } while (isParry);
-
-        renderer.color = originColor;
-    }
-
-    private void LightAttack(Vector2 mousePos)
-    {
-        if (canAttack)
-        {
-            ani.SetTrigger("attackTrigger");
-            StartCoroutine(AttackSequence(mousePos));
-        }
-    }
-
-    IEnumerator AttackSequence(Vector2 attackAngle)
-    {
-        canAttack = false;
-        isAttack = true;
-        float angle;
-        angle = VectorToEulerAngle(attackAngle) - 180;
-        attackPoint.transform.rotation = Quaternion.Euler(0, 0, angle);
-        Vector2 angleVec = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
-
-        if (!isCriticalAttack)
-        {
-            attack.AttackAble(angleVec.normalized, stat.attackDamage, false, stat.colorAttackDamage);
-        }
-        else
-        {
-            isCriticalAttack = false;
-            attack.AttackAble(angleVec.normalized, stat.criticalAttackDamage, false, stat.colorCriticalAttackDamage);
-        }
-
-        yield return Yields.WaitSeconds(stat.attackTime);
-        attack.AttackDisable();
-        isAttack = false;
-        yield return Yields.WaitSeconds(stat.attackCooldown);
-        canAttack = true;
-    }
-    private float VectorToEulerAngle(Vector2 vec)
-    {
-        float horizontalValue = vec.x - transform.position.x;
-        float VerticalValue = vec.y - transform.position.y;
-
-        return Mathf.Atan2(VerticalValue, horizontalValue) * Mathf.Rad2Deg + 180;
-    }
-
-    public void AfterAttack(Vector2 attackDir)
-    {
-        if (!isDash && !isParryDash)
-        {
-            StartCoroutine(AttackReboundSequence(attackDir.normalized, stat.attackReboundPower, stat.attackReboundTime, 0.05f));
-        }
-    }
-    IEnumerator AttackReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
-    {
-        isAttackRebound = true;
-        rigid.velocity = Vector2.zero;
-        attackHitEffect.Play();
-        rigid.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
-        yield return Yields.WaitSeconds(reboundTime);
-        attackHitEffect.Stop();
-        isAttackRebound = false;
-    }
-
-    public void Hit(int damage, Vector2 attackDir, bool isHeavyAttack, int criticalDamage)
-    {
-        if (isDash || isParryDash)
-        {
             return;
         }
-
-        horizontalMove = 0;
-        rigid.velocity = Vector2.zero;
-        parryCondition = false;
-        if (!isInvincibility)
-        {
-            attackDir.y = 0;
-            currentHP -= damage;
-            ani.SetTrigger("hitTrigger");
-            StartCoroutine(HitReboundSequence(attackDir.normalized, stat.hitReboundPower, stat.hitReboundTime, 0.1f));
-        }
-    }
-
-    IEnumerator HitReboundSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
-    {
-        isHit = true;
-        isInvincibility = true;
-        rigid.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
-        PlayManager.Instance.cameraManager.ShakeCamera(shockAmount);
-        yield return Yields.WaitSeconds(reboundTime);
-
-        yield return Yields.WaitSeconds(stat.hitBehaviourLimitTime);
-        isHit = false;
-        yield return Yields.WaitSeconds(Mathf.Max(0, Mathf.Abs(stat.hitInvincibilityTime - stat.hitBehaviourLimitTime)));
-        isInvincibility = false;
+        PlayerHitState hitState = (PlayerHitState)playerStates[EPlayerState.HIT];
+        ChangeState(EPlayerState.HIT);
+        hitState.Hit(damage, attackDir.normalized);
     }
 
     private void Dead()
     {
         Debug.Log("Player Dead");
+        SceneManager.LoadScene(0);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
         {
-            if (isDash || isParryDash)
+            if (IsDash || IsParryDash)
             {
-                int damage = isParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<Monster>().Hit(damage, 
-                    collision.transform.position - transform.position, false, damage);
+                int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
+                collision.gameObject.GetComponent<Monster>()?.Hit(damage, damage,
+                    collision.transform.position - transform.position);
             }
         }
     }
 
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (isParryDash && collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
+        if (IsParryDash && collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
         {
-            parryDashCollision = collision;
+            ParryDashCollision = collision;
         }
 
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (isParryDash)
+        if (IsParryDash)
         {
-            parryDashCollision = null;
+            ParryDashCollision = null;
         }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (isDash && collision.CompareTag(PlayManager.ATTACK_TAG))
+        if (IsDash && collision.CompareTag(PlayManager.ATTACK_TAG))
         {
-            Attack attack = collision.GetComponent<Attack>();
-            Projectile projectile = collision.GetComponent<Projectile>();
-            if (attack != null && attack.IsCanParryAttack(PlayManager.PLAYER_TAG))
+            IParryConditionCheck checkParry = collision.GetComponent<IParryConditionCheck>();
+            if (checkParry != null && checkParry.CanParryAttack())
             {
-                parryCondition = true;
+                ParryCondition = true;
             }
-            else if(projectile != null)
-            {
-                parryCondition = true;
-            }
-
         }
-
     }
 }

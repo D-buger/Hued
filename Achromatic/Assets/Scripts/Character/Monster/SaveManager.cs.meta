@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Achromatic/Assets/Scripts/Object/Interaction/BreakableObject.cs.meta
+guid: 4f0dac389fc45294cad3e7c1eb2cc3df
+========
+guid: 47dca0495e223a8469c79b252f540793
+>>>>>>>> main:Achromatic/Assets/Scripts/Character/Monster/SaveManager.cs.meta
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
