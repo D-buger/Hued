@@ -10,9 +10,22 @@ public class SpearAttack : Projectile
     private FlyAntMonsterStat stat;
     [SerializeField]
     private GameObject flyAntMonster;
+    private Rigidbody2D rigid2D;
 
+    private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
+
+    [SerializeField]
     private bool isReturn = false;
 
+    private void OnEnable()
+    {
+        isReturn = false;
+    }
+
+    private void Start()
+    {
+        rigid2D = GetComponent<Rigidbody2D>();
+    }
     private void Update()
     {
         if (isReturn)
@@ -28,15 +41,17 @@ public class SpearAttack : Projectile
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        isReturn = true;
+        if (collision.collider.CompareTag("Player") || collision.collider.CompareTag("Floor"))
+        {
+            isReturn = true;
+        }
     }
 
     public void ReturnObject(GameObject obj)
     {
         Vector2 originalPos = obj.transform.position;
-        Vector2 attackDir = (originalPos - (Vector2)transform.position).normalized;
 
-        transform.Translate(attackDir * stat.spearThrowReturnSpeed * Time.deltaTime);
+        rigid2D.AddForce(originalPos * stat.spearThrowReturnSpeed);
 
         if (Vector2.Distance(originalPos, (Vector2)transform.position) > stat.returnPosValue)
         {

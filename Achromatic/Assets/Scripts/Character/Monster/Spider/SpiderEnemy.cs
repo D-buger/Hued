@@ -400,7 +400,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         animState = EanimState.GROUND;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/ground_attack"]["events"][0]["time"]);
-        rigid.velocity = Vector2.up * stat.earthAttackJump;
         currentState |= EMonsterAttackState.ISEARTHATTACK;
 
         StartCoroutine(SpawnObjects());

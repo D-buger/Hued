@@ -33,15 +33,16 @@ MonoBehaviour:
   discoveryDuration: 1
   senseCube: {x: 2, y: 2, z: 0}
   flyAntAttackDelay: 1
-  rushAttackSpeed: 15
+  rushAttackSpeed: 20
   rushAttackDamage: 5
   rushReadyAnimaionDuration: 1.5
   rushAttackDelay: 1
   doubleRushAttackBetweenDelay: 1
-  spearThrowSpeed: 50
+  spearThrowSpeed: 250
   spearThrowDamage: 7
   spearThrowReturnDamage: 4
-  spearThrowReturnSpeed: 50
+  spearThrowReturnSpeed: 300
   spearThrowAttackRange: 6
   doubleBadyAttackPercent: 50
   returnPosValue: 0.3
+  doubleBadyAttackRebound: 3

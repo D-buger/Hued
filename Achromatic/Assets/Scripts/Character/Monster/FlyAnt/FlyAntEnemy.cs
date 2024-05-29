@@ -169,8 +169,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 AsyncAnimation(aniClip[(int)EAnimState.CHARGEFINISH], false, timeScale);
                 break;
         }
-}
-private void IsActiveColor(eActivableColor color)
+    }
+    private void IsActiveColor(eActivableColor color)
     {
         int newLayer = SOO.Util.LayerMaskToNumber((color == stat.enemyColor) ? colorVisibleLayer : originLayer);
         newLayer -= 2;
@@ -337,19 +337,33 @@ private void IsActiveColor(eActivableColor color)
             Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
             if (isDoubleBadyAttack)
             {
+                animState = EAnimState.CHARGEFINISH;
+                SetCurrentAnimation(animState);
+                transform.rotation = Quaternion.Euler(1, 1, 1);
+                SetAttackState(EMonsterAttackState.isBadyAttack, false);
+                yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
+                isReturnStop = false;
+                SetAttackState(EMonsterAttackState.isReturnEnemy, true);
+                animState = EAnimState.IDLE;
+                SetCurrentAnimation(animState);
+                yield return Yields.WaitSeconds(0.5f); //FIX 매직넘버
                 targetPos = new(PlayerPos.x, PlayerPos.y);
+                isReturnStop = true;
+                SetAttackState(EMonsterAttackState.isReturnEnemy, false);
                 isDoubleBadyAttack = false;
                 SetAttackState(EMonsterAttackState.isBadyAttack, true);
+                animState = EAnimState.CHARGEIDLE;
+                SetCurrentAnimation(animState);
                 if (attackDirection.x <= 0)
                 {
-                    transform.localScale = new Vector2(1, 1);
                     transform.rotation = Quaternion.Euler(1, 1, 30);
                 }
                 else
                 {
-                    transform.localScale = new Vector2(-1, 1);
                     transform.rotation = Quaternion.Euler(1, 1, -30);
                 }
+                rigid.gravityScale = 1;
+                rigid.gravityScale = 0;
                 yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
                 animState = EAnimState.CHARGEFINISH;
                 SetCurrentAnimation(animState);
@@ -372,9 +386,9 @@ private void IsActiveColor(eActivableColor color)
     {
         animState = EAnimState.IDLE;
         SetCurrentAnimation(animState);
-        transform.position = Vector2.MoveTowards(transform.position, battlePos, stat.rushAttackSpeed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(transform.position, battlePos, stat.returnSpeed * Time.deltaTime);
         transform.rotation = Quaternion.Euler(1, 1, 1);
-        if (Vector2.Distance(transform.position, battlePos) <= stat.returnPosValue)
+        if (Vector2.Distance(transform.position, battlePos) <= stat.returnPosValue && !isDoubleBadyAttack)
         {
             SetAttackState(EMonsterAttackState.isReturnEnemy, false);
             canAttack = true;
@@ -382,7 +396,7 @@ private void IsActiveColor(eActivableColor color)
     }
     private void SpearThrowAttack()
     {
-        Vector2 dir = new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y);
+        Vector2 shotDir = PlayerPos - (Vector2)transform.position;
         float ZAngle = (Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg);
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(2);
         if (projectileObj is not null)
@@ -392,7 +406,7 @@ private void IsActiveColor(eActivableColor color)
             SpearAttack projectile = projectileObj.GetComponent<SpearAttack>();
             if (projectile is not null)
             {
-                projectile.Shot(gameObject, attackTransform.transform.position, dir.normalized,
+                projectile.Shot(gameObject, attackTransform.transform.position, shotDir.normalized,
                     stat.spearThrowAttackRange, stat.spearThrowSpeed, stat.spearThrowDamage, ZAngle, eActivableColor.RED);
                 projectileObj.transform.position = transform.position;
 

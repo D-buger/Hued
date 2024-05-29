@@ -131,7 +131,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
         PlayManager.Instance.UpdateColorthing();
         monsterPosition = monsterRunRightPosition;
-        startAntPosition = new Vector2(transform.position.x, transform.position.y);
+        startAntPosition = ((Vector2)transform.position);
 
         CheckStateChange();
 
@@ -359,7 +359,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         animState = EAnimState.DETECTION;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(stat.attackDelay);
-        playerLocationFromMonster = new Vector2(attackAngle.x - transform.position.x, attackAngle.y - transform.position.y);
+        playerLocationFromMonster = attackAngle - (Vector2)transform.position;
         if (!isDead) // FIX 구조 개편 예정. 현재 똑같은 패턴 사용 불가능하게 하기 위해 임시로 처리해둠
         {
             int checkRandomAttackType = UnityEngine.Random.Range(1, 101);
@@ -555,7 +555,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
         {
             animState = EAnimState.COUNTERTRIGGER;
             SetCurrentAnimation(animState);
-            StartCoroutine(CounterAttackPlay(new Vector2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y), Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg));
+            StartCoroutine(CounterAttackPlay(PlayerPos - (Vector2)transform.position, Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg));
             currentState &= ~EMonsterAttackState.ISATTACK;
         }
 
