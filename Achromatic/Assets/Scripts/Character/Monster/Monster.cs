@@ -95,7 +95,7 @@ public abstract class Monster : MonoBehaviour, IAttack
         }
     }
     public abstract void Attack();
-    public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public virtual void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false)
     {
 
     }

@@ -15,6 +15,7 @@ public enum EPlayerState : int
     HIT ,
     ATTACK,
     ATTACK_REBOUND,
+    REBOUND,
     DEAD
 }
 
@@ -135,6 +136,7 @@ public class Player : MonoBehaviour, IAttack
         PlayerDashState dash = new PlayerDashState(this);
         PlayerGroggyState groggy = new PlayerGroggyState(this);
         PlayerHitState hit = new PlayerHitState(this);
+        PlayerReboundState rebound = new PlayerReboundState(this);
         PlayerDeadState dead = new PlayerDeadState(this);
 
         playerStates.Add(EPlayerState.IDLE, idle);
@@ -145,6 +147,7 @@ public class Player : MonoBehaviour, IAttack
         playerStates.Add(EPlayerState.DASH, dash);
         playerStates.Add(EPlayerState.GROGGY, groggy);
         playerStates.Add(EPlayerState.HIT, hit);
+        playerStates.Add(EPlayerState.REBOUND, rebound);
         playerStates.Add(EPlayerState.DEAD, dead);
 
         playerFSM = new PlayerFSM(playerStates[EPlayerState.IDLE]);
@@ -215,9 +218,14 @@ public class Player : MonoBehaviour, IAttack
     {
         ChangeState(playerFSM.GetPrevState() == playerStates[EPlayerState.RUN] ? EPlayerState.RUN : EPlayerState.IDLE);
     }
-    public void ChangeState(EPlayerState state)
+    public bool ChangeState(EPlayerState state)
     {
-        playerFSM.ChangeState(playerStates[state]);
+        if (CanChangeState)
+        {
+            playerFSM.ChangeState(playerStates[state]);
+            return true;
+        }
+        return false;
     }
     public void ControlParticles(EPlayerState state, bool onoff, int index = 0)
     {
@@ -265,13 +273,14 @@ public class Player : MonoBehaviour, IAttack
 
     public void OnPostAttack(Vector2 attackDir)
     {
-        PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[EPlayerState.ATTACK_REBOUND];
-        ChangeState(EPlayerState.ATTACK_REBOUND);
-        afterAttackState.OnPostAttack(attackDir);
+        if (ChangeState(EPlayerState.ATTACK_REBOUND))
+        {
+            PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[EPlayerState.ATTACK_REBOUND];
+            afterAttackState.OnPostAttack(attackDir);
+        }
     }
 
-
-    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false)
     {
         if(IsDash || IsParryDash)
         {
@@ -281,9 +290,28 @@ public class Player : MonoBehaviour, IAttack
             }
             return;
         }
-        PlayerHitState hitState = (PlayerHitState)playerStates[EPlayerState.HIT];
-        ChangeState(EPlayerState.HIT);
-        hitState.Hit(damage, attackDir.normalized);
+        Rebound(attackDir);
+        //if (!IsInvincibility)
+        //{
+        //    if (ChangeState(EPlayerState.HIT))
+        //    {
+        //        PlayerHitState hitState = (PlayerHitState)playerStates[EPlayerState.HIT];
+        //        hitState.Hit(damage, attackDir.normalized);
+        //    }
+        //}
+        //else if (isInfinityRebound)
+        //{
+        //    Rebound(attackDir);
+        //}
+    }
+
+    public void Rebound(Vector2 dir)
+    {
+        if (ChangeState(EPlayerState.REBOUND))
+        {
+            PlayerReboundState reboundState = (PlayerReboundState)playerStates[EPlayerState.REBOUND];
+            reboundState.Rebound(dir, stat.hitReboundPower, stat.hitReboundTime);
+        }
     }
 
     private void Dead()
@@ -294,14 +322,12 @@ public class Player : MonoBehaviour, IAttack
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
+        if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG) && (IsDash || IsParryDash))
         {
-            if (IsDash || IsParryDash)
-            {
-                int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<Monster>()?.Hit(damage, damage,
-                    collision.transform.position - transform.position);
-            }
+            int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
+            collision.gameObject.GetComponent<Monster>()?.Hit(damage, damage,
+                collision.transform.position - transform.position);
+            
         }
     }
 

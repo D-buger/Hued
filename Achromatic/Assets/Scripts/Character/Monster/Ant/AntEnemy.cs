@@ -510,7 +510,7 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             currentState &= ~EMonsterAttackState.ISCOUNTER;
         }
     }
-    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false)
     {
         if (isDead)
         {

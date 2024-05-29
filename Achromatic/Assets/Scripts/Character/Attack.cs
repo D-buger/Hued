@@ -5,7 +5,7 @@ using UnityEngine;
 public interface IAttack
 {
     void OnPostAttack(Vector2 attackDir);
-    void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null);
+    void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false);
 }
 
 public interface IParryConditionCheck

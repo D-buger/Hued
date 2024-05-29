@@ -23,11 +23,11 @@ public class PlayerAttackReboundState : PlayerBaseState
     {
         if (!player.IsDash && !player.IsParryDash)
         {
-            onPostAttackCoroutine = CoroutineHandler.StartCoroutine(OnPostAttackSequence(attackDir.normalized, player.GetPlayerStat.attackReboundPower, player.GetPlayerStat.attackReboundTime, 0.05f));
+            onPostAttackCoroutine = CoroutineHandler.StartCoroutine(OnPostAttackSequence(attackDir.normalized, player.GetPlayerStat.attackReboundPower, player.GetPlayerStat.attackReboundTime));
         }
     }
 
-    IEnumerator OnPostAttackSequence(Vector2 dir, float reboundPower, float reboundTime, float shockAmount)
+    IEnumerator OnPostAttackSequence(Vector2 dir, float reboundPower, float reboundTime)
     {
         player.CanChangeState = false;
         player.RigidbodyComp.velocity = Vector2.zero;
@@ -38,7 +38,6 @@ public class PlayerAttackReboundState : PlayerBaseState
         player.CanChangeState = true;
         player.ChangePrevState();
         player.ControlParticles(EPlayerState.ATTACK_REBOUND, false);
-
     }
 
     public override void OnStateExit()

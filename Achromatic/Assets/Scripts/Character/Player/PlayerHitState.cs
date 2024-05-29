@@ -18,21 +18,20 @@ public class PlayerHitState : PlayerBaseState
     public override void OnStateEnter()
     {
         //Debug.Log("Player State : Hit");
+        player.ParryCondition = false;
     }
+
     public override void OnStateUpdate()
     {
 
     }
+
     public void Hit(int damage, Vector2 attackDir)
     {
-        player.ParryCondition = false;
-        if (!player.IsInvincibility)
-        {
-            player.RigidbodyComp.velocity = Vector2.zero;
-            attackDir.y = 0;
-            player.CurrentHP -= damage;
-            hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime));
-        }
+        player.RigidbodyComp.velocity = Vector2.zero;
+        attackDir.y = 0;
+        player.CurrentHP -= damage;
+        hitCoroutine = CoroutineHandler.StartCoroutine(HitReboundSequence(attackDir.normalized, player.GetPlayerStat.hitReboundPower, player.GetPlayerStat.hitReboundTime));   
     }
 
     IEnumerator HitReboundSequence(Vector2 dir, float reboundPower, float reboundTime)
@@ -80,6 +79,7 @@ public class PlayerHitState : PlayerBaseState
     {
 
     }
+
     public override void OnStateExit()
     {
 

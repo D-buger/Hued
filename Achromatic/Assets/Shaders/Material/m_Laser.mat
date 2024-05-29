@@ -56,7 +56,7 @@ Material:
     - _Emission: 3
     - _EnableExternalAlpha: 0
     - _LaserEdgeSmoothness: 10
-    - _LaserSpeed: 0.2
+    - _LaserSpeed: 5
     - _LaserThickness: 5
     - _QueueControl: 0
     - _QueueOffset: 0
