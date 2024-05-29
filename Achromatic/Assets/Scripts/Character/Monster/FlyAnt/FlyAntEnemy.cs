@@ -444,6 +444,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 break;
             case EMonsterState.isWait:
                 fsm.ChangeState("Idle");
+                animState = EAnimState.IDLE;
+                SetCurrentAnimation(animState);
                 break;
             default:
                 break;
