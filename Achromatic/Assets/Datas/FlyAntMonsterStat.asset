@@ -25,10 +25,10 @@ MonoBehaviour:
   heavyHitReboundPower: 10
   groggyTime: 0.5
   waitStateDelay: 1
-  deadDelay: 1.33
+  deadDelay: 2
   attackDelay: 1.33
   projectileAngleByHeight: 0.22
-  projectileZAngleByHeight: 0
+  projectileZAngleByHeight: 180
   enemyRoamingRange: 15
   discoveryDuration: 1
   senseCube: {x: 2, y: 2, z: 0}
@@ -42,8 +42,8 @@ MonoBehaviour:
   spearThrowSpeed: 250
   spearThrowDamage: 7
   spearThrowReturnDamage: 4
-  spearThrowReturnSpeed: 300
+  spearThrowReturnSpeed: 50
   spearThrowAttackRange: 6
   doubleBadyAttackPercent: 50
-  returnPosValue: 0.3
+  returnPosValue: 0.5
   doubleBadyAttackRebound: 3

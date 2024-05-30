@@ -138,7 +138,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: -0.07868236, y: -0.09189069}
@@ -193,6 +193,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e3bdbecdccca74b821e4f5236f7b27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canActive: 0
   stat: {fileID: 11400000, guid: 5c73b307a2101324e9bc3da0a6f9267e, type: 2}
-  flyAntMonster: {fileID: 5276250605286365945, guid: 162e220705acf854cb6dc1113b2a7123, type: 3}
-  isReturn: 0
+  flyAntMonster: {fileID: 8315886180002795871, guid: adb083f18bfaf4c44b4bd83d9b0226ab, type: 3}

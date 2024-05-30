@@ -24624,14 +24624,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Monster
       objectReference: {fileID: 0}
-    - target: {fileID: 2844131687937591565, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
-      propertyPath: m_Mesh
-      value: 
+    - target: {fileID: 2258887141118905863, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3172372927190972039, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
-      propertyPath: animationJson
-      value: 
-      objectReference: {fileID: 4900000, guid: d92f40200f2bf42478c1d63cc9917549, type: 3}
+      propertyPath: animState
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3583621916964841850, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -24671,6 +24671,14 @@ PrefabInstance:
     - target: {fileID: 3583621916964841850, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6413292522919906199, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6413292522919906199, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_TagString
+      value: Attack
       objectReference: {fileID: 0}
     - target: {fileID: 8906241123110917834, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_Mesh

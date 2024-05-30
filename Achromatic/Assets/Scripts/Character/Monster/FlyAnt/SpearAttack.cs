@@ -14,9 +14,6 @@ public class SpearAttack : Projectile
 
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
-    [SerializeField]
-    private bool isReturn = false;
-
     private void OnEnable()
     {
         isReturn = false;
@@ -33,29 +30,15 @@ public class SpearAttack : Projectile
             ReturnObject(flyAntMonster);
         }
     }
-    public override void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, float shotAngle, eActivableColor color)
-    {
-        base.Shot(shotFrom, from, dir, range, speed, dmg, shotAngle, color);
-
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.collider.CompareTag("Player") || collision.collider.CompareTag("Floor"))
-        {
-            isReturn = true;
-        }
-    }
 
     public void ReturnObject(GameObject obj)
     {
-        Vector2 originalPos = obj.transform.position;
+        float shotDir = (Mathf.Atan2(flyAntMonster.transform.position.y - transform.position.y, flyAntMonster.transform.position.x - transform.position.x) * Mathf.Rad2Deg) - 180;
+        Vector2 originalPos = (Vector2)obj.transform.position - (Vector2)transform.position;
 
+        rigid2D.Sleep();
         rigid2D.AddForce(originalPos * stat.spearThrowReturnSpeed);
 
-        if (Vector2.Distance(originalPos, (Vector2)transform.position) > stat.returnPosValue)
-        {
-            isReturn = false;
-        }
+        transform.rotation = Quaternion.Euler(1, 1, shotDir);
     }
 }
