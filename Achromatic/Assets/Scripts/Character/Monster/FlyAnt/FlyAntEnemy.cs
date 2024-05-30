@@ -35,9 +35,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private LayerMask originLayer;
     private LayerMask colorVisibleLayer;
 
-    private float rightZAngle = 180;
-    private float leftZAngle = 0;
-
     private bool isHeavy = false;
     private bool isDoubleBadyAttack = false;
     private bool isReturnStop = false;
@@ -486,7 +483,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 projectile.ReturnStartRoutine(stat.spearThrowAttackRange);
             }
         }
-        yield return Yields.WaitSeconds(1); //매직넘버
+        yield return Yields.WaitSeconds(0.1f); //매직넘버
         isThrow = true;
         animState = EAnimState.THROWCALLBACK;
         SetCurrentAnimation(animState);
@@ -549,15 +546,23 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private void GetPlayerPositionFromMonster()
     {
         Vector2 monsterMoveDirection = PlayerPos - (Vector2)transform.position;
-        if (monsterMoveDirection.x <= 0)
+        if (monsterMoveDirection.x < 5)
+        {
+            stat.projectileZAngleByHeight = -30; // 몬스터 기준 30도
+        }
+        else if (monsterMoveDirection.x < -5)
+        {
+            stat.projectileZAngleByHeight = -90; // 몬스터 기준 60도
+        }
+        else if (monsterMoveDirection.x <= 0)
         {
             transform.localScale = new Vector2(1, 1);
-            stat.projectileZAngleByHeight = rightZAngle;
+            stat.projectileZAngleByHeight = 180; // 몬스터 기준 왼쪽
         }
         else
         {
             transform.localScale = new Vector2(-1, 1);
-            stat.projectileZAngleByHeight = leftZAngle;
+            stat.projectileZAngleByHeight = 0; // 몬스터 기준 오른쪽
         }
     }
 
