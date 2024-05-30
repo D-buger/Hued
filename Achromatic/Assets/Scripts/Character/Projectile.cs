@@ -97,7 +97,7 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
             isReturn = true;
         }
 
-        if (isReturn && collision.CompareTag("Enemy") || isReturn && collision.CompareTag("ColorEnemy"))
+        if (isReturn && collision.CompareTag("Enemy"))
         {
             ReturnToPool();
         }

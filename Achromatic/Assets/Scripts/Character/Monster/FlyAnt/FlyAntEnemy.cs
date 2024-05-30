@@ -35,7 +35,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private LayerMask originLayer;
     private LayerMask colorVisibleLayer;
 
-    private float deadDelayTime = 1.3f;
+    private float rightZAngle = 180;
+    private float leftZAngle = 0;
 
     private bool isHeavy = false;
     private bool isDoubleBadyAttack = false;
@@ -95,8 +96,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     {
         currentHP = stat.MonsterHP;
         SetState(EMonsterState.isWait, true);
-        SetAttackState(EMonsterAttackState.isReturnEnemy, false);
-        SetAttackState(EMonsterAttackState.isBadyAttack, false);
+        SetAttackState(EMonsterAttackState.isAttack, false);
         skeletonAnimation.state.SetAnimation(0, "FA/idle", true);
         isDead = false;
         rigid.gravityScale = 0;
@@ -105,7 +105,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
-        skeletonAnimation.state.SetAnimation(0, "FA/idle", true);
         monsterStartPos = transform.position;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
@@ -123,8 +122,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
 
         originLayer = LayerMask.GetMask("Enemy");
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
-
-        SetCurrentAnimation(animState);
         if (animationJson is not null)
         {
             jsonObject = JObject.Parse(animationJson.text);
@@ -144,7 +141,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 ReturnMonster();
             }
-            if (attackState.HasFlag(EMonsterAttackState.isBadyAttack) && !attackState.HasFlag(EMonsterAttackState.isReturnEnemy))
+            if (attackState.HasFlag(EMonsterAttackState.isBadyAttack) && !attackState.HasFlag(EMonsterAttackState.isReturnEnemy) && attackState.HasFlag(EMonsterAttackState.isAttack))
             {
                 StartCoroutine(Rush());
             }
@@ -237,7 +234,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     public override void WaitSituation()
     {
         currentHP = stat.MonsterHP;
-        SetAttackState(EMonsterAttackState.isFirstAttack, true);
+        //SetAttackState(EMonsterAttackState.isFirstAttack, true);
         SetState(EMonsterState.isBattle, false);
         transform.position = Vector2.MoveTowards(transform.position, monsterPosition, stat.moveSpeed * Time.deltaTime);
         if (monsterPosition == monsterRunleftPosition)
@@ -298,22 +295,14 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     {
         SetAttackState(EMonsterAttackState.isAttack, true);
         canAttack = false;
-        Vector2 monsterMoveDirection = attackAngle - (Vector2)transform.position;
+        GetPlayerPositionFromMonster();
         animState = EAnimState.DETECTION;
-        if (monsterMoveDirection.x <= 0)
-        {
-            transform.localScale = new Vector2(1, 1);
-        }
-        else
-        {
-            transform.localScale = new Vector2(-1, 1);
-        }
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(1.33f);
         if (!isDead)
         {
             float zAngle = 0;
-            int checkRandomAttackType = 40;//UnityEngine.Random.Range(1, 101);
+            int checkRandomAttackType = UnityEngine.Random.Range(1, 101);
             if (checkRandomAttackType < 50)
             {
                 StartCoroutine(RushAttack(zAngle)); // 돌진 공격
@@ -351,7 +340,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 yield break;
             }
-            int checkRandomAttackType = 40; //UnityEngine.Random.Range(1, 101);
+            int checkRandomAttackType = UnityEngine.Random.Range(1, 101);
             yield return Yields.WaitSeconds(stat.flyAntAttackDelay);
             if (isDead)
             {
@@ -465,16 +454,20 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         if (Vector2.Distance(transform.position, battlePos) <= stat.returnPosValue && !isDoubleBadyAttack)
         {
             SetAttackState(EMonsterAttackState.isReturnEnemy, false);
+            SetAttackState(EMonsterAttackState.isAttack, false);
             canAttack = true;
         }
     }
     private IEnumerator SpearThrowAttack()
     {
+
         animState = EAnimState.THROWREADY;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(3); //매직넘버
         animState = EAnimState.THROW;
         SetCurrentAnimation(animState);
+        GetPlayerPositionFromMonster();
+
         float ZAngle = (Mathf.Atan2(PlayerPos.x - transform.position.x, PlayerPos.y - transform.position.y) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
         Vector2 shotDir = PlayerPos - (Vector2)transform.position;
         GameObject projectileObj = ObjectPoolManager.instance.GetProjectileFromPool(2);
@@ -553,6 +546,21 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         }
     }
 
+    private void GetPlayerPositionFromMonster()
+    {
+        Vector2 monsterMoveDirection = PlayerPos - (Vector2)transform.position;
+        if (monsterMoveDirection.x <= 0)
+        {
+            transform.localScale = new Vector2(1, 1);
+            stat.projectileZAngleByHeight = rightZAngle;
+        }
+        else
+        {
+            transform.localScale = new Vector2(-1, 1);
+            stat.projectileZAngleByHeight = leftZAngle;
+        }
+    }
+
     public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
     {
         if (isDead)
@@ -618,6 +626,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             }
         }
     }
+    
     public bool CanParryAttack()
     {
         return PlayManager.Instance.ContainsActivationColors(stat.enemyColor);

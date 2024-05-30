@@ -153,7 +153,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
             SetState(EMonsterState.isBattle, false);
             SetState(EMonsterState.isPlayerBetween, false);
             CheckStateChange();
-            Debug.Log("¹ßµ¿");
         }
     }
     private void AsyncAnimation(AnimationReferenceAsset animClip, bool loop, float timeScale)

@@ -24632,6 +24632,10 @@ PrefabInstance:
       propertyPath: animState
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3172372927190972039, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: attackState
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3583621916964841850, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
