@@ -30,9 +30,9 @@ public class PlayerAttackReboundState : PlayerBaseState
     IEnumerator OnPostAttackSequence(Vector2 dir, float reboundPower, float reboundTime)
     {
         player.CanChangeState = false;
-        player.RigidbodyComp.velocity = Vector2.zero;
         player.ControlParticles(EPlayerState.ATTACK_REBOUND, true);
-        player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
+        player.RigidbodyComp.velocity = -dir * reboundPower;
+        //player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
         PlayManager.Instance.cameraManager.ShakeCamera(reboundTime);
         yield return Yields.WaitSeconds(reboundTime);
         player.CanChangeState = true;

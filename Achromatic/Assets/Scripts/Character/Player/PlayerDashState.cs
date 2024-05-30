@@ -63,10 +63,12 @@ public class PlayerDashState : PlayerBaseState
 
     IEnumerator DashSequence(Vector2 dashPos)
     {
+        float elapsedTime = 0;
         player.CanChangeState = false;
         player.IsDash = true;
         canDash = false;
         canParryDash = false;
+        player.StopDash = false;
 
         TogglePhysics(false);
         player.ControlParticles(EPlayerState.DASH, true);
@@ -79,8 +81,17 @@ public class PlayerDashState : PlayerBaseState
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
         CheckDirectionAndPlayAnimation(Mathf.Atan2(dashPos.y, dashPos.x) * Mathf.Rad2Deg);
 
-        yield return Yields.WaitSeconds(player.GetPlayerStat.dashingTime);
-        TogglePhysics(true);
+        while (true)
+        {
+            elapsedTime += Time.deltaTime;
+            if (player.StopDash || elapsedTime > player.GetPlayerStat.dashingTime)
+            {
+                player.StopDash = false;
+                TogglePhysics(true);
+                break;
+            }
+            yield return null;
+        }
 
         player.ControlParticles(EPlayerState.DASH, false);
         player.AnimationComp.AnimationState.SetEmptyAnimation(dashAnimationLayer, 0);
@@ -97,7 +108,7 @@ public class PlayerDashState : PlayerBaseState
         yield return Yields.WaitSeconds(player.GetPlayerStat.dashAfterDelay);
         canParryDash = true;
 
-        float elapsedTime = 0;
+        elapsedTime = 0;
         while (true)
         {
             elapsedTime += Time.deltaTime;
@@ -131,6 +142,7 @@ public class PlayerDashState : PlayerBaseState
 
     IEnumerator ParryDashSequence(Vector2 dashPos)
     {
+        float elapsedTime = 0;
         player.CanChangeState = false;
         isParry = false;
         player.IsParryDash = true;
@@ -151,8 +163,17 @@ public class PlayerDashState : PlayerBaseState
         CheckDirectionAndPlayAnimation(Mathf.Atan2(dashPos.y, dashPos.x) * Mathf.Rad2Deg);
         player.PlayerFaceRight = dashPos.x > 0 ? true : false;
 
-        yield return Yields.WaitSeconds(player.GetPlayerStat.parryDashTime);
-        TogglePhysics(true);
+        while (true)
+        {
+            elapsedTime += Time.deltaTime;
+            if (player.StopDash || elapsedTime > player.GetPlayerStat.parryDashTime)
+            {
+                player.StopDash = false;
+                TogglePhysics(true);
+                break;
+            }
+            yield return null;
+        }
 
         if (null != player.ParryDashCollision)
         {

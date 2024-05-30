@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerReboundState : PlayerBaseState
 {
     private Coroutine reboundCoroutine;
+
+    private float reboundMulVelocity = 40;
     public PlayerReboundState(Player player) : base(player)
     {
 
@@ -27,8 +29,7 @@ public class PlayerReboundState : PlayerBaseState
     private IEnumerator ReboundSequence(Vector2 dir, float reboundPower, float reboundTime)
     {
         player.CanChangeState = false;
-        player.RigidbodyComp.velocity = Vector2.zero;
-        player.RigidbodyComp.AddForce(-dir * reboundPower, ForceMode2D.Impulse);
+        player.RigidbodyComp.velocity = new Vector2(-dir.x * reboundMulVelocity * reboundPower, 0);
         yield return Yields.WaitSeconds(reboundTime);
         player.CanChangeState = true;
         player.ChangePrevState();

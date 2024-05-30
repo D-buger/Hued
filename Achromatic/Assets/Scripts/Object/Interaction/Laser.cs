@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Laser : MonoBehaviour
@@ -10,10 +8,12 @@ public class Laser : MonoBehaviour
     private int laserDamage = 1;
 
     private LineRenderer lineRenderer;
+    private ParticleSystem lineEndParticle;
 
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
+        lineEndParticle = transform.GetChild(0).GetComponent<ParticleSystem>();
     }
 
     private void Start()
@@ -31,16 +31,20 @@ public class Laser : MonoBehaviour
         {
             if (ray.collider.CompareTag(PlayManager.PLAYER_TAG))
             {
+                ray.collider.gameObject.GetComponent<Player>().StopDash = true;
                 ray.collider.gameObject.GetComponent<IAttack>().Hit(laserDamage, laserDamage, transform.position - ray.collider.transform.position, null, true);
             }
             else
             {
                 lineRenderer.SetPosition(1, ray.point);
+                lineEndParticle.transform.position = ray.point;
+                lineEndParticle.Play();
             }
         }
         else 
         {
             lineRenderer.SetPosition(1, Vector3.positiveInfinity);
+            lineEndParticle.Stop();
         }
     }
 

@@ -81,9 +81,8 @@ public class Player : MonoBehaviour, IAttack
     public bool CanChangeState { get; set; } = true;
     public bool IsDash { get; set; } = false;
     public bool IsParryDash { get; set; } = false;
-
+    public bool StopDash { get; set; } = false;
     public bool IsInvincibility { get; set; } = false;
-
     public bool ParryCondition { get; set; } = false;
     public bool IsCriticalAttack{ get; set; } = false;
     public bool OnGround { get; private set; }
@@ -290,19 +289,19 @@ public class Player : MonoBehaviour, IAttack
             }
             return;
         }
-        Rebound(attackDir);
-        //if (!IsInvincibility)
-        //{
-        //    if (ChangeState(EPlayerState.HIT))
-        //    {
-        //        PlayerHitState hitState = (PlayerHitState)playerStates[EPlayerState.HIT];
-        //        hitState.Hit(damage, attackDir.normalized);
-        //    }
-        //}
-        //else if (isInfinityRebound)
-        //{
-        //    Rebound(attackDir);
-        //}
+
+        if (!IsInvincibility)
+        {
+            if (ChangeState(EPlayerState.HIT))
+            {
+                PlayerHitState hitState = (PlayerHitState)playerStates[EPlayerState.HIT];
+                hitState.Hit(damage, attackDir.normalized);
+            }
+        }
+        else if (isInfinityRebound)
+        {
+            Rebound(attackDir);
+        }
     }
 
     public void Rebound(Vector2 dir)

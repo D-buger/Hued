@@ -36,7 +36,7 @@ public class BreakableObject : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag(PlayManager.ATTACK_TAG) && collision.GetComponent<Attack>()?.IsPlayerAttack())
+        if (collision.CompareTag(PlayManager.ATTACK_TAG) && collision.GetComponent<Attack>().IsPlayerAttack())
         {
             BreakAction();
         }
