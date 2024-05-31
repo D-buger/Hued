@@ -88,6 +88,7 @@ public class Player : MonoBehaviour, IAttack
     public bool OnGround { get; private set; }
     public bool PlayerFaceRight { get; set; } = true;
     public float FootOffGroundTime { get; set; } = 0f;
+    public Vector2 PrevDashPosition { get; set; } = Vector2.zero;
 
     public Collision2D ParryDashCollision { get; set; }
     public LayerMask GroundLayer { get; private set; }
@@ -317,6 +318,11 @@ public class Player : MonoBehaviour, IAttack
     {
         Debug.Log("Player Dead");
         SceneManager.LoadScene(0);
+    }
+
+    public Vector2 GetPlayerMoveDirection()
+    {
+        return RigidbodyComp.velocity;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

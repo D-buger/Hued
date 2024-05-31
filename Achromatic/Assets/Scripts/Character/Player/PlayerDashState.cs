@@ -23,6 +23,7 @@ public class PlayerDashState : PlayerBaseState
 
     private float dashAnimationTimeScale = 0.5f;
     private int dashAnimationLayer = 1;
+
     public PlayerDashState(Player player) : base(player)
     {
         originGravityScale = player.RigidbodyComp.gravityScale;
@@ -83,13 +84,14 @@ public class PlayerDashState : PlayerBaseState
 
         while (true)
         {
-            elapsedTime += Time.deltaTime;
             if (player.StopDash || elapsedTime > player.GetPlayerStat.dashingTime)
             {
-                player.StopDash = false;
                 TogglePhysics(true);
+                player.StopDash = false;
                 break;
             }
+            player.PrevDashPosition = player.transform.position;
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
 
@@ -165,13 +167,14 @@ public class PlayerDashState : PlayerBaseState
 
         while (true)
         {
-            elapsedTime += Time.deltaTime;
             if (player.StopDash || elapsedTime > player.GetPlayerStat.parryDashTime)
             {
-                player.StopDash = false;
                 TogglePhysics(true);
+                player.StopDash = false;
                 break;
             }
+            player.PrevDashPosition = player.transform.position;
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
 

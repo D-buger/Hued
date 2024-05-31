@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHP: 10
   currentHP: 10
-  playerHP: 10
+  playerHP: 100
   moveSpeed: 7
   jumpPower: 20
   jumpCooldown: 1.2

@@ -14,6 +14,7 @@ public class PlayerReboundState : PlayerBaseState
 
     public override void OnStateEnter()
     {
+        //Debug.Log("rebound");
     }
 
     public override void OnStateUpdate()
