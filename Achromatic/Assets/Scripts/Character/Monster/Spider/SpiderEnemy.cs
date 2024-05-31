@@ -463,7 +463,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         }
     }
 
-    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false)
     {
         if (!isDead)
         {

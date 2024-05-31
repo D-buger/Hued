@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 216b5d609666ca34ba5f7a6049868984, type: 3}
   m_Name: PlayerStat
   m_EditorClassIdentifier: 
-  maxHP: 100
-  currentHP: 98
-  playerHP: 10
+  maxHP: 10
+  currentHP: 10
+  playerHP: 100
   moveSpeed: 7
   jumpPower: 20
   jumpCooldown: 1.2
@@ -37,9 +37,8 @@ MonoBehaviour:
   attackTime: 0.1
   attackCooldown: 0.3
   attackDamage: 1
-  criticalAttackDamage: 2
   colorAttackDamage: 3
-  colorCriticalAttackDamage: 4
+  criticalAttackDamageMultiple: 2
   hitReboundPower: 10
   hitReboundTime: 0.5
   hitBehaviourLimitTime: 0.1

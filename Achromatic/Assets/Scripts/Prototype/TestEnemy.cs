@@ -149,7 +149,7 @@ public class TestEnemy : MonoBehaviour, IAttack
     }
 
     // 임시 테스트 코드
-    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck, bool isInfinityRebound = false)
     {
         //if (!isHeavyAttack)
         //{
