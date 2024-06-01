@@ -442,7 +442,7 @@ private void IsActiveColor(eActivableColor color)
         }
     }
 
-    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public override void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false)
     {
         if (isDead)
         {

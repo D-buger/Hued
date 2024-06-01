@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: player_anime_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
-  - {fileID: 11400000, guid: de20210eed074474ebf7098cbcd5d66d, type: 2}
+  - {fileID: 11400000, guid: 94fc5e8f387859945a0bfa95a78d84cf, type: 2}
   scale: 0.01
   skeletonJSON: {fileID: 4900000, guid: 9d0fe38ad518a9d4aab34cebc9a9dd01, type: 3}
   isUpgradingBlendModeMaterials: 0
@@ -24,8 +24,41 @@ MonoBehaviour:
     multiplyMaterials: []
     screenMaterials: []
   skeletonDataModifiers: []
-  fromAnimation: []
-  toAnimation: []
-  duration: []
+  fromAnimation:
+  - move/randing
+  - battle/attack/slash/slash_bottom
+  - battle/attack/slash/slash_side_1
+  - battle/attack/slash/slash_side_2
+  - battle/attack/slash/slash_top
+  - dash/dash/dash_down
+  - dash/dash/dash_left
+  - dash/dash/dash_up
+  - dash/dash/dash_up
+  - dash/dash/dash_left
+  - dash/dash/dash_down
+  toAnimation:
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - move/run
+  - idle
+  - idle
+  - idle
+  duration:
+  - 0.1
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
+  - 0
   defaultMix: 0.2
   controller: {fileID: 0}

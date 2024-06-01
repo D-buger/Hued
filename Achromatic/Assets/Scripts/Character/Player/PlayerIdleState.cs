@@ -9,7 +9,7 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-        //Debug.Log("Player State : Idle");
+
     }
     public override void OnStateUpdate()
     {

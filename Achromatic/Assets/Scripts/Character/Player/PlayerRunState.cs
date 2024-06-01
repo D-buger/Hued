@@ -1,3 +1,4 @@
+using Spine.Unity;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -16,27 +17,28 @@ public class PlayerRunState : PlayerBaseState
 
             if (moveDir != 0 && !player.IsDash && !player.IsParryDash && player.CanChangeState)
             {
-                player.ChangeState(ePlayerState.RUN);
+                player.ChangeState(EPlayerState.RUN);
             }
             else
             {
-                player.ChangeState(ePlayerState.IDLE);
+                player.ChangeState(EPlayerState.IDLE);
             }
         });
     }
 
     public override void OnStateEnter()
     {
-        //Debug.Log("Player State : Run");
-
-        player.AnimatorComp.SetBool("isRunning", true);
     }
     public override void OnStateUpdate()
     {
         player.PlayerFaceRight = moveDir > 0 ? true : false;
         horizontalMove = moveDir * player.GetPlayerStat.moveSpeed;
-
-        player.ControlParticles(ePlayerState.RUN, player.OnGround);
+        if(!string.Equals(player.AnimationComp.AnimationName, PlayerAnimationNameCaching.RUN_ANIMATION)
+            && player.OnGround)
+        {
+            player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.RUN_ANIMATION, true);
+        }
+        player.ControlParticles(EPlayerState.RUN, player.OnGround);
     }
     public override void OnStateFixedUpdate()
     {
@@ -46,8 +48,8 @@ public class PlayerRunState : PlayerBaseState
     {
         player.RigidbodyComp.velocity = new Vector2(0, player.RigidbodyComp.velocity.y);
 
-        player.AnimatorComp.SetBool("isRunning", false);
+        player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.IDLE_ANIMATION, true);
 
-        player.ControlParticles(ePlayerState.RUN, false);
+        player.ControlParticles(EPlayerState.RUN, false);
     }
 }

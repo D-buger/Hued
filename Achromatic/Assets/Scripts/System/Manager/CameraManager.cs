@@ -184,12 +184,12 @@ public class CameraManager : SingletonBehavior<CameraManager>
     #endregion
 
     #region Pan Camera
-    public void PanCameraOnContact(float panDistance, float panTime, ePanDirection panDirection, bool panToStartingPos)
+    public void PanCameraOnContact(float panDistance, float panTime, EPanDirection panDirection, bool panToStartingPos)
     {
         panCameraCorountine = StartCoroutine(PanCamera(panDistance, panTime, panDirection, panToStartingPos));
     }
 
-    private IEnumerator PanCamera(float panDistance, float panTime, ePanDirection panDirection, bool panToStartingPos)
+    private IEnumerator PanCamera(float panDistance, float panTime, EPanDirection panDirection, bool panToStartingPos)
     {
         Vector2 endPos = Vector2.zero;
         Vector2 startPos = Vector2.zero;
@@ -198,16 +198,16 @@ public class CameraManager : SingletonBehavior<CameraManager>
         {
             switch (panDirection)
             {
-                case ePanDirection.UP:
+                case EPanDirection.UP:
                     endPos = Vector2.up;    
                     break;
-                case ePanDirection.DOWN:
+                case EPanDirection.DOWN:
                     endPos = Vector2.down;
                     break;
-                case ePanDirection.LEFT:
+                case EPanDirection.LEFT:
                     endPos = Vector2.right;
                     break;
-                case ePanDirection.RIGHT:
+                case EPanDirection.RIGHT:
                     endPos = Vector2.left;
                     break;
                 default:
@@ -240,7 +240,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
     #region Fade
 
-    public void SwitchBoundLine(Collider2D collLD, Collider2D collRU, Vector2[] playerEndPos, AnimationCurve autoMoveStyle, Vector2 exitDirection, eTwoDirection dir)
+    public void SwitchBoundLine(Collider2D collLD, Collider2D collRU, Vector2[] playerEndPos, AnimationCurve autoMoveStyle, Vector2 exitDirection, ETwoDirection dir)
     {
         Collider2D oldColl = default;
         Collider2D newColl = default;
@@ -249,7 +249,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
         switch (dir)
         {
-            case eTwoDirection.HORIZONTAL:
+            case ETwoDirection.HORIZONTAL:
                 if(exitDirection.x > 0)
                 {
                     oldColl = collLD;
@@ -263,7 +263,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
                     playerAutoMovePos = playerEndPos[0].x < playerEndPos[1].x ? playerEndPos[0] : playerEndPos[1];
                 }
                 break;
-            case eTwoDirection.VERTICAL:
+            case ETwoDirection.VERTICAL:
                 if(exitDirection.y < 0)
                 {
                     oldColl = collRU;
@@ -364,11 +364,11 @@ public class CameraManager : SingletonBehavior<CameraManager>
     #endregion
 
     #region Lock Position
-    public void LockPosition(eTwoDirection lockDir, bool isLock)
+    public void LockPosition(ETwoDirection lockDir, bool isLock)
     {
         switch(lockDir)
         {
-            case eTwoDirection.HORIZONTAL:
+            case ETwoDirection.HORIZONTAL:
                 if (isLock)
                 {
                     deadZoneWidth = framingTransposer.m_DeadZoneWidth;
@@ -382,7 +382,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
                     framingTransposer.m_SoftZoneWidth = softZoneWidth;
                 }
                 break;
-            case eTwoDirection.VERTICAL:
+            case ETwoDirection.VERTICAL:
                 if (isLock)
                 {
                     deadZoneHeight = framingTransposer.m_DeadZoneHeight;

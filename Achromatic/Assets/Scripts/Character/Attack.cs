@@ -5,7 +5,7 @@ using UnityEngine;
 public interface IAttack
 {
     void OnPostAttack(Vector2 attackDir);
-    void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null);
+    void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false);
 }
 
 public interface IParryConditionCheck
@@ -37,6 +37,7 @@ public class Attack : MonoBehaviour, IParryConditionCheck
     private LayerMask originLayer;
     private LayerMask colorVisibleLayer;
     public bool CanParryAttack() => !string.Equals(PlayManager.PLAYER_TAG, attackFrom) && isCanParryAttack;
+    public bool IsPlayerAttack() => string.Equals(PlayManager.PLAYER_TAG, attackFrom);
 
     private void Awake()
     {

@@ -14,7 +14,7 @@ public class PlayerJumpState : PlayerBaseState
         {
             if (player.CanChangeState)
             {
-                player.ChangeState(ePlayerState.JUMP);
+                player.ChangeState(EPlayerState.JUMP);
             }
             
         });
@@ -23,9 +23,9 @@ public class PlayerJumpState : PlayerBaseState
     public override void OnStateEnter()
     {
         if (canJump && (player.OnGround 
-            || (player.footOffGroundTime < player.GetPlayerStat.koyoteTime && player.footOffGroundTime > 0)))
+            || (player.FootOffGroundTime < player.GetPlayerStat.koyoteTime && player.FootOffGroundTime > 0)))
         {
-            player.footOffGroundTime = -1;
+            player.FootOffGroundTime = -1;
             jumpCoroutine = CoroutineHandler.StartCoroutine(JumpSequence());
         }
         player.ChangePrevState();
@@ -41,7 +41,7 @@ public class PlayerJumpState : PlayerBaseState
         float airHangedTime = -1;
         float oriGravityValue = player.RigidbodyComp.gravityScale;
         bool passedAirHangTime = false;
-        player.AnimatorComp.SetTrigger("jumpTrigger");
+        player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.JUMP_ANIMATION[0], false);
         player.RigidbodyComp.AddForce(Vector2.up * player.GetPlayerStat.jumpPower, ForceMode2D.Impulse);
         while (true)
         {
@@ -49,6 +49,7 @@ public class PlayerJumpState : PlayerBaseState
 
             if (!passedAirHangTime)
             {
+                player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.JUMP_ANIMATION[1], false);
                 if (player.RigidbodyComp.velocity.y <= 0 && airHangedTime < 0)
                 {
                     airHangedTime = elapsedTime;

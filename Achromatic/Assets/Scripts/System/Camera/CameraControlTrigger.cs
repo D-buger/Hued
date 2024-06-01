@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using Cinemachine;
 
-public enum ePanDirection
+public enum EPanDirection
 {
     UP,
     DOWN,
@@ -12,7 +12,7 @@ public enum ePanDirection
     RIGHT
 }
 
-public enum eTwoDirection
+public enum ETwoDirection
 {
     HORIZONTAL,
     VERTICAL
@@ -93,15 +93,15 @@ public class CustomInspectorCameraObjects
 
     [HideInInspector] public Collider2D boundLineLD;
     [HideInInspector] public Collider2D boundLineRU;
-    [HideInInspector] public eTwoDirection boundDirection;
+    [HideInInspector] public ETwoDirection boundDirection;
     [HideInInspector] public AnimationCurve boundMoveCurve = new AnimationCurve();
     [HideInInspector] public Vector2[] playerMoveEndPos;
 
-    [HideInInspector] public ePanDirection panDirection;
+    [HideInInspector] public EPanDirection panDirection;
     [HideInInspector] public float panDistance = 3f;
     [HideInInspector] public float panTime = 0.35f;
 
-    [HideInInspector] public eTwoDirection lockPosition;
+    [HideInInspector] public ETwoDirection lockPosition;
 }
 
 #if UNITY_EDITOR
@@ -160,7 +160,7 @@ public class MyScriptEditor : Editor
             cameraControlTrigger.customInspectorObjects.boundLineRU = EditorGUILayout.ObjectField("Right/Up BoundLine(Trigger)", cameraControlTrigger.customInspectorObjects.boundLineRU,
                 typeof(Collider2D), true) as Collider2D;
 
-            cameraControlTrigger.customInspectorObjects.boundDirection = (eTwoDirection)EditorGUILayout.EnumPopup("Move Direction",
+            cameraControlTrigger.customInspectorObjects.boundDirection = (ETwoDirection)EditorGUILayout.EnumPopup("Move Direction",
                 cameraControlTrigger.customInspectorObjects.boundDirection);
 
             cameraControlTrigger.customInspectorObjects.boundMoveCurve = EditorGUILayout.CurveField("Move Style", cameraControlTrigger.customInspectorObjects.boundMoveCurve);
@@ -169,7 +169,7 @@ public class MyScriptEditor : Editor
 
         if (cameraControlTrigger.customInspectorObjects.panCameraOnContact)
         {
-            cameraControlTrigger.customInspectorObjects.panDirection = (ePanDirection)EditorGUILayout.EnumPopup("Camera Pan Direction",
+            cameraControlTrigger.customInspectorObjects.panDirection = (EPanDirection)EditorGUILayout.EnumPopup("Camera Pan Direction",
                 cameraControlTrigger.customInspectorObjects.panDirection);
 
             cameraControlTrigger.customInspectorObjects.panDistance = EditorGUILayout.FloatField("Pan Distance", cameraControlTrigger.customInspectorObjects.panDistance);
@@ -178,7 +178,7 @@ public class MyScriptEditor : Editor
 
         if (cameraControlTrigger.customInspectorObjects.lockXorY)
         {
-            cameraControlTrigger.customInspectorObjects.lockPosition = (eTwoDirection)EditorGUILayout.EnumPopup("Lock Position",
+            cameraControlTrigger.customInspectorObjects.lockPosition = (ETwoDirection)EditorGUILayout.EnumPopup("Lock Position",
                 cameraControlTrigger.customInspectorObjects.lockPosition);
         }
 

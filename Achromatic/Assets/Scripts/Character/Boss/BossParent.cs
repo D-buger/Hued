@@ -127,7 +127,7 @@ public abstract class BossParent : MonoBehaviour, IAttack
 
     }
 
-    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false)
     {
         CurrentHp -= PlayManager.Instance.ContainsActivationColors(bossStatus.bossColor) ? colorDamage : damage;
     }

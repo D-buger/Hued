@@ -1,12 +1,11 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using Spine;
+using Spine.Unity;
 
-public enum ePlayerState : int
+public enum EPlayerState : int
 {
     IDLE,
     RUN,
@@ -16,6 +15,7 @@ public enum ePlayerState : int
     HIT ,
     ATTACK,
     ATTACK_REBOUND,
+    REBOUND,
     DEAD
 }
 
@@ -23,17 +23,8 @@ public class Player : MonoBehaviour, IAttack
 {
     public Rigidbody2D RigidbodyComp { get; private set; }
     public BoxCollider2D ColliderComp { get; private set; }
-    public SpriteRenderer RendererComp { get; private set; }
-    public Animator AnimatorComp { get; private set; }
-
-    private List<ParticleSystem> effectList = new List<ParticleSystem>();
-
-    private ParticleSystem parryEffect;
-    private ParticleSystem dashEffect;
-    private ParticleSystem runningEffect;
-    private ParticleSystem attackHitEffect;
-    private ParticleSystem hitEffect;
-
+    public MeshRenderer RendererComp { get; private set; }
+    public SkeletonAnimation AnimationComp { get; private set; }
     public CameraFollowObject CameraObject { get; set; }
 
     [SerializeField]
@@ -70,39 +61,50 @@ public class Player : MonoBehaviour, IAttack
             }
         }
     }
+
+    private List<ParticleSystem> effectList = new List<ParticleSystem>();
+
+    private ParticleSystem parryEffect;
+    private ParticleSystem dashEffect;
+    private ParticleSystem runningEffect;
+    private ParticleSystem attackHitEffect;
+    private ParticleSystem hitEffect;
+
+    private Dictionary<EPlayerState, PlayerBaseState> playerStates;
+    private PlayerFSM playerFSM;
+
     [HideInInspector]
     public UnityEvent<int, int> PlayerCurrentHPEvent;
     [HideInInspector]
     public UnityEvent<int, int> PlayerMaxHPEvent;
 
-    private Dictionary<ePlayerState, PlayerBaseState> playerStates;
-    private PlayerFSM playerFSM;
-
     public bool CanChangeState { get; set; } = true;
     public bool IsDash { get; set; } = false;
     public bool IsParryDash { get; set; } = false;
-
+    public bool StopDash { get; set; } = false;
     public bool IsInvincibility { get; set; } = false;
-
     public bool ParryCondition { get; set; } = false;
     public bool IsCriticalAttack{ get; set; } = false;
     public bool OnGround { get; private set; }
-    public float footOffGroundTime { get; set; } = 0f;
     public bool PlayerFaceRight { get; set; } = true;
+    public float FootOffGroundTime { get; set; } = 0f;
+    public Vector2 PrevDashPosition { get; set; } = Vector2.zero;
 
     public Collision2D ParryDashCollision { get; set; }
     public LayerMask GroundLayer { get; private set; }
+
+    private bool randTrigger = false;
     private float bottomOffset = 0.2f;
     private float fallSpeedYDampingChangeThreshold;
-    
+
     private void Awake()
     {
-        playerStates = new Dictionary<ePlayerState, PlayerBaseState>();
+        playerStates = new Dictionary<EPlayerState, PlayerBaseState>();
 
         RigidbodyComp = GetComponent<Rigidbody2D>();
         ColliderComp = GetComponent<BoxCollider2D>();
-        RendererComp = GetComponent<SpriteRenderer>();
-        AnimatorComp = GetComponent<Animator>();
+        RendererComp = GetComponent<MeshRenderer>();
+        AnimationComp = GetComponentInChildren<SkeletonAnimation>();
         CameraObject = FindObjectOfType<CameraFollowObject>();
 
         GameObject effects = transform.GetChild(1).gameObject;
@@ -134,19 +136,21 @@ public class Player : MonoBehaviour, IAttack
         PlayerDashState dash = new PlayerDashState(this);
         PlayerGroggyState groggy = new PlayerGroggyState(this);
         PlayerHitState hit = new PlayerHitState(this);
+        PlayerReboundState rebound = new PlayerReboundState(this);
         PlayerDeadState dead = new PlayerDeadState(this);
 
-        playerStates.Add(ePlayerState.IDLE, idle);
-        playerStates.Add(ePlayerState.RUN, run);
-        playerStates.Add(ePlayerState.ATTACK, attack);
-        playerStates.Add(ePlayerState.ATTACK_REBOUND, afterAttack);
-        playerStates.Add(ePlayerState.JUMP, jump);
-        playerStates.Add(ePlayerState.DASH, dash);
-        playerStates.Add(ePlayerState.GROGGY, groggy);
-        playerStates.Add(ePlayerState.HIT, hit);
-        playerStates.Add(ePlayerState.DEAD, dead);
+        playerStates.Add(EPlayerState.IDLE, idle);
+        playerStates.Add(EPlayerState.RUN, run);
+        playerStates.Add(EPlayerState.ATTACK, attack);
+        playerStates.Add(EPlayerState.ATTACK_REBOUND, afterAttack);
+        playerStates.Add(EPlayerState.JUMP, jump);
+        playerStates.Add(EPlayerState.DASH, dash);
+        playerStates.Add(EPlayerState.GROGGY, groggy);
+        playerStates.Add(EPlayerState.HIT, hit);
+        playerStates.Add(EPlayerState.REBOUND, rebound);
+        playerStates.Add(EPlayerState.DEAD, dead);
 
-        playerFSM = new PlayerFSM(playerStates[ePlayerState.IDLE]);
+        playerFSM = new PlayerFSM(playerStates[EPlayerState.IDLE]);
         MaxHP = stat.playerHP;
         CurrentHP = stat.playerHP;
 
@@ -155,6 +159,8 @@ public class Player : MonoBehaviour, IAttack
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 
         UISystem.Instance?.hpSliderEvent?.Invoke(CurrentHP);
+
+        AnimationComp.AnimationState.SetAnimation(5, PlayerAnimationNameCaching.SWORD_ONOFF_ANIMATION[0], true);
     }
 
     private void Update()
@@ -165,8 +171,13 @@ public class Player : MonoBehaviour, IAttack
 
         RaycastHit2D raycastHit = Physics2D.BoxCast(ColliderComp.bounds.center, ColliderComp.bounds.size, 0f, Vector2.down, bottomOffset, GroundLayer);
         OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
-        AnimatorComp.SetBool("onGround", OnGround);
-        footOffGroundTime = OnGround ? 0 : footOffGroundTime + Time.deltaTime;
+        FootOffGroundTime = OnGround ? 0 : FootOffGroundTime + Time.deltaTime;
+        randTrigger = OnGround ? randTrigger : true;
+        if (randTrigger && OnGround)
+        {
+            randTrigger = false;
+            AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.RANDING_ANIMATION, false);
+        }
 
         if (RigidbodyComp.velocity.y < fallSpeedYDampingChangeThreshold
             && !CameraManager.Instance.IsLerpingYDamping
@@ -205,20 +216,25 @@ public class Player : MonoBehaviour, IAttack
     }
     public void ChangePrevState()
     {
-        ChangeState(playerFSM.GetPrevState() == playerStates[ePlayerState.RUN] ? ePlayerState.RUN : ePlayerState.IDLE);
+        ChangeState(playerFSM.GetPrevState() == playerStates[EPlayerState.RUN] ? EPlayerState.RUN : EPlayerState.IDLE);
     }
-    public void ChangeState(ePlayerState state)
+    public bool ChangeState(EPlayerState state)
     {
-        playerFSM.ChangeState(playerStates[state]);
+        if (CanChangeState)
+        {
+            playerFSM.ChangeState(playerStates[state]);
+            return true;
+        }
+        return false;
     }
-    public void ControlParticles(ePlayerState state, bool onoff, int index = 0)
+    public void ControlParticles(EPlayerState state, bool onoff, int index = 0)
     {
         switch (state)
         {
-            case ePlayerState.ATTACK_REBOUND:
+            case EPlayerState.ATTACK_REBOUND:
                 EffectPlayOrStop(attackHitEffect, onoff);
                 break;
-            case ePlayerState.DASH:
+            case EPlayerState.DASH:
                 if(index == 0)
                 {
                     EffectPlayOrStop(dashEffect ,onoff);
@@ -228,10 +244,10 @@ public class Player : MonoBehaviour, IAttack
                     EffectPlayOrStop(parryEffect, onoff);
                 }
                 break;
-            case ePlayerState.RUN:
+            case EPlayerState.RUN:
                 EffectPlayOrStop(runningEffect, onoff);
                 break;
-            case ePlayerState.HIT:
+            case EPlayerState.HIT:
                 EffectPlayOrStop(hitEffect, onoff);
                 break;
             default:
@@ -257,13 +273,14 @@ public class Player : MonoBehaviour, IAttack
 
     public void OnPostAttack(Vector2 attackDir)
     {
-        PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[ePlayerState.ATTACK_REBOUND];
-        ChangeState(ePlayerState.ATTACK_REBOUND);
-        afterAttackState.OnPostAttack(attackDir);
+        if (ChangeState(EPlayerState.ATTACK_REBOUND))
+        {
+            PlayerAttackReboundState afterAttackState = (PlayerAttackReboundState)playerStates[EPlayerState.ATTACK_REBOUND];
+            afterAttackState.OnPostAttack(attackDir);
+        }
     }
 
-
-    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null)
+    public void Hit(int damage, int colorDamage, Vector2 attackDir, IParryConditionCheck parryCheck = null, bool isInfinityRebound = false)
     {
         if(IsDash || IsParryDash)
         {
@@ -273,9 +290,28 @@ public class Player : MonoBehaviour, IAttack
             }
             return;
         }
-        PlayerHitState hitState = (PlayerHitState)playerStates[ePlayerState.HIT];
-        ChangeState(ePlayerState.HIT);
-        hitState.Hit(damage, attackDir.normalized);
+
+        if (!IsInvincibility)
+        {
+            if (ChangeState(EPlayerState.HIT))
+            {
+                PlayerHitState hitState = (PlayerHitState)playerStates[EPlayerState.HIT];
+                hitState.Hit(damage, attackDir.normalized);
+            }
+        }
+        else if (isInfinityRebound)
+        {
+            Rebound(attackDir);
+        }
+    }
+
+    public void Rebound(Vector2 dir)
+    {
+        if (ChangeState(EPlayerState.REBOUND))
+        {
+            PlayerReboundState reboundState = (PlayerReboundState)playerStates[EPlayerState.REBOUND];
+            reboundState.Rebound(dir, stat.hitReboundPower, stat.hitReboundTime);
+        }
     }
 
     private void Dead()
@@ -284,16 +320,19 @@ public class Player : MonoBehaviour, IAttack
         SceneManager.LoadScene(0);
     }
 
+    public Vector2 GetPlayerMoveDirection()
+    {
+        return RigidbodyComp.velocity;
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG))
+        if (collision.gameObject.CompareTag(PlayManager.ENEMY_TAG) && (IsDash || IsParryDash))
         {
-            if (IsDash || IsParryDash)
-            {
-                int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
-                collision.gameObject.GetComponent<Monster>()?.Hit(damage, damage,
-                    collision.transform.position - transform.position);
-            }
+            int damage = IsParryDash ? stat.parryDashDamage : stat.dashDamage;
+            collision.gameObject.GetComponent<Monster>()?.Hit(damage, damage,
+                collision.transform.position - transform.position);
+            
         }
     }
 
