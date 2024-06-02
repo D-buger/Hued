@@ -11,7 +11,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/TestScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/12_GrayBoxing/12_Grayboxing.unity
     guid: 65ab97949f2108940bafc94d98bf0bcf
+  - enabled: 1
+    path: Assets/Scenes/12_GrayBoxing/12_Grayboxing 1.unity
+    guid: c5dfc9d2088a7e843ac42ada08841df5
   m_configObjects: {}

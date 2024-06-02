@@ -195,4 +195,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canActive: 0
   stat: {fileID: 11400000, guid: 5c73b307a2101324e9bc3da0a6f9267e, type: 2}
-  flyAntMonster: {fileID: 8526819769833987034, guid: 37522160abf2b9f41876b4bdd576377b, type: 3}
+  flyAntMonster: {fileID: 0}
+  targetPos: {x: 0, y: 0}

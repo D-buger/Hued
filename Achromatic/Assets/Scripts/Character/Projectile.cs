@@ -7,7 +7,7 @@ using UnityEngine.TerrainUtils;
 
 public class Projectile : MonoBehaviour, IParryConditionCheck
 {
-    private Rigidbody2D rigid;
+    protected Rigidbody2D rigid;
     private SpriteRenderer renderer;
 
     private Vector2 moveDirection = Vector2.zero;
@@ -82,6 +82,14 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
     }
     public virtual void OnTriggerEnter2D(Collider2D collision)
     {
+        if (collision.CompareTag(PlayManager.PLAYER_TAG) || collision.CompareTag("Floor"))
+        {
+            isReturn = true;
+        }
+        if (isReturn && collision.CompareTag("Enemy"))
+        {
+            ReturnToPool();
+        }
         if (collision.CompareTag(PlayManager.PLAYER_TAG) && canActive)
         {
             collision.GetComponent<IAttack>()?.Hit(damage, damage, -moveDirection, this);
@@ -90,16 +98,6 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
         else if (collision.CompareTag(PlayManager.PLAYER_TAG) && !canActive)
         {
             collision.GetComponent<IAttack>()?.Hit(damage, damage, -moveDirection, this);
-        }
-
-        if (collision.CompareTag(PlayManager.PLAYER_TAG) || collision.CompareTag("Floor"))
-        {
-            isReturn = true;
-        }
-
-        if (isReturn && collision.CompareTag("Enemy"))
-        {
-            ReturnToPool();
         }
     }
     public bool CanParryAttack()

@@ -28,8 +28,8 @@ MonoBehaviour:
   deadDelay: 2
   attackDelay: 1.33
   projectileAngleByHeight: 0.22
-  projectileZAngleByHeight: -30
-  enemyRoamingRange: 15
+  projectileZAngleByHeight: 0
+  enemyRoamingRange: 20
   discoveryDuration: 1
   senseCube: {x: 2, y: 2, z: 0}
   flyAntAttackDelay: 1
@@ -42,8 +42,8 @@ MonoBehaviour:
   spearThrowSpeed: 600
   spearThrowDamage: 2
   spearThrowReturnDamage: 4
-  spearThrowReturnSpeed: 250
+  spearThrowReturnSpeed: 150
   spearThrowAttackRange: 6
-  doubleBadyAttackPercent: 50
+  doubleBodyAttackPercent: 50
   returnPosValue: 0.5
-  doubleBadyAttackRebound: 3
+  doubleBodyAttackRebound: 300

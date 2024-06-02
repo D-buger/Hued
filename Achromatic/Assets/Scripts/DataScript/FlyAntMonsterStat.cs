@@ -29,9 +29,9 @@ public class FlyAntMonsterStat : MonsterStat
     [Tooltip("창이 날아가는 범위")]
     public float spearThrowAttackRange = 6.0f;
     [Tooltip("연속 돌진 확률")]
-    public int doubleBadyAttackPercent = 50;
+    public int doubleBodyAttackPercent = 50;
     [Tooltip("원래 자리로 돌아왔다는 판정 조건")]
     public float returnPosValue = 0.3f;
     [Tooltip("연속 돌진시 뒤로 빠지는 반동")]
-    public float doubleBadyAttackRebound = 300f;
+    public float doubleBodyAttackRebound = 300f;
 }
