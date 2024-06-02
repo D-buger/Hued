@@ -4,9 +4,7 @@ using UnityEngine.Events;
 using Spine.Unity;
 using Newtonsoft.Json.Linq;
 using TextAsset = UnityEngine.TextAsset;
-using Unity.VisualScripting;
 using System;
-using System.Runtime.CompilerServices;
 
 public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
 {
@@ -109,7 +107,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
-        PlayManager.Instance.UpdateColorthing();
         angleThreshold += transform.position.y;
         if (animationJson is not null)
         {
@@ -121,6 +118,10 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     {
         distanceToMonsterStartPos = Vector2.Distance(transform.position, monsterStartPos);
         StartCoroutine(CheckPlayer(startSpiderPosition));
+        if (isDead)
+        {
+            return;
+        }    
         if (canAttack && IsStateActive(EMonsterState.isBattle))
         {
             Attack();
@@ -400,7 +401,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         animState = EanimState.GROUND;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/ground_attack"]["events"][0]["time"]);
-        rigid.velocity = Vector2.up * stat.earthAttackJump;
         currentState |= EMonsterAttackState.ISEARTHATTACK;
 
         StartCoroutine(SpawnObjects());

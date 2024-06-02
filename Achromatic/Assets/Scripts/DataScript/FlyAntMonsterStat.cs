@@ -8,6 +8,8 @@ public class FlyAntMonsterStat : MonsterStat
     public float flyAntAttackDelay = 1.0f;
     [Tooltip("돌진 속도")]
     public float rushAttackSpeed = 1.0f;
+    [Tooltip("리턴 속도")]
+    public float returnSpeed = 1.0f;
     [Tooltip("돌진 데미지")]
     public int rushAttackDamage = 5;
     [Tooltip("돌진 준비 애니메이션 시간")]
@@ -30,4 +32,6 @@ public class FlyAntMonsterStat : MonsterStat
     public int doubleBadyAttackPercent = 50;
     [Tooltip("원래 자리로 돌아왔다는 판정 조건")]
     public float returnPosValue = 0.3f;
+    [Tooltip("연속 돌진시 뒤로 빠지는 반동")]
+    public float doubleBadyAttackRebound = 300f;
 }

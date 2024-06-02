@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Red_Crystal_Spider_anime_SkeletonData
   m_EditorClassIdentifier: 
   atlasAssets:
-  - {fileID: 11400000, guid: 3fefcc99993026141a8ae2626f077c5e, type: 2}
+  - {fileID: 11400000, guid: e6a85f42ebebf1744b9771d69839d79f, type: 2}
   scale: 0.01
   skeletonJSON: {fileID: 4900000, guid: 95e0ef8a807d0384fbd9b7fdabbc07c8, type: 3}
   isUpgradingBlendModeMaterials: 0
@@ -22,7 +22,7 @@ MonoBehaviour:
     applyAdditiveMaterial: 1
     additiveMaterials:
     - pageName: Red_Crystal_Spider_anime.png
-      material: {fileID: 2100000, guid: 471ab7840875d2743bf3d0534be56a20, type: 2}
+      material: {fileID: 2100000, guid: 984a00af57daab2498c20779ed516070, type: 2}
     multiplyMaterials: []
     screenMaterials: []
   skeletonDataModifiers: []

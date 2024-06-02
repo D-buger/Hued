@@ -22,6 +22,15 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
     private bool isShooting = false;
     private bool isParried = false;
 
+    [SerializeField]
+    private bool canActive = true;
+
+    protected bool isReturn = false;
+
+    private void OnEnable()
+    {
+        isReturn = false;
+    }
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();
@@ -71,11 +80,25 @@ public class Projectile : MonoBehaviour, IParryConditionCheck
         yield return new WaitForSeconds(delay);
         ReturnToPool();
     }
-    public void OnTriggerEnter2D(Collider2D collision)
+    public virtual void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag(PlayManager.PLAYER_TAG))
+        if (collision.CompareTag(PlayManager.PLAYER_TAG) && canActive)
         {
             collision.GetComponent<IAttack>()?.Hit(damage, damage, -moveDirection, this);
+            ReturnToPool();
+        }
+        else if (collision.CompareTag(PlayManager.PLAYER_TAG) && !canActive)
+        {
+            collision.GetComponent<IAttack>()?.Hit(damage, damage, -moveDirection, this);
+        }
+
+        if (collision.CompareTag(PlayManager.PLAYER_TAG) || collision.CompareTag("Floor"))
+        {
+            isReturn = true;
+        }
+
+        if (isReturn && collision.CompareTag("Enemy"))
+        {
             ReturnToPool();
         }
     }

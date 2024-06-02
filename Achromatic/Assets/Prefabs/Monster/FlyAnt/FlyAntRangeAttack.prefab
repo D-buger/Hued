@@ -180,7 +180,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!114 &350498249688207563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,5 +193,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9e3bdbecdccca74b821e4f5236f7b27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canActive: 0
   stat: {fileID: 11400000, guid: 5c73b307a2101324e9bc3da0a6f9267e, type: 2}
-  flyAntMonster: {fileID: 2593968587204008439, guid: ca8b6950b2962ac4aab7049aa81502a5, type: 3}
+  flyAntMonster: {fileID: 8526819769833987034, guid: 37522160abf2b9f41876b4bdd576377b, type: 3}

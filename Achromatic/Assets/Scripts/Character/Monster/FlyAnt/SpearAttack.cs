@@ -10,9 +10,19 @@ public class SpearAttack : Projectile
     private FlyAntMonsterStat stat;
     [SerializeField]
     private GameObject flyAntMonster;
+    private Rigidbody2D rigid2D;
 
-    private bool isReturn = false;
+    private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
+    private void OnEnable()
+    {
+        isReturn = false;
+    }
+
+    private void Start()
+    {
+        rigid2D = GetComponent<Rigidbody2D>();
+    }
     private void Update()
     {
         if (isReturn)
@@ -20,27 +30,15 @@ public class SpearAttack : Projectile
             ReturnObject(flyAntMonster);
         }
     }
-    public override void Shot(GameObject shotFrom, Vector2 from, Vector2 dir, float range, float speed, int dmg, float shotAngle, eActivableColor color)
-    {
-        base.Shot(shotFrom, from, dir, range, speed, dmg, shotAngle, color);
-
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        isReturn = true;
-    }
 
     public void ReturnObject(GameObject obj)
     {
-        Vector2 originalPos = obj.transform.position;
-        Vector2 attackDir = (originalPos - (Vector2)transform.position).normalized;
+        float shotDir = (Mathf.Atan2(flyAntMonster.transform.position.y - transform.position.y, flyAntMonster.transform.position.x - transform.position.x) * Mathf.Rad2Deg) - 180;
+        Vector2 originalPos = (Vector2)obj.transform.position - (Vector2)transform.position;
 
-        transform.Translate(attackDir * stat.spearThrowReturnSpeed * Time.deltaTime);
+        rigid2D.Sleep();
+        rigid2D.AddForce(originalPos * stat.spearThrowReturnSpeed);
 
-        if (Vector2.Distance(originalPos, (Vector2)transform.position) > stat.returnPosValue)
-        {
-            isReturn = false;
-        }
+        transform.rotation = Quaternion.Euler(1, 1, shotDir);
     }
 }
