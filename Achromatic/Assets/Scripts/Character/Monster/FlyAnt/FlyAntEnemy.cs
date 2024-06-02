@@ -4,10 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using Unity.VisualScripting;
-using UnityEditor.ShaderGraph.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
-using static UnityEngine.Rendering.DebugUI;
 using Color = UnityEngine.Color;
 
 public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
@@ -94,7 +92,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         currentHP = stat.MonsterHP;
         SetState(EMonsterState.isWait, true);
         SetAttackState(EMonsterAttackState.isAttack, false);
-        skeletonAnimation.state.SetAnimation(0, "FA/idle", true);
         isDead = false;
         rigid.gravityScale = 0;
         rushAttackObject.SetActive(false);
@@ -102,6 +99,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
+        skeletonAnimation.state.SetAnimation(0, "FA/idle", true);
         monsterStartPos = transform.position;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
@@ -113,7 +111,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         monsterRunRightPosition.x += transform.position.x - runPosition;
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
-        PlayManager.Instance.UpdateColorthing();
         monsterPosition = monsterRunRightPosition;
         startFlyAntPosition = new Vector2(transform.position.x, transform.position.y);
 
@@ -123,12 +120,13 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         {
             jsonObject = JObject.Parse(animationJson.text);
         }
+        SetState(EMonsterState.isWait, true);
     }
     private void Update()
     {
-        distanceToMonsterStartPos = Vector2.Distance(transform.position, monsterStartPos);
         if (!isDead)
         {
+            distanceToMonsterStartPos = Vector2.Distance(transform.position, monsterStartPos);
             StartCoroutine(CheckPlayer(startFlyAntPosition));
             if (IsStateActive(EMonsterState.isBattle))
             {
@@ -258,7 +256,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         {
             elapsedTime = 0f;
             SetState(EMonsterState.isWait, true);
-            SetState(EMonsterState.isPlayerBetween, false);
             SetState(EMonsterState.isBattle, false);
             CheckStateChange();
         }
@@ -308,21 +305,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 StartCoroutine(SpearThrowAttack()); // 창 던지기 공격
             }
-        }
-    }
-
-    private void RushAttackDirection()
-    {
-        Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
-        if (attackDirection.x <= 0)
-        {
-            transform.localScale = new Vector2(1, 1);
-            transform.rotation = Quaternion.Euler(1, 1, 45);
-        }
-        else
-        {
-            transform.localScale = new Vector2(-1, 1);
-            transform.rotation = Quaternion.Euler(1, 1, -45);
         }
     }
 
@@ -461,6 +443,10 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         animState = EAnimState.THROWREADY;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(3); //매직넘버
+        if (isDead)
+        {
+            yield break;
+        }
         animState = EAnimState.THROW;
         SetCurrentAnimation(animState);
         GetPlayerPositionFromMonster();
@@ -484,10 +470,19 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             }
         }
         yield return Yields.WaitSeconds(0.1f); //매직넘버
+        if (isDead)
+        {
+            yield break;
+        }
         isThrow = true;
         animState = EAnimState.THROWCALLBACK;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds(3); //매직넘버
+        if (isDead)
+        {
+            yield break;
+        }
+
     }
 
     public override void Dead()
@@ -506,7 +501,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         transform.localScale = new Vector3(1, 1, 1);
         animState = EAnimState.DEAD;
         SetCurrentAnimation(animState);
-        rigid.gravityScale = 1.0f;
+        rigid.gravityScale = 2.0f;
         yield return new WaitForSeconds(0.333f); // 매직넘버 수정
         animState = EAnimState.DEADFALL;
         SetCurrentAnimation(animState);
@@ -543,21 +538,47 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         }
     }
 
+    private void RushAttackDirection()
+    {
+        Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
+        if (attackDirection.x <= -5)
+        {
+            transform.localScale = new Vector2(1, 1);
+            transform.rotation = Quaternion.Euler(1, 1, 45); // 몬스터 기준 왼쪽
+        }
+        else if (attackDirection.x < 0)
+        {
+            transform.localScale = new Vector2(1, 1);
+            transform.rotation = Quaternion.Euler(1, 1, 55); // 몬스터 기준 왼쪽 아래
+        }
+        else if (attackDirection.x < 5)
+        {
+            transform.localScale = new Vector2(-1, 1);
+            transform.rotation = Quaternion.Euler(1, 1, -55); // 몬스터 기준 오른쪽
+        }
+        else
+        {
+            transform.localScale = new Vector2(-1, 1);
+            transform.rotation = Quaternion.Euler(1, 1, -45); // 몬스터 기준 오른쪽 아래
+        }
+    }
     private void GetPlayerPositionFromMonster()
     {
         Vector2 monsterMoveDirection = PlayerPos - (Vector2)transform.position;
-        if (monsterMoveDirection.x < 5)
-        {
-            stat.projectileZAngleByHeight = -30; // 몬스터 기준 30도
-        }
-        else if (monsterMoveDirection.x < -5)
-        {
-            stat.projectileZAngleByHeight = -90; // 몬스터 기준 60도
-        }
-        else if (monsterMoveDirection.x <= 0)
+        if (monsterMoveDirection.x < -5)
         {
             transform.localScale = new Vector2(1, 1);
-            stat.projectileZAngleByHeight = 180; // 몬스터 기준 왼쪽
+            stat.projectileZAngleByHeight = -180; // 몬스터 기준 왼쪽
+        }
+        else if (monsterMoveDirection.x < 0)
+        {
+            transform.localScale = new Vector2(1, 1);
+            stat.projectileZAngleByHeight = 210; // 몬스터 기준 왼쪽 아래
+        }
+        else if (monsterMoveDirection.x < 5)
+        {
+            transform.localScale = new Vector2(-1, 1);
+            stat.projectileZAngleByHeight = -30; // 몬스터 기준 오른쪽 아래
         }
         else
         {

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5466362569814886551}
   - component: {fileID: 5321771556160476640}
   m_Layer: 8
-  m_Name: Attack
+  m_Name: FlyAttack
   m_TagString: Attack
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

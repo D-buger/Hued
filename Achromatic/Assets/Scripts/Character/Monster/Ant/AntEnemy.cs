@@ -130,7 +130,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
-        PlayManager.Instance.UpdateColorthing();
         monsterPosition = monsterRunRightPosition;
         startAntPosition = ((Vector2)transform.position);
 

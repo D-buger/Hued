@@ -111,7 +111,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
-        PlayManager.Instance.UpdateColorthing();
         angleThreshold += transform.position.y;
         if (animationJson is not null)
         {
