@@ -91,7 +91,11 @@ public class InputManager : SingletonBehavior<InputManager>
             LightAttackEvent?.Invoke(MouseVec);
         }
 
-        if (Input.GetKey(JUMP))
+        if (Input.GetKey(LOOK_DOWN) && Input.GetKey(JUMP))
+        {
+            DownJumpEvent?.Invoke();
+        }
+        else if (Input.GetKey(JUMP))
         {
             prevGetJumpTime = 0;
             JumpEvent?.Invoke();
@@ -124,11 +128,6 @@ public class InputManager : SingletonBehavior<InputManager>
         else if (Input.GetKey(LOOK_UP))
         {
             LookEvent?.Invoke(1);
-        }
-
-        if (Input.GetKey(LOOK_DOWN) && Input.GetKey(JUMP))
-        {
-            DownJumpEvent?.Invoke();
         }
 
         if (Input.GetKeyDown(USE_ITEM))
