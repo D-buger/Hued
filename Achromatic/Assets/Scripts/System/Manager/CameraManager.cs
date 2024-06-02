@@ -282,12 +282,12 @@ public class CameraManager : SingletonBehavior<CameraManager>
                 Debug.Assert(false);
                 break;
         }
-        fadeCameraCoroutine = StartCoroutine(FadeSequence(changeFadeTime, changeDelayTime, 
+        fadeCameraCoroutine = CameraFade(changeFadeTime, changeDelayTime, 
             () =>
             {
                 confiner.m_BoundingShape2D = newColl;
                 StartCoroutine(PlayerAutoMoveSequence(playerAutoMovePos, moveToUp ? autoMoveStyle : null));
-            }));
+            });
     }
     IEnumerator PlayerAutoMoveSequence(Vector2 movePos, AnimationCurve moveStyle = null)
     {
@@ -320,9 +320,13 @@ public class CameraManager : SingletonBehavior<CameraManager>
         InputManager.Instance.CanInput = true;
     }
 
-    public void CameraFade(float fadeTime, float fadeDelay, UnityAction action)
+    public Coroutine CameraFade(float fadeTime, float fadeDelay, UnityAction action)
     {
-        fadeCameraCoroutine = StartCoroutine(FadeSequence(fadeTime, fadeDelay, action));
+        if (fadeCameraCoroutine == null)
+        {
+            fadeCameraCoroutine = StartCoroutine(FadeSequence(fadeTime, fadeDelay, action));
+        }
+        return fadeCameraCoroutine;
     }
 
     IEnumerator FadeSequence(float fadeTime, float fadeDelay, UnityAction action)
@@ -330,8 +334,6 @@ public class CameraManager : SingletonBehavior<CameraManager>
         InputManager.Instance.CanInput = false;
 
         float elapsedTime = 0;
-        float lerp = 0;
-
         while (true)
         {
             elapsedTime += Time.deltaTime / fadeTime;
@@ -350,7 +352,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
         while (true)
         {
             elapsedTime += Time.deltaTime / fadeTime;
-            cameraFade.m_Alpha = lerp;
+            cameraFade.m_Alpha = 1 - elapsedTime;
             if (elapsedTime > 1)
             {
                 break;
@@ -358,7 +360,7 @@ public class CameraManager : SingletonBehavior<CameraManager>
 
             yield return null;
         }
-
+        fadeCameraCoroutine = null;
     }
 
     #endregion

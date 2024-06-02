@@ -203,7 +203,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     }
     public override IEnumerator CheckPlayer(Vector2 startMonsterPos)
     {
-        Debug.Log(distanceToPlayer);
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
         distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
 

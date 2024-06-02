@@ -141,7 +141,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 81692e2029fa3e948a5c32192045b136, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 344441673079e3f40a68715b77a7811e, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -216,7 +216,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 32ec2cfea4fd69d4dbd62a07b3a0de91, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6753394edf11bf040b560bcd6163362b, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -253,7 +253,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8783106630782298388}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -312,7 +312,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &1858843994173993351
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -343,4 +343,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   flipYRotationTime: 0
-  offset: {x: 0, y: 1}
+  offset: {x: 0, y: 1.8}
