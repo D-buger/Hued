@@ -1,16 +1,9 @@
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using Spine.Unity;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
-using static SpiderEnemy;
-using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
-using static UnityEngine.Rendering.DebugUI;
 
 public class AntEnemy : Monster, IAttack, IParryConditionCheck
 {
@@ -112,7 +105,6 @@ public class AntEnemy : Monster, IAttack, IParryConditionCheck
 
     private void Start()
     {
-        skeletonAnimation.state.SetAnimation(0, "ground_ant/ground_ant_nomal/ground_ant_idle", false);
         runPosition = stat.enemyRoamingRange;
         originalMoveSpeed = stat.moveSpeed;
         originalRunSpeed = stat.runSpeed;

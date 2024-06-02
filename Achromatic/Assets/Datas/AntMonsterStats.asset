@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f282e72a1e66b6842811d0af00d71795, type: 3}
   m_Name: AntMonsterStats
   m_EditorClassIdentifier: 
-  monsterHP: 20
+  monsterHP: 30
   enemyColor: 1
   senseCircle: 5
   moveSpeed: 1
@@ -28,7 +28,7 @@ MonoBehaviour:
   deadDelay: 1.33
   attackDelay: 1.33
   projectileAngleByHeight: 0.22
-  projectileZAngleByHeight: 160
+  projectileZAngleByHeight: 220
   enemyRoamingRange: 8
   discoveryDuration: 1
   slashAttackDamage: 1

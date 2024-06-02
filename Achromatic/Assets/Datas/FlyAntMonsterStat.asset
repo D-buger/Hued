@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58ba5025e47eaee498ec494316569f79, type: 3}
   m_Name: FlyAntMonsterStat
   m_EditorClassIdentifier: 
-  monsterHP: 6
+  monsterHP: 20
   enemyColor: 1
   senseCircle: 5
   moveSpeed: 1
@@ -20,7 +20,7 @@ MonoBehaviour:
   attackDamage: 1
   attackTime: 0.3
   attackCooldown: 1
-  contactDamage: 2
+  contactDamage: 1
   hitReboundPower: 5
   heavyHitReboundPower: 10
   groggyTime: 0.5
@@ -35,12 +35,12 @@ MonoBehaviour:
   flyAntAttackDelay: 1
   rushAttackSpeed: 20
   returnSpeed: 10
-  rushAttackDamage: 5
+  rushAttackDamage: 2
   rushReadyAnimaionDuration: 1.5
   rushAttackDelay: 1
   doubleRushAttackBetweenDelay: 1
-  spearThrowSpeed: 300
-  spearThrowDamage: 7
+  spearThrowSpeed: 600
+  spearThrowDamage: 2
   spearThrowReturnDamage: 4
   spearThrowReturnSpeed: 250
   spearThrowAttackRange: 6

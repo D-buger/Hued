@@ -1,9 +1,6 @@
 using Newtonsoft.Json.Linq;
 using Spine.Unity;
 using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using Color = UnityEngine.Color;
@@ -99,7 +96,6 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
-        skeletonAnimation.state.SetAnimation(0, "FA/idle", true);
         monsterStartPos = transform.position;
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 

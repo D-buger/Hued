@@ -4,9 +4,7 @@ using UnityEngine.Events;
 using Spine.Unity;
 using Newtonsoft.Json.Linq;
 using TextAsset = UnityEngine.TextAsset;
-using Unity.VisualScripting;
 using System;
-using System.Runtime.CompilerServices;
 
 public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
 {
@@ -90,8 +88,6 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void Start()
     {
-        skeletonAnimation.state.SetAnimation(0, "spider_move", false);
-
         monsterStartPos = transform.position;
         runPosition = stat.enemyRoamingRange;
 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13f29fb973c82d8448b1118c3211ad09, type: 3}
   m_Name: SpiderMonsterStats
   m_EditorClassIdentifier: 
-  monsterHP: 20
+  monsterHP: 30
   enemyColor: 1
   senseCircle: 8
   moveSpeed: 1.4
