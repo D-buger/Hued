@@ -18,8 +18,8 @@ MonoBehaviour:
   moveSpeed: 1
   runSpeed: 4
   attackDamage: 1
-  attackTime: 1.3333
-  attackCooldown: 2
+  attackTime: 0.8888
+  attackCooldown: 1
   contactDamage: 1
   hitReboundPower: 2
   heavyHitReboundPower: 3
@@ -49,5 +49,5 @@ MonoBehaviour:
   counterAttackDurationTime: 0.3
   counterAttackDamage: 2
   counterAttackSpeed: 6
-  stabAttackPercent: 0
-  slashAttackPercent: 100
+  stabAttackPercent: 33
+  slashAttackPercent: 33

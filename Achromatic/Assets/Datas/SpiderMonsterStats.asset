@@ -18,7 +18,7 @@ MonoBehaviour:
   moveSpeed: 1.4
   runSpeed: 2
   attackDamage: 1
-  attackTime: 1.33
+  attackTime: 0.8888
   attackCooldown: 1
   contactDamage: 1
   hitReboundPower: 5
@@ -29,7 +29,7 @@ MonoBehaviour:
   attackDelay: 1.33
   projectileAngleByHeight: 0.22
   projectileZAngleByHeight: 180
-  enemyRoamingRange: 8
+  enemyRoamingRange: 11
   discoveryDuration: 1
   meleeAttackRange: 3
   attackRange: 0.8
