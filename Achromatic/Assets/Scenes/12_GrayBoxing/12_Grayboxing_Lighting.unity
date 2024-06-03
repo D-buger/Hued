@@ -8452,7 +8452,7 @@ GameObject:
   - component: {fileID: 393561511}
   m_Layer: 6
   m_Name: stage1_tilemap_03
-  m_TagString: Untagged
+  m_TagString: Floor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -8508,7 +8508,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 1
   m_UsedByComposite: 0
-  m_Offset: {x: -58.22836, y: -0.0085225105}
+  m_Offset: {x: -59.069042, y: -0.0085225105}
   m_SpriteTilingProperty:
     border: {x: 0.57, y: 0.53999996, z: 0.58, w: 0.64}
     pivot: {x: 0.5, y: 0.5}
@@ -8519,7 +8519,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 124.92901, y: 1.5606947}
+  m_Size: {x: 126.610374, y: 1.5606947}
   m_EdgeRadius: 0
 --- !u!212 &393561513
 SpriteRenderer:
@@ -73648,7 +73648,7 @@ GameObject:
   - component: {fileID: 1837766945}
   m_Layer: 6
   m_Name: stage1_tilemap_16
-  m_TagString: Untagged
+  m_TagString: Floor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
