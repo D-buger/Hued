@@ -244,7 +244,7 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
             SetState(EMonsterState.isPlayerBetween, true);
             SetState(EMonsterState.isBattle, false);
         }
-        else if (canAttack && !currentState.HasFlag(EMonsterAttackState.ISATTACK))
+        else if (canAttack && !currentState.HasFlag(EMonsterAttackState.ISATTACK) && !isDead)
         {
             StartCoroutine(AttackSequence(PlayerPos));
         }
@@ -271,6 +271,10 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
         animState = EanimState.DETECTION;
         SetCurrentAnimation(animState);
         yield return Yields.WaitSeconds((float)jsonObject["animations"]["attack/charge_attack"]["events"][1]["time"]);
+        if (isDead)
+        {
+            yield break;
+        }
         float ZAngle = (Mathf.Atan2(attackAngle.y - transform.position.y, attackAngle.x - transform.position.x) * Mathf.Rad2Deg) + stat.projectileZAngleByHeight;
         if (currentState.HasFlag(EMonsterAttackState.ISFIRSTATTACK))
         {
@@ -300,6 +304,10 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
             {
                 StartCoroutine(rushGroundAttack(reboundDirCheck));
                 yield return Yields.WaitSeconds(4.0f);
+                if (isDead)
+                {
+                    yield break;
+                }
             }
 
             ///<summary>  넣을지 말지 미확정 ///</summary>
@@ -329,6 +337,10 @@ public class SpiderEnemy : Monster, IAttack, IParryConditionCheck
 
         }
         yield return Yields.WaitSeconds(stat.attackTime);
+        if (isDead)
+        {
+            yield break;
+        }
         currentState &= ~EMonsterAttackState.ISATTACK;
         animState = EanimState.IDLE;
         SetCurrentAnimation(animState);
