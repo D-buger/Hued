@@ -173,6 +173,11 @@ public class Player : MonoBehaviour, IAttack
         OnGround = ReferenceEquals(raycastHit.collider, null) ? false : true;
         FootOffGroundTime = OnGround ? 0 : FootOffGroundTime + Time.deltaTime;
         randTrigger = OnGround ? randTrigger : true;
+        if (!OnGround && !string.Equals(AnimationComp.AnimationName, PlayerAnimationNameCaching.JUMP_ANIMATION[1]))
+        {
+            AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.JUMP_ANIMATION[1], true);
+        }
+
         if (randTrigger && OnGround)
         {
             randTrigger = false;
