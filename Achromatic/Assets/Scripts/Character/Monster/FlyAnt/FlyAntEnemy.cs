@@ -22,9 +22,15 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private FlyAntMonsterStat stat;
     [SerializeField]
     private JObject jsonObject;
+
     private Vector2 targetPos;
-    public Vector2 battlePos;
-    public Vector2 startFlyAntPosition;
+    [SerializeField]
+    private Vector2 battlePos;
+    private Vector2 startFlyAntPosition;
+    private Vector2 targetMonsterPosition;
+
+    private Vector2 flyAntRunLeftPosition;
+    private Vector2 flyAntRunRightPosition;
 
     public UnityEvent<eActivableColor> flyAntColorEvent;
 
@@ -33,8 +39,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
 
     private bool isHeavy = false;
     private bool isDoubleBodyAttack = false;
-    private bool isReturnStop = false;
     private bool isThrow = false;
+    private bool doubleAttackTest = false;
 
     public enum EAnimState
     {
@@ -66,14 +72,14 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
 
     private enum EMonsterAttackState
     {
-        None = 0,
-        isBodyAttack = 1 << 0,
-        isReturnEnemy = 2 << 0,
-        isFirstAttack = 3 << 0,
-        isAttack = 4 << 0,
+        NONE = 0,
+        ISBODYATTACK = 1 << 0,
+        ISRETURNENEMY = 2 << 0,
+        ISFIRSTATTACK = 3 << 0,
+        ISATTACK = 4 << 0,
     }
     [SerializeField]
-    private EMonsterAttackState attackState = EMonsterAttackState.None;
+    private EMonsterAttackState attackState = EMonsterAttackState.NONE;
     private Vector2 PlayerPos => PlayManager.Instance.GetPlayer.transform.position;
 
     private void Awake()
@@ -84,30 +90,27 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         meleeAttack = attackPoint.GetComponentInChildren<Attack>();
     }
 
-    private void OnEnable()
+    private void Start()
     {
         currentHP = stat.MonsterHP;
-        SetAttackState(EMonsterAttackState.isAttack, false);
+        SetAttackState(EMonsterAttackState.ISATTACK, false);
+        SetAttackState(EMonsterAttackState.ISBODYATTACK, false);
         isDead = false;
         rigid.gravityScale = 0;
         rushAttackObject.SetActive(false);
-    }
-    private void Start()
-    {
+
+        transform.localScale = new Vector3(-1, 1, 1);
         battlePos = transform.position;
         startFlyAntPosition = transform.position;
-        monsterStartPos = startFlyAntPosition = new Vector2(transform.position.x, transform.position.y);
         meleeAttack?.SetAttack(PlayManager.ENEMY_TAG, this, stat.enemyColor);
 
-        runPosition = stat.enemyRoamingRange;
-
-        monsterRunleftPosition.y = transform.position.y;
-        monsterRunRightPosition.y = transform.position.y;
-        monsterRunleftPosition.x += transform.position.x + runPosition;
-        monsterRunRightPosition.x += transform.position.x - runPosition;
+        flyAntRunLeftPosition.y = transform.position.y;
+        flyAntRunRightPosition.y = transform.position.y;
+        flyAntRunLeftPosition.x += transform.position.x + stat.enemyRoamingRange;
+        flyAntRunRightPosition.x += transform.position.x - stat.enemyRoamingRange;
 
         PlayManager.Instance.FilterColorAttackEvent.AddListener(IsActiveColor);
-        monsterPosition = monsterRunRightPosition;
+        targetMonsterPosition = monsterRunRightPosition;
 
         originLayer = LayerMask.GetMask("Enemy");
         colorVisibleLayer = LayerMask.GetMask("ColorEnemy");
@@ -123,13 +126,13 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     {
         if (!isDead)
         {
-            distanceToMonsterStartPos = Vector2.Distance(transform.position, monsterStartPos);
+            distanceToMonsterStartPos = Vector2.Distance(transform.position, startFlyAntPosition);
             StartCoroutine(CheckPlayer(startFlyAntPosition));
-            if (attackState.HasFlag(EMonsterAttackState.isReturnEnemy) && !isReturnStop)
+            if (attackState.HasFlag(EMonsterAttackState.ISRETURNENEMY) && attackState.HasFlag(EMonsterAttackState.ISATTACK) && state.HasFlag(EMonsterState.isBattle))
             {
                 ReturnMonster();
             }
-            if (attackState.HasFlag(EMonsterAttackState.isBodyAttack) && !attackState.HasFlag(EMonsterAttackState.isReturnEnemy) && attackState.HasFlag(EMonsterAttackState.isAttack))
+            if (attackState.HasFlag(EMonsterAttackState.ISBODYATTACK) && !attackState.HasFlag(EMonsterAttackState.ISRETURNENEMY))
             {
                 StartCoroutine(Rush());
             }
@@ -206,7 +209,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         distanceToPlayer = Vector2.Distance(transform.position, PlayerPos);
         distanceToStartPos = Vector2.Distance(startMonsterPos, PlayerPos);
 
-        if (distanceToStartPos <= runPosition && !IsStateActive(EMonsterState.isBattle) && canAttack)
+        if (distanceToStartPos <= stat.enemyRoamingRange && !IsStateActive(EMonsterState.isBattle) && canAttack)
         {
             SetState(EMonsterState.isWait, false);
             SetState(EMonsterState.isBattle, true);
@@ -223,22 +226,22 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     {
         currentHP = stat.MonsterHP;
         SetState(EMonsterState.isBattle, false);
-        transform.position = Vector2.MoveTowards(transform.position, monsterPosition, stat.moveSpeed * Time.deltaTime);
-        if (monsterPosition == monsterRunleftPosition)
-        {
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
-        else if (monsterPosition == monsterRunRightPosition)
+        transform.position = Vector2.MoveTowards(transform.position, targetMonsterPosition, stat.moveSpeed * Time.deltaTime);
+        if (targetMonsterPosition == flyAntRunLeftPosition)
         {
             transform.localScale = new Vector3(1, 1, 1);
         }
-        if (HasArrived((Vector2)transform.position, monsterRunRightPosition))
+        else if (targetMonsterPosition == flyAntRunRightPosition)
         {
-            monsterPosition = monsterRunleftPosition;
+            transform.localScale = new Vector3(-1, 1, 1);
         }
-        else if (HasArrived((Vector2)transform.position, monsterRunleftPosition))
+        if (HasArrived((Vector2)transform.position, flyAntRunRightPosition))
         {
-            monsterPosition = monsterRunRightPosition;
+            targetMonsterPosition = flyAntRunLeftPosition;
+        }
+        else if (HasArrived((Vector2)transform.position, flyAntRunLeftPosition))
+        {
+            targetMonsterPosition = flyAntRunRightPosition;
         }
     }
     public override IEnumerator CheckWaitTime()
@@ -260,26 +263,25 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             return;
         }
 
-        if (attackState.HasFlag(EMonsterAttackState.isFirstAttack))
+        if (attackState.HasFlag(EMonsterAttackState.ISFIRSTATTACK))
         {
-            battlePos = new(transform.position.x, transform.position.y);
-            SetAttackState(EMonsterAttackState.isFirstAttack, false);
+            SetAttackState(EMonsterAttackState.ISFIRSTATTACK, false);
         }
 
-        if (canAttack && !attackState.HasFlag(EMonsterAttackState.isAttack) && distanceToPlayer <= stat.enemyRoamingRange)
+        if (canAttack && !attackState.HasFlag(EMonsterAttackState.ISATTACK) && distanceToPlayer <= stat.enemyRoamingRange)
         {
             StartCoroutine(AttackSequence(PlayerPos));
         }
-        else if (canAttack && !attackState.HasFlag(EMonsterAttackState.isAttack))
+        else if (canAttack && !attackState.HasFlag(EMonsterAttackState.ISATTACK) && distanceToPlayer >= stat.enemyRoamingRange)
         {
             SetState(EMonsterState.isBattle, false);
-            SetState(EMonsterState.isWait, true); // FIX 요부분 버그 수정
+            SetState(EMonsterState.isWait, true);
             CheckStateChange();
         }
     }
     private IEnumerator AttackSequence(Vector2 attackAngle)
     {
-        SetAttackState(EMonsterAttackState.isAttack, true);
+        SetAttackState(EMonsterAttackState.ISATTACK, true);
         canAttack = false;
         GetPlayerPositionFromMonster();
         animState = EAnimState.DETECTION;
@@ -287,20 +289,20 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         yield return Yields.WaitSeconds(1.33f);
         if (!isDead)
         {
-            float zAngle = 0;
             int checkRandomAttackType = UnityEngine.Random.Range(1, 101);
             if (checkRandomAttackType < 50)
             {
-                StartCoroutine(RushAttack(zAngle)); // 돌진 공격
+                StartCoroutine(RushAttack()); // 돌진 공격
             }
             else
             {
                 StartCoroutine(SpearThrowAttack()); // 창 던지기 공격
             }
         }
+        yield break;
     }
 
-    private IEnumerator RushAttack(float zAngle)
+    private IEnumerator RushAttack()
     {
         if (!isDead)
         {
@@ -328,17 +330,19 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             targetPos = new(PlayerPos.x, PlayerPos.y);
             if (checkRandomAttackType > stat.doubleBodyAttackPercent)
             {
-                SetAttackState(EMonsterAttackState.isBodyAttack, true);
+                SetAttackState(EMonsterAttackState.ISBODYATTACK, true);
                 isDoubleBodyAttack = true;
-                isReturnStop = true;
+                doubleAttackTest = true;
                 CheckAttackStateChange();
             }
             else
             {
-                SetAttackState(EMonsterAttackState.isBodyAttack, true);
+                SetAttackState(EMonsterAttackState.ISBODYATTACK, true);
+                doubleAttackTest = true;
                 CheckAttackStateChange();
             }
             rushAttackObject.SetActive(true);
+            yield break;
         }
     }
     private IEnumerator Rush()
@@ -346,18 +350,17 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         transform.position = Vector2.MoveTowards(transform.position, targetPos, stat.rushAttackSpeed * Time.deltaTime);
         if (Vector2.Distance(transform.position, targetPos) <= stat.returnPosValue)
         {
-            Vector2 attackDirection = PlayerPos - (Vector2)transform.position;
-            if (isDoubleBodyAttack)
+            if (isDoubleBodyAttack && doubleAttackTest)
             {
+                doubleAttackTest = false;
                 animState = EAnimState.CHARGEFINISH;
                 SetCurrentAnimation(animState);
                 transform.rotation = Quaternion.Euler(1, 1, 1);
-                SetAttackState(EMonsterAttackState.isBodyAttack, false);
+                SetAttackState(EMonsterAttackState.ISBODYATTACK, false);
                 yield return Yields.WaitSeconds(1.0f); //FIX 매직넘버
                 if (!isDead)
                 {
-                    isReturnStop = false;
-                    SetAttackState(EMonsterAttackState.isReturnEnemy, true);
+                    SetAttackState(EMonsterAttackState.ISRETURNENEMY, true);
                     animState = EAnimState.IDLE;
                     SetCurrentAnimation(animState);
                     yield return Yields.WaitSeconds(0.5f); //FIX 매직넘버
@@ -367,10 +370,9 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                     yield break;
                 }
                 targetPos = new(PlayerPos.x, PlayerPos.y);
-                isReturnStop = true;
-                SetAttackState(EMonsterAttackState.isReturnEnemy, false);
+                SetAttackState(EMonsterAttackState.ISRETURNENEMY, false);
                 isDoubleBodyAttack = false;
-                SetAttackState(EMonsterAttackState.isBodyAttack, true);
+                SetAttackState(EMonsterAttackState.ISBODYATTACK, true);
                 animState = EAnimState.CHARGEIDLE;
                 SetCurrentAnimation(animState);
                 RushAttackDirection();
@@ -396,7 +398,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 {
                     yield break;
                 }
-                SetAttackState(EMonsterAttackState.isBodyAttack, false);
+                SetAttackState(EMonsterAttackState.ISBODYATTACK, false);
                 animState = EAnimState.CHARGEFINISH;
                 SetCurrentAnimation(animState);
                 transform.rotation = Quaternion.Euler(1, 1, 1);
@@ -405,10 +407,10 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 {
                     yield break;
                 }
-                SetAttackState(EMonsterAttackState.isReturnEnemy, true);
-                isReturnStop = false;
+                SetAttackState(EMonsterAttackState.ISRETURNENEMY, true);
                 rushAttackObject.SetActive(false);
                 canAttack = true;
+                yield break;
             }
         }
     }
@@ -424,8 +426,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         transform.rotation = Quaternion.Euler(1, 1, 1);
         if (Vector2.Distance(transform.position, battlePos) <= stat.returnPosValue && !isDoubleBodyAttack)
         {
-            SetAttackState(EMonsterAttackState.isReturnEnemy, false);
-            SetAttackState(EMonsterAttackState.isAttack, false);
+            SetAttackState(EMonsterAttackState.ISRETURNENEMY, false);
+            SetAttackState(EMonsterAttackState.ISATTACK, false);
             canAttack = true;
         }
     }
@@ -434,7 +436,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
 
         animState = EAnimState.THROWREADY;
         SetCurrentAnimation(animState);
-        yield return Yields.WaitSeconds(3); //매직넘버
+        yield return Yields.WaitSeconds(3); //FIX 매직넘버
         if (isDead)
         {
             yield break;
@@ -465,15 +467,11 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         {
             yield break;
         }
+        yield return Yields.WaitSeconds(0.1f); //FIX 매직넘버
         isThrow = true;
         animState = EAnimState.THROWCALLBACK;
         SetCurrentAnimation(animState);
-        yield return Yields.WaitSeconds(3); //매직넘버
-        if (isDead)
-        {
-            yield break;
-        }
-
+        yield break;
     }
 
     public override void Dead()
@@ -483,9 +481,8 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private IEnumerator DeadSequence()
     {
         rushAttackObject.SetActive(false);
-        SetAttackState(EMonsterAttackState.isReturnEnemy, false);
-        SetAttackState(EMonsterAttackState.isBodyAttack, false);
-        isReturnStop = false;
+        SetAttackState(EMonsterAttackState.ISRETURNENEMY, false);
+        SetAttackState(EMonsterAttackState.ISBODYATTACK, false);
         isDoubleBodyAttack = false;
         SetState(EMonsterState.isBattle, false);
         SetState(EMonsterState.isWait, false);
@@ -493,12 +490,13 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         animState = EAnimState.DEAD;
         SetCurrentAnimation(animState);
         rigid.gravityScale = 2.0f;
-        yield return new WaitForSeconds(0.333f); // 매직넘버 수정
+        yield return new WaitForSeconds(0.333f); //FIX 매직넘버 수정
         animState = EAnimState.DEADFALL;
         SetCurrentAnimation(animState);
         yield return new WaitForSeconds(stat.deadDelay);
         gameObject.SetActive(false);
         isDead = true;
+        yield break;
     }
     public override void CheckStateChange()
     {
@@ -511,7 +509,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 fsm.ChangeState("Idle");
                 animState = EAnimState.IDLE;
                 SetCurrentAnimation(animState);
-                SetAttackState(EMonsterAttackState.isFirstAttack, true);
+                SetAttackState(EMonsterAttackState.ISFIRSTATTACK, true);
                 break;
             default:
                 break;
@@ -521,7 +519,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     {
         switch (attackState)
         {
-            case EMonsterAttackState.isBodyAttack:
+            case EMonsterAttackState.ISBODYATTACK:
                 animState = EAnimState.CHARGEIDLE;
                 SetCurrentAnimation(animState);
                 break;
@@ -619,22 +617,12 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             animState = EAnimState.THROWCATCH;
             SetCurrentAnimation(animState);
             isThrow = false;
-            SetAttackState(EMonsterAttackState.isAttack, false);
+            SetAttackState(EMonsterAttackState.ISATTACK, false);
             canAttack = true;
         }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (attackState.HasFlag(EMonsterAttackState.isBodyAttack))
-        {
-            if (collision.collider.CompareTag("Floor"))
-            {
-                isDoubleBodyAttack = false;
-                isReturnStop = false;
-                SetAttackState(EMonsterAttackState.isBodyAttack, false);
-                SetAttackState(EMonsterAttackState.isReturnEnemy, true);
-            }
-        }
         if (isDead)
         {
             if (collision.collider.CompareTag("Floor"))
@@ -643,7 +631,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
                 SetCurrentAnimation(animState);
             }
         }
-    }
+    } 
 
     public bool CanParryAttack()
     {

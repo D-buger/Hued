@@ -18,7 +18,6 @@ public class RushAttack : MonoBehaviour, IParryConditionCheck
         {
             collision.gameObject.GetComponent<Player>().Hit(stat.rushAttackDamage,
             stat.rushAttackDamage, transform.position - collision.transform.position, this);
-            gameObject.SetActive(false);
         }
     }
     public bool CanParryAttack()
