@@ -12,7 +12,7 @@ public class PlayerJumpState : PlayerBaseState
     {
         InputManager.Instance.JumpEvent.AddListener(() =>
         {
-            if (player.CanChangeState && canJump)
+            if (player.CanChangeState && canJump && (player.OnGround || (player.FootOffGroundTime < player.GetPlayerStat.koyoteTime && player.FootOffGroundTime > 0)) && player.RigidbodyComp.velocity.y == 0)
             {
                 player.ChangeState(EPlayerState.JUMP);
             }
@@ -22,11 +22,9 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-        if (player.OnGround || (player.FootOffGroundTime < player.GetPlayerStat.koyoteTime && player.FootOffGroundTime > 0))
-        {
-            player.FootOffGroundTime = -1;
-            jumpCoroutine = CoroutineHandler.StartCoroutine(JumpSequence());
-        }
+        player.FootOffGroundTime = -1;
+        jumpCoroutine = CoroutineHandler.StartCoroutine(JumpSequence());
+        
         player.ChangePrevState();
     }
 
