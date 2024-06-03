@@ -20511,6 +20511,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 16
       objectReference: {fileID: 0}
+    - target: {fileID: 4151944517120712808, guid: 7472fe342ef54b74a8ee84a442968ea0, type: 3}
+      propertyPath: m_TagString
+      value: Floor
+      objectReference: {fileID: 0}
     - target: {fileID: 5640832760343893155, guid: 7472fe342ef54b74a8ee84a442968ea0, type: 3}
       propertyPath: m_Layer
       value: 16
@@ -42301,7 +42305,7 @@ GameObject:
   - component: {fileID: 1256130393}
   m_Layer: 9
   m_Name: object_crystalRock_01
-  m_TagString: Untagged
+  m_TagString: Floor
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44628,6 +44632,18 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 215393348321025944, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_Size.y
+      value: 3.916869
+      objectReference: {fileID: 0}
+    - target: {fileID: 215393348321025944, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.08601177
+      objectReference: {fileID: 0}
+    - target: {fileID: 215393348321025944, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_Offset.y
+      value: 2.5221667
+      objectReference: {fileID: 0}
+    - target: {fileID: 215393348321025944, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
       value: 67072
       objectReference: {fileID: 0}
@@ -44671,6 +44687,10 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 3172372927190972039, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: rushAttackObject
+      value: 
+      objectReference: {fileID: 1406213427}
     - target: {fileID: 3172372927190972039, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: skeletonAnimation
       value: 
@@ -46042,6 +46062,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1406213427 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2582986028920840167, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+  m_PrefabInstance: {fileID: 1336172031}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1406515102
 GameObject:
   m_ObjectHideFlags: 0
@@ -73434,7 +73459,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6012393938092417831, guid: ac63bcc31e888d34aa73479da0031b10, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

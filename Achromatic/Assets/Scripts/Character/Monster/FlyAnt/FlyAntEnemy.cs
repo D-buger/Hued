@@ -623,6 +623,16 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (!isDead)
+        {
+            if (collision.collider.CompareTag("Floor"))
+            {
+                SetAttackState(EMonsterAttackState.ISRETURNENEMY, true);
+                SetAttackState(EMonsterAttackState.ISBODYATTACK, false);
+                isDoubleBodyAttack = false;
+                stopDoubleAttack = false;
+            }
+        }
         if (isDead)
         {
             if (collision.collider.CompareTag("Floor"))
