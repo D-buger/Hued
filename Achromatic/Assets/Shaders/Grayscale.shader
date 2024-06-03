@@ -6,7 +6,7 @@ Shader"Unlit/Grayscale"
         _Color ("ActivationColor", Color) = (0, 0, 0, 1)
         _Filter ("FilterColor", Color) = (0, 0, 0, 1)
         _FilterPosition ("VisibleColorPosition", Vector) = (0.5, 0.5, 0, 0)
-        _Radius ("VisibleColorRadius", float) = 300
+        _Radius ("VisibleColorRadius", float) = 600
     }
     SubShader
     {

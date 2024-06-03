@@ -16,7 +16,7 @@ public class PlayerAttackState : PlayerBaseState
     private Vector2 attackAngle;
     private bool canAttack = true;
     private bool sideAttackFormChangeTrigger = false;
-    private float attackSideAnimationTimeScale = 1.5f;
+    private float attackSideAnimationTimeScale = 1f;
     private int attackAnimationLayer = 2;
     public PlayerAttackState(Player player, GameObject atkPnt) : base(player) 
     {

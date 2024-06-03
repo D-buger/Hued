@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerStat
   m_EditorClassIdentifier: 
   maxHP: 10
-  currentHP: 10
+  currentHP: 6
   playerHP: 10
   moveSpeed: 7
   jumpPower: 25
@@ -41,5 +41,5 @@ MonoBehaviour:
   criticalAttackDamageMultiple: 2
   hitReboundPower: 10
   hitReboundTime: 0.5
-  hitBehaviourLimitTime: 0.1
+  hitBehaviourLimitTime: 0.5
   hitInvincibilityTime: 0.5

@@ -9,7 +9,6 @@ public class PlayerIdleState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-
     }
     public override void OnStateUpdate()
     {

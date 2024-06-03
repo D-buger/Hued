@@ -154,7 +154,7 @@ public class Player : MonoBehaviour, IAttack
         MaxHP = stat.playerHP;
         CurrentHP = stat.playerHP;
 
-        GroundLayer = LayerMask.GetMask("Platform") | LayerMask.GetMask("Object") | LayerMask.GetMask("ColorObject");
+        GroundLayer = LayerMask.GetMask("Platform") | LayerMask.GetMask("ColorObject");
 
         fallSpeedYDampingChangeThreshold = CameraManager.Instance.fallSpeedYDampingChangeThreshold;
 

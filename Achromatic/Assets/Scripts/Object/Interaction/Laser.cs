@@ -57,10 +57,10 @@ public class Laser : MonoBehaviour
         if (collision.transform.CompareTag(PlayManager.PLAYER_TAG))
         {
             Player player = collision.gameObject.GetComponent<Player>();
-            Vector3 position = player.IsDash || player.IsParryDash ? player.PrevDashPosition : collision.transform.position;
-            player.transform.position = position;
+            //Vector3 position = player.IsDash || player.IsParryDash ? player.PrevDashPosition : collision.transform.position;
+            //player.transform.position = position;
             player.StopDash = true;
-            collision.gameObject.GetComponent<IAttack>().Hit(laserDamage, laserDamage, transform.position - position, null, true);
+            collision.gameObject.GetComponent<IAttack>().Hit(laserDamage, laserDamage, transform.position - player.transform.position, null, true);
         }
     }
 }
