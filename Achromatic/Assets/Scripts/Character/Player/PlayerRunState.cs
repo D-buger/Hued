@@ -13,10 +13,9 @@ public class PlayerRunState : PlayerBaseState
     {
         InputManager.Instance.MoveEvent.AddListener((int moveDir) =>
         {
-            this.moveDir = moveDir;
-
             if (moveDir != 0 && !player.IsDash && !player.IsParryDash && player.CanChangeState)
             {
+                this.moveDir = moveDir;
                 player.ChangeState(EPlayerState.RUN);
             }
             else

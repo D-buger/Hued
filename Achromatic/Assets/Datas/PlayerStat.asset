@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerStat
   m_EditorClassIdentifier: 
   maxHP: 10
-  currentHP: 10
+  currentHP: 4
   playerHP: 10
   moveSpeed: 7
   jumpPower: 25

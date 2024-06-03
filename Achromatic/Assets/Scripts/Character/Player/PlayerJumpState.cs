@@ -23,7 +23,6 @@ public class PlayerJumpState : PlayerBaseState
 
     public override void OnStateEnter()
     {
-        player.FootOffGroundTime = -1;
         jumpCoroutine = CoroutineHandler.StartCoroutine(JumpSequence());
         
         player.ChangePrevState();
