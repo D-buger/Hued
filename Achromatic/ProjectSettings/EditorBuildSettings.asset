@@ -15,6 +15,6 @@ EditorBuildSettings:
     path: Assets/Scenes/12_GrayBoxing/12_Grayboxing.unity
     guid: 65ab97949f2108940bafc94d98bf0bcf
   - enabled: 1
-    path: Assets/Scenes/12_GrayBoxing/12_Grayboxing_.unity
+    path: Assets/Scenes/12_GrayBoxing/12_Grayboxing_Lighting.unity
     guid: c5dfc9d2088a7e843ac42ada08841df5
   m_configObjects: {}
