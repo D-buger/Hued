@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: PlayerStat
   m_EditorClassIdentifier: 
   maxHP: 10
-  currentHP: 6
+  currentHP: 10
   playerHP: 10
   moveSpeed: 7
   jumpPower: 25
-  jumpCooldown: 1.2
+  jumpCooldown: 0.5
   koyoteTime: 0.15
   airHangTime: 0.1
   dashPower: 30

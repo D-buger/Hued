@@ -17,6 +17,7 @@ public class InputManager : SingletonBehavior<InputManager>
     const KeyCode FILTER = KeyCode.F;
     const KeyCode INVENTORY = KeyCode.I;
     const KeyCode USE_ITEM = KeyCode.Alpha1;
+    const KeyCode RESET_SCENE = KeyCode.F5;
 
     [HideInInspector]
     public UnityEvent ExitEvent;
@@ -38,6 +39,8 @@ public class InputManager : SingletonBehavior<InputManager>
     public UnityEvent InventoryEvent;
     [HideInInspector]
     public UnityEvent UseItemEvent;
+    [HideInInspector]
+    public UnityEvent SceneResetEvent;
 
     [SerializeField]
     private float jumpBufferTime = 0.1f;
@@ -59,7 +62,10 @@ public class InputManager : SingletonBehavior<InputManager>
     {
         MouseVec = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         prevGetJumpTime += Time.deltaTime;
-
+        if (Input.GetKeyDown(RESET_SCENE))
+        {
+            SceneResetEvent?.Invoke();
+        }
         if (Input.GetKey(EXIT))
         {
             ExitEvent?.Invoke();

@@ -12,7 +12,8 @@ public class PlayerJumpState : PlayerBaseState
     {
         InputManager.Instance.JumpEvent.AddListener(() =>
         {
-            if (player.CanChangeState && canJump && (player.OnGround || (player.FootOffGroundTime < player.GetPlayerStat.koyoteTime && player.FootOffGroundTime > 0)) && player.RigidbodyComp.velocity.y == 0)
+            if (player.CanChangeState && canJump && 
+            (player.OnGround || (player.FootOffGroundTime < player.GetPlayerStat.koyoteTime && player.FootOffGroundTime > 0)))
             {
                 player.ChangeState(EPlayerState.JUMP);
             }
@@ -39,10 +40,21 @@ public class PlayerJumpState : PlayerBaseState
         float oriGravityValue = player.RigidbodyComp.gravityScale;
         bool passedAirHangTime = false;
         player.AnimationComp.AnimationState.SetAnimation(0, PlayerAnimationNameCaching.JUMP_ANIMATION[0], false);
-        player.RigidbodyComp.AddForce(Vector2.up * player.GetPlayerStat.jumpPower, ForceMode2D.Impulse);
+        player.RigidbodyComp.velocity = Vector2.zero;
+        player.RigidbodyComp.velocity = Vector2.up * player.GetPlayerStat.jumpPower;
         while (true)
         {
             elapsedTime += Time.deltaTime;
+
+            if (elapsedTime > player.GetPlayerStat.jumpCooldown)
+            {
+                canJump = true;
+                if (player.OnGround)
+                {
+                    player.RigidbodyComp.gravityScale = oriGravityValue;
+                    break;
+                }
+            }
 
             if (!passedAirHangTime)
             {
@@ -56,16 +68,6 @@ public class PlayerJumpState : PlayerBaseState
                 {
                     passedAirHangTime = true;
                     player.RigidbodyComp.gravityScale = oriGravityValue;
-                }
-            }
-
-            if (elapsedTime > player.GetPlayerStat.jumpCooldown)
-            {
-                canJump = true;
-                if (player.OnGround)
-                {
-                    player.RigidbodyComp.gravityScale = oriGravityValue;
-                    break;
                 }
             }
 

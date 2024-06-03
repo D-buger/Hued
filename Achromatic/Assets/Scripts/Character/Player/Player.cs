@@ -153,6 +153,7 @@ public class Player : MonoBehaviour, IAttack
         playerFSM = new PlayerFSM(playerStates[EPlayerState.IDLE]);
         MaxHP = stat.playerHP;
         CurrentHP = stat.playerHP;
+        FootOffGroundTime = stat.koyoteTime;
 
         GroundLayer = LayerMask.GetMask("Platform") | LayerMask.GetMask("ColorObject");
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 public enum eActivableColor
 {
@@ -90,6 +91,8 @@ public class PlayManager : SingletonBehavior<PlayManager>
 
     protected override void OnAwake()
     {
+        InputManager.Instance.SceneResetEvent.AddListener(() => SceneManager.LoadScene(0));
+
         cameraManager = Camera.main.GetComponentInChildren<CameraManager>();
         Camera.main.GetComponentInChildren<Volume>().profile.TryGet(out volumeProfile);
 
