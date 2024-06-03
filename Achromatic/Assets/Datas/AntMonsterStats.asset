@@ -49,5 +49,5 @@ MonoBehaviour:
   counterAttackDurationTime: 0.3
   counterAttackDamage: 2
   counterAttackSpeed: 6
-  stabAttackPercent: 0
-  slashAttackPercent: 100
+  stabAttackPercent: 33
+  slashAttackPercent: 33

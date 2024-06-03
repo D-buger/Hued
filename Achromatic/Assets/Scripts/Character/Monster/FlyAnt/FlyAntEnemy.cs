@@ -229,11 +229,11 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         transform.position = Vector2.MoveTowards(transform.position, targetMonsterPosition, stat.moveSpeed * Time.deltaTime);
         if (targetMonsterPosition == flyAntRunLeftPosition)
         {
-            transform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(-1, 1, 1);
         }
         else if (targetMonsterPosition == flyAntRunRightPosition)
         {
-            transform.localScale = new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(1, 1, 1);
         }
         if (HasArrived((Vector2)transform.position, flyAntRunRightPosition))
         {
@@ -271,6 +271,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         if (canAttack && !attackState.HasFlag(EMonsterAttackState.ISATTACK) && distanceToPlayer <= stat.enemyRoamingRange)
         {
             StartCoroutine(AttackSequence(PlayerPos));
+            battlePos = transform.position;
         }
         else if (canAttack && !attackState.HasFlag(EMonsterAttackState.ISATTACK) && distanceToPlayer >= stat.enemyRoamingRange)
         {
