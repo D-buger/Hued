@@ -4754,6 +4754,10 @@ PrefabInstance:
       propertyPath: m_BackGroundColor.r
       value: 0.16037738
       objectReference: {fileID: 0}
+    - target: {fileID: 5848780895007076428, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 2147558391
+      objectReference: {fileID: 0}
     - target: {fileID: 6589754170606126517, guid: a5da2f2a02f49384691f201b03cee6f8, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -44627,6 +44631,14 @@ PrefabInstance:
       propertyPath: m_ExcludeLayers.m_Bits
       value: 67072
       objectReference: {fileID: 0}
+    - target: {fileID: 215393348321025944, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_ForceSendLayers.m_Bits
+      value: 63999
+      objectReference: {fileID: 0}
+    - target: {fileID: 215393348321025944, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_ForceReceiveLayers.m_Bits
+      value: 63999
+      objectReference: {fileID: 0}
     - target: {fileID: 791354283927097398, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_Name
       value: Monster
@@ -44646,6 +44658,14 @@ PrefabInstance:
     - target: {fileID: 2746816838563051388, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
       value: 65536
+      objectReference: {fileID: 0}
+    - target: {fileID: 2746816838563051388, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_ForceSendLayers.m_Bits
+      value: 63999
+      objectReference: {fileID: 0}
+    - target: {fileID: 2746816838563051388, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_ForceReceiveLayers.m_Bits
+      value: 63999
       objectReference: {fileID: 0}
     - target: {fileID: 2844131687937591565, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_Mesh
@@ -44722,6 +44742,14 @@ PrefabInstance:
     - target: {fileID: 6247630385516568271, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
       value: 65536
+      objectReference: {fileID: 0}
+    - target: {fileID: 6247630385516568271, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_ForceSendLayers.m_Bits
+      value: 63999
+      objectReference: {fileID: 0}
+    - target: {fileID: 6247630385516568271, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
+      propertyPath: m_ForceReceiveLayers.m_Bits
+      value: 63999
       objectReference: {fileID: 0}
     - target: {fileID: 6413292522919906199, guid: 97939918851a17d47ae2e517f6bd24f5, type: 3}
       propertyPath: m_IsActive
