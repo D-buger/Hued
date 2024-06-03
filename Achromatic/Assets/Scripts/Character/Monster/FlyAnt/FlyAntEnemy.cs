@@ -40,7 +40,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
     private bool isHeavy = false;
     private bool isDoubleBodyAttack = false;
     private bool isThrow = false;
-    private bool doubleAttackTest = false;
+    private bool stopDoubleAttack = false;
 
     public enum EAnimState
     {
@@ -229,11 +229,11 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         transform.position = Vector2.MoveTowards(transform.position, targetMonsterPosition, stat.moveSpeed * Time.deltaTime);
         if (targetMonsterPosition == flyAntRunLeftPosition)
         {
-            transform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(-1, 1, 1);
         }
         else if (targetMonsterPosition == flyAntRunRightPosition)
         {
-            transform.localScale = new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(1, 1, 1);
         }
         if (HasArrived((Vector2)transform.position, flyAntRunRightPosition))
         {
@@ -271,6 +271,7 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         if (canAttack && !attackState.HasFlag(EMonsterAttackState.ISATTACK) && distanceToPlayer <= stat.enemyRoamingRange)
         {
             StartCoroutine(AttackSequence(PlayerPos));
+            battlePos = transform.position;
         }
         else if (canAttack && !attackState.HasFlag(EMonsterAttackState.ISATTACK) && distanceToPlayer >= stat.enemyRoamingRange)
         {
@@ -332,13 +333,12 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
             {
                 SetAttackState(EMonsterAttackState.ISBODYATTACK, true);
                 isDoubleBodyAttack = true;
-                doubleAttackTest = true;
+                stopDoubleAttack = true;
                 CheckAttackStateChange();
             }
             else
             {
                 SetAttackState(EMonsterAttackState.ISBODYATTACK, true);
-                doubleAttackTest = true;
                 CheckAttackStateChange();
             }
             rushAttackObject.SetActive(true);
@@ -350,9 +350,9 @@ public class FlyAntEnemy : Monster, IAttack, IParryConditionCheck
         transform.position = Vector2.MoveTowards(transform.position, targetPos, stat.rushAttackSpeed * Time.deltaTime);
         if (Vector2.Distance(transform.position, targetPos) <= stat.returnPosValue)
         {
-            if (isDoubleBodyAttack && doubleAttackTest)
+            if (isDoubleBodyAttack && stopDoubleAttack)
             {
-                doubleAttackTest = false;
+                stopDoubleAttack = false;
                 animState = EAnimState.CHARGEFINISH;
                 SetCurrentAnimation(animState);
                 transform.rotation = Quaternion.Euler(1, 1, 1);
